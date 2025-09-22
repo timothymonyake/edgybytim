@@ -370,8 +370,8 @@
 
 
             /* function format(d) {
-                                        // `d` is the row data object from DataTables
-                                        return `
+                                            // `d` is the row data object from DataTables
+                                            return `
             <div class="p-2">
                 <strong>Notes:</strong> ${d.notes ?? '—'} <br>
                 <strong>Emotions:</strong> ${d.emotions ?? '—'} <br>
@@ -380,11 +380,22 @@
                 <a href="${d.journal_link ?? '#'}" target="_blank">Journal Link</a>
             </div>
         `;
-                                    } */
+                                        } */
 
             $('#trades_table tbody').on('click', 'td.dt-control', function() {
                 let tr = $(this).closest('tr');
                 let row = table.row(tr);
+
+                // Close all other open child rows
+                $('#trades_table tbody tr.shown').each(function() {
+                    if (!$(this).is(tr)) {
+                        let otherRow = table.row(this);
+                        if (otherRow.child.isShown()) {
+                            otherRow.child.hide();
+                            $(this).removeClass('shown');
+                        }
+                    }
+                });
 
                 if (row.child.isShown()) {
                     row.child.hide();

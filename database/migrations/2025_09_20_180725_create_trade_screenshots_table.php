@@ -17,12 +17,12 @@ return new class extends Migration
             $table->enum('when',['before','during','after']);
             $table->string('url');
             $table->text('notes');
+            $table->foreign('trade_id')->references('id')->on('trades')->onDelete('cascade');
+            $table->timestamps();
 
 
             /* $table->enum('type', ['daily_chart', 'hourly_chart', 'entry_chart', 'after_chart', 'other']);
             $table->string('url'); *///trading_view
-            $table->foreign('trade_id')->references('id')->on('trades')->onDelete('cascade');
-            $table->timestamps();
         });
     }
 
