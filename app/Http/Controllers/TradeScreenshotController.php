@@ -11,25 +11,29 @@ class TradeScreenshotController extends Controller
 {
     public function store(Request $request, Trade $trade)
     {
-        if ($request->hasFile('screenshots')) {
-            foreach ($request->file('screenshots') as $file) {
-                $path = $file->store('screenshots', 'public');
+        //place in try catch
+        try {
+            $request->validate([
+                'when' => 'required|in:before,during,after',
+                'url' => 'required|url',
+                'notes' => 'nullable|string',
+            ]);
+            TradeScreenshot::create([
+                'trade_id' => $trade->id,
+                'when' => $request->when,
+                'url' => $request->url,
+                'notes' => $request->notes,
+            ]);
 
-                TradeScreenshot::create([
-                    'trade_id' => $trade->id,
-                    'type' => $request->type ?? 'other',
-                    'file_path' => $path,
-                ]);
-            }
+            return response()->json(['success' => true , 'message' => 'Screenshot added successfully.']);
+        } catch (\Exception $e) {
+            return response()->json(['error' => ['message' => $e->getMessage()]], 422);
         }
-
-        return response()->json(['success' => true]);
     }
 
     public function destroy(TradeScreenshot $screenshot)
     {
-        Storage::disk('public')->delete($screenshot->file_path);
         $screenshot->delete();
-        return response()->json(['success' => true]);
+        return response()->json(['success' => true, 'message' => 'Screenshot deleted successfully.']);
     }
 }

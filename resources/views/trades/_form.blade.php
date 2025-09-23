@@ -170,11 +170,6 @@
                             <label>Tags (comma separated)</label>
                             <input type="text" name="tags" class="form-control">
                         </div> --}}
-
-
-
-
-
                     </div>
 
                     <div class="modal-footer">

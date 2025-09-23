@@ -97,6 +97,17 @@ class TradeController extends Controller
                         <i class="dw dw-down-arrow2"></i> Short
                     </span>';
             })
+            ->addColumn('screenshots', function ($row) {
+                $count = $row->screenshots()->count();
+                if ($count > 0) {
+                    return '<button class="btn btn-sm btn-info view-screenshots" data-trade-id="' . $row->id . '">
+                        <i class="dw dw-image1"></i> <span class="badge badge-light">' . $count . '</span>
+                    </button>';
+                }
+                return '<button class="btn btn-sm btn-secondary" disabled>
+                        <i class="dw dw-image1"></i> <span class="badge badge-light">0</span>
+                    </button>';
+            })
             ->addColumn('actions', function ($row) {
 
                 if ($row->status == 'closed') {
@@ -108,7 +119,7 @@ class TradeController extends Controller
                     <button class="btn btn-sm btn-danger delete-trade" data-id="' . $row->id . '"><i class="dw dw-delete-3"></i></button>
                 ';
             })
-            ->rawColumns(['actions', 'status', 'entry_pd_array', 'plan_followed', 'direction', 'outcome', 'rr', 'session', 'asset'])
+            ->rawColumns(['actions', 'screenshots', 'status', 'entry_pd_array', 'plan_followed', 'direction', 'outcome', 'rr', 'session', 'asset'])
             ->make(true);
     }
 

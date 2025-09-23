@@ -14,6 +14,10 @@ Route::put('/trades/{trade}', [TradeController::class, 'update'])->name('trades.
 Route::get('/trades/{trade}/edit', [TradeController::class, 'edit'])->name('trades.edit');
 
 
+Route::post('/trades/{trade}/screenshots', [TradeScreenshotController::class, 'store'])->name('screenshots.store');
+Route::delete('/screenshots/{screenshot}', [TradeScreenshotController::class, 'destroy'])->name('screenshots.destroy');
+
+
 //i want an array of all tuesdays since 2019-08-06 till 2025-09-15
 Route::get('all', function () {
     $start = \Carbon\Carbon::parse('2019-08-06');
@@ -33,13 +37,5 @@ Route::get('all', function () {
     return $tuesdays;
 });
 
-
-
 Route::resource('reminders', ReminderController::class)->only(['index', 'store', 'destroy']);
 
-
-Route::prefix('trades/{trade}/screenshots')->group(function () {
-    Route::post('/', [TradeScreenshotController::class, 'store'])->name('screenshots.store');
-});
-
-Route::delete('/screenshots/{screenshot}', [TradeScreenshotController::class, 'destroy'])->name('screenshots.destroy');

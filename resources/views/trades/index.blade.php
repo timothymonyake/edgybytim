@@ -67,6 +67,94 @@
         </style>
     @endpush
 
+    <div class="modal fade" id="add_screenshot_modal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content rounded-2xl shadow-lg">
+
+                <form id="add_screenshot_form" method="post">
+                    @csrf
+                    <input type="hidden" id="tradeId" name="trade_id" value="">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Capture Trade Screenshot</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+
+                    <div class="modal-body">
+                        <!-- Preview -->
+                        <div id="previewContainer" class="mb-3" style="display:none;">
+                            <img id="previewImage" src="" alt="TradingView Preview"
+                                class="img-fluid w-100 rounded border" style="max-height: 400px; object-fit: contain;">
+                        </div>
+
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <!-- URL Input -->
+                                <div class="form-group">
+                                    <label for="tvUrl">TradingView Snapshot URL</label>
+                                    <input type="url" name="url" class="form-control" id="tvUrl"
+                                        placeholder="https://www.tradingview.com/x/xxxxxxx/">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <!-- When Select -->
+                                <div class="form-group">
+                                    <label for="tradeWhen">When</label>
+                                    <select class="form-control" name="when" id="tradeWhen">
+                                        <option value="">-- Select --</option>
+                                        <option value="before">Before Entry</option>
+                                        <option value="during">During Entry</option>
+                                        <option value="after">After Entry</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Caption -->
+                        <div class="form-group">
+                            <label for="tradeCaption">Caption / Notes</label>
+                            <textarea class="form-control" name="notes" id="tradeCaption" rows="1" placeholder="Enter your notes..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button id="saveScreenshotBtn" class="btn btn-primary">Save Trade</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="screenshotModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document" style="max-width:900px">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Screenshots</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div id="screenshotCarousel" class="carousel slide" data-ride="carousel">
+                        <ol class="carousel-indicators" id="screenshotIndicators"></ol>
+                        <div class="carousel-inner" id="screenshotInner"></div>
+                        <a class="carousel-control-prev" href="#screenshotCarousel" role="button" data-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        </a>
+                        <a class="carousel-control-next" href="#screenshotCarousel" role="button" data-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        </a>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <a href="#" id="screenshotMiniPageLink" class="btn btn-outline-primary btn-sm"
+                        target="_blank">Open mini page</a>
+                    <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
 
     <div class="page-header">
@@ -111,8 +199,8 @@
                             </button>
                         </div>
                         <div class=" col-md-1">
-                            <button class="btn btn-success" id="add_trade_btn">
-                                New
+                            <button class="btn btn-outline-dark" id="add_trade_btn">
+                                <i class="dw dw-add"></i>
                             </button>
                         </div>
                     </div>
@@ -166,7 +254,7 @@
 
 
     @include('trades._form') <!-- Modal form -->
-
+    @include('trades._screenshot')
 
 
 @endsection
@@ -368,20 +456,6 @@
                 }
             });
 
-
-            /* function format(d) {
-                                            // `d` is the row data object from DataTables
-                                            return `
-            <div class="p-2">
-                <strong>Notes:</strong> ${d.notes ?? '—'} <br>
-                <strong>Emotions:</strong> ${d.emotions ?? '—'} <br>
-                <strong>Entry Narrative:</strong> ${d.entry_narrative ?? '—'} <br>
-                <strong>News:</strong> ${d.news ?? '—'} <br>
-                <a href="${d.journal_link ?? '#'}" target="_blank">Journal Link</a>
-            </div>
-        `;
-                                        } */
-
             $('#trades_table tbody').on('click', 'td.dt-control', function() {
                 let tr = $(this).closest('tr');
                 let row = table.row(tr);
@@ -570,57 +644,7 @@
                 return [];
             }
 
-            // helper: normalize screenshots into an array of objects {src, type, id}
-            function parseScreenshots(raw) {
-                if (!raw) return [];
-                if (Array.isArray(raw)) {
-                    return raw.map(item => {
-                        if (typeof item === 'string') return {
-                            src: resolveSrc(item),
-                            type: null,
-                            id: null
-                        };
-                        // assume object with file_path/url
-                        let src = item.url || item.file_path || item.src || '';
-                        return {
-                            src: resolveSrc(src),
-                            type: item.type || null,
-                            id: item.id || null
-                        };
-                    }).filter(i => i.src);
-                }
-                // string case: JSON or single URL
-                if (typeof raw === 'string') {
-                    try {
-                        let parsed = JSON.parse(raw);
-                        return parseScreenshots(parsed);
-                    } catch (e) {
-                        return [{
-                            src: resolveSrc(raw),
-                            type: null,
-                            id: null
-                        }];
-                    }
-                }
-                return [];
-            }
 
-            // small helper to convert storage filepaths to usable URLs
-            function resolveSrc(path) {
-                if (!path) return '';
-                if (path.startsWith('http://') || path.startsWith('https://')) return path;
-                // if you store screenshots in Laravel storage (public disk), prefix /storage/
-                // if your API already returns full urls, remove this transform.
-                path = path.replace(/^\/+/, '');
-                if (path.startsWith('storage/')) return '/' + path;
-                // heuristic: files in "screenshots/..." -> /storage/screenshots/...
-                return '/' + path;
-            }
-
-            /* format() - returns HTML to show in DataTables child row.
-               Uses Bootstrap layout to show left info and right thumbnails.
-               'd' is the row data object coming from server.
-            */
             function format(d) {
                 // parse and safe values
                 let setupItems = escapeHtml(d.setup);
@@ -640,23 +664,31 @@
                     '<span class="text-muted">—</span>';
 
                 // screenshots markup (show up to 4 thumbs)
+                // screenshots markup (show up to 6 thumbs)
                 let thumbsHtml = '';
                 if (screenshots.length) {
                     thumbsHtml += '<div class="row screens-grid">';
                     screenshots.slice(0, 6).forEach((img, idx) => {
                         thumbsHtml += `
-                <div class="col-4 col-thumb">
-                <img src="${escapeHtml(img.src)}" data-trade-id="${escapeHtml(tradeId)}" data-index="${idx}" class="screenshot-thumb" alt="screenshot ${idx+1}">
-                </div>`;
+                        <div class="col-4 col-thumb mb-2">
+                            <img src="${escapeHtml(img.src)}"
+                                data-trade-id="${escapeHtml(tradeId)}"
+                                data-index="${idx}"
+                                class="screenshot-thumb img-fluid rounded border"
+                                alt="screenshot ${idx+1}">
+                        </div>`;
                     });
                     thumbsHtml += '</div>';
 
                     // "view all" / mini page link
                     thumbsHtml += `
-                <div class="mt-2 table-expanded-links">
-                    <button class="btn btn-sm btn-outline-primary mr-2 view-screenshots" data-trade-id="${escapeHtml(tradeId)}">View gallery</button>
-                    <a class="btn btn-sm btn-primary" href="/trades/${escapeHtml(tradeId)}/screenshots" target="_blank">Open mini page</a>
-                </div>`;
+                        <div class="mt-2 table-expanded-links">
+                            <button class="btn btn-sm btn-outline-primary mr-2 view-screenshots"
+                                    data-trade-id="${escapeHtml(tradeId)}">
+                                View gallery
+                            </button>
+                           
+                        </div>`;
                 } else {
                     thumbsHtml = '<div class="text-muted">No screenshots</div>';
                 }
@@ -684,7 +716,7 @@
                             </div>
                         </div>
                         <div class="col-md-4">
-                            <div><strong>Screenshots</strong></div>
+                            <div style="margin-bottom:10px"><strong>Screenshots</strong><span class="btn btn-sm btn-outline-dark add_screenshot_btn" data-trade_id="${escapeHtml(tradeId)}" style="margin-left:10px"><i class="dw dw-add"></i></span></div>
                             <div class="mt-2">${thumbsHtml}</div>
                         </div>
                         </div>
@@ -693,39 +725,129 @@
                 `;
             }
 
-            // --------------- screenshot modal / gallery handler ---------------
-            // click handler: clicking a thumbnail or "view gallery" button
+
+
+
+            $('body').on('click', '.add_screenshot_btn', function() {
+                $('#add_screenshot_modal').modal('show');
+                $('#tradeId').val($(this).data('trade_id') || '');
+                $('#tvUrl').val('');
+                $('#previewContainer').hide();
+                $('#tradeWhen').val('');
+                $('#tradeCaption').val('');
+            });
+
+            $('#tvUrl').on('input', function() {
+                let url = $(this).val().trim();
+                let match = url.match(/tradingview\.com\/x\/([A-Za-z0-9]+)/);
+
+                if (match) {
+                    let snapshotId = match[1];
+                    let embedUrl = `https://www.tradingview.com/x/${snapshotId}/`;
+                    $('#previewImage')
+                        .attr('src', embedUrl) // Use snapshot directly
+                        .on('error', function() {
+                            $('#previewContainer').hide();
+                        })
+                        .on('load', function() {
+                            $('#previewContainer').show();
+                        });
+                } else {
+                    $('#previewContainer').hide();
+                }
+            });
+
+            $('#add_screenshot_form').on('submit', function(e) {
+                e.preventDefault();
+                var trade_id = $('#add_screenshot_form #tradeId').val();
+                var formData = $(this).serialize();
+                // submit via ajax
+                $.ajax({
+                    url: "{{ url('/trades') }}" + '/' + trade_id + '/screenshots',
+                    method: "POST",
+                    data: formData,
+                    success: function(response) {
+                        iziToastNotify('success', response.message);
+                    },
+                    error: function(xhr) {
+                        iziToastNotify('error', xhr.responseJSON.message ||
+                            'Failed to add screenshot');
+                    }
+                });
+                $('#add_screenshot_modal').modal('hide');
+            });
+
+
+            // helper: normalize screenshots into [{src, type, id}]
+            function parseScreenshots(raw) {
+                if (!raw) return [];
+                if (Array.isArray(raw)) {
+                    return raw.map(item => {
+                        if (typeof item === 'string') {
+                            return {
+                                src: item,
+                                type: null,
+                                id: null
+                            };
+                        }
+                        return {
+                            src: item.url || item.src || '',
+                            type: item.type || null,
+                            id: item.id || null
+                        };
+                    }).filter(i => i.src);
+                }
+                if (typeof raw === 'string') {
+                    try {
+                        let parsed = JSON.parse(raw);
+                        return parseScreenshots(parsed);
+                    } catch (e) {
+                        return [{
+                            src: raw,
+                            type: null,
+                            id: null
+                        }];
+                    }
+                }
+                return [];
+            }
+
+            // click handler for thumbnail
             $(document).on('click', '.screenshot-thumb', function() {
                 let tradeId = $(this).data('trade-id');
                 let idx = parseInt($(this).data('index') || 0, 10);
-                // get screenshots list from row data in DataTable if available
-                let row = $('#trades_table').DataTable().row($(this).closest('tr')
-                    .prev()); // child is after parent; getting parent row could be tricky
-                // Instead: get screenshots from the clicked image src / or request server for trade screenshots
+
+                // collect all thumbnails in the same grid
                 let all = [];
-                // easiest: build from DOM thumbnails in the same container
                 $(this).closest('.screens-grid').find('.screenshot-thumb').each(function() {
                     all.push({
                         src: $(this).attr('src')
                     });
                 });
-                openScreenshotModal(all, idx, $(this).data('trade-id'));
+
+                openScreenshotModal(all, idx, tradeId);
             });
 
-            // click handler for "View gallery" button: fetch all screenshots from server OR read DOM
+
+            // click handler for "View gallery" button
             $(document).on('click', '.view-screenshots', function() {
                 let tradeId = $(this).data('trade-id');
-                // if you have an endpoint that returns all screenshots for a trade: /trades/{id}/screenshots/json
-                // fallback: read thumbnails in the same child row:
-                let container = $(this).closest('.dataTables_child_row');
+
+                // collect from the same expansion section
                 let all = [];
-                container.find('.screenshot-thumb').each(function() {
-                    all.push({
-                        src: $(this).attr('src')
+                $(this).closest('.table-expanded-links')
+                    .prev('.screens-grid')
+                    .find('.screenshot-thumb')
+                    .each(function() {
+                        all.push({
+                            src: $(this).attr('src')
+                        });
                     });
-                });
+
                 openScreenshotModal(all, 0, tradeId);
             });
+
+
 
             function openScreenshotModal(screenshots, startIndex = 0, tradeId = '') {
                 let indicators = $('#screenshotIndicators').empty();
@@ -738,17 +860,12 @@
                     );
                     inner.append(`
                     <div class="carousel-item ${active}">
-                        <img src="${escapeHtml(img.src)}" alt="screenshot ${i+1}">
+                        <img src="${escapeHtml(img.src)}" alt="screenshot ${i+1}" class="d-block w-100">
                     </div>
-                    `);
+                `);
                 });
 
-                // update mini page link
-                if (tradeId) {
-                    $('#screenshotMiniPageLink').attr('href', `/trades/${tradeId}/screenshots`);
-                } else {
-                    $('#screenshotMiniPageLink').attr('href', '#');
-                }
+                $('#screenshotMiniPageLink').attr('href', tradeId ? "{{url('/trades')}}"+"/"+tradeId+"/screenshots" : '#');
 
                 if (!screenshots.length) {
                     $('#screenshotInner').html('<div class="p-4 text-center text-muted">No screenshots</div>');
@@ -756,11 +873,13 @@
                 }
 
                 $('#screenshotModal').modal('show');
-                // move carousel to chosen slide after modal shown
                 $('#screenshotModal').on('shown.bs.modal.once', function() {
                     $('#screenshotCarousel').carousel(startIndex);
                 });
             }
+
+
+
 
 
         });

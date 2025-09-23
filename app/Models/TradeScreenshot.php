@@ -11,7 +11,7 @@ class TradeScreenshot extends Model
     use HasFactory;
 
     protected $fillable = [
-        'trade_id', 'type', 'file_path'
+        'trade_id', 'when', 'url', 'notes',
     ];
 
     public function trade()

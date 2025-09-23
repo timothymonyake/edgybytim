@@ -119,8 +119,6 @@
             text-align: center;
             transition: all 0.2s ease-in-out;
         }
-
-        
     </style>
 
 
@@ -163,6 +161,20 @@
     <script src="{{ asset('iziToast/js/iziToast.js') }}"></script>
     @stack('scripts')
     <script>
+        $(document).on('show.bs.modal', '.modal', function() {
+            const $modal = $(this);
+            $modal.attr('role', 'dialog');
+            $modal.find('.modal-dialog').attr('role', 'document');
+            $modal.find('.modal-header .close').each(function() {
+                const $btn = $(this);
+                if (!$btn.attr('aria-label')) {
+                    $btn.attr('aria-label', 'Close');
+                }
+                $btn.find('span').attr('aria-hidden', 'true');
+            });
+            $modal.find('.modal-dialog').css('margin-top', '5vh');
+        });
+
         function iziToastNotify(type, message, title = '') {
             const icons = {
                 success: 'dw-checked',
