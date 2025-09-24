@@ -31,6 +31,7 @@ class Trade extends Model
         'pips',
         'outcome',
         'emotions',
+        'pnl',
         'mistake',
         'entry_narrative',
         'notes',

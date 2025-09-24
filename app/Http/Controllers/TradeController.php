@@ -87,6 +87,7 @@ class TradeController extends Controller
             })
             ->addColumn('entry_type', fn($row) => strtoupper($row->entry_type))
             ->addColumn('rr', fn($row) => number_format($row->rr, 1))
+            ->addColumn('pnl', fn($row) => number_format($row->pnl, 2))
             ->addColumn('direction', function ($trade) {
                 if ($trade->direction == 'long') {
                     return ' <span class="badge badge-success">
@@ -107,6 +108,10 @@ class TradeController extends Controller
                 return '<button class="btn btn-sm btn-secondary" disabled>
                         <i class="dw dw-image1"></i> <span class="badge badge-light">0</span>
                     </button>';
+            })
+            ->addColumn('trade_screenshots',function($row){
+                $screenshots = $row->screenshots()->orderBy('created_at', 'desc')->get();
+                return json_encode($screenshots);
             })
             ->addColumn('actions', function ($row) {
 

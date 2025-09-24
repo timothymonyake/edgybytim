@@ -25,10 +25,31 @@ class TradeScreenshotController extends Controller
                 'notes' => $request->notes,
             ]);
 
-            return response()->json(['success' => true , 'message' => 'Screenshot added successfully.']);
+            return response()->json(['success' => true, 'message' => 'Screenshot added successfully.']);
         } catch (\Exception $e) {
             return response()->json(['error' => ['message' => $e->getMessage()]], 422);
         }
+    }
+
+    public function edit(Trade $trade, TradeScreenshot $screenshot)
+    {
+        return response()->json($screenshot);
+    }
+
+    // Update screenshot
+    public function update(Request $request, Trade $trade, TradeScreenshot $screenshot)
+    {
+        $request->validate([
+            'notes' => 'nullable|string',
+            'url' => 'required|url',
+        ]);
+
+        $screenshot->update([
+            'url' => $request->url,
+            'notes' => $request->notes,
+        ]);
+
+        return response()->json(['message' => 'Screenshot updated successfully']);
     }
 
     public function destroy(TradeScreenshot $screenshot)

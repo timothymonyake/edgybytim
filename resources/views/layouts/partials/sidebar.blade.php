@@ -27,7 +27,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="{{ route('dashboard.index') }}" class="dropdown-toggle no-arrow">
+                    <a href="{{ route('calendar.index') }}" class="dropdown-toggle no-arrow">
                         <span class="micon dw"><i class="icon-copy dw dw-calendar1"></i></span><span
                             class="mtext">Calendar</span>
                     </a>

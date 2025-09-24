@@ -17,6 +17,7 @@
 
     <!-- Core CSS -->
     <link rel="stylesheet" type="text/css" href="{{ asset('deskapp/vendors/styles/core.css') }}">
+
     <link rel="stylesheet" type="text/css" href="{{ asset('deskapp/vendors/styles/icon-font.min.css') }}">
     <link rel="stylesheet" type="text/css"
         href="{{ asset('deskapp/src/plugins/datatables/css/dataTables.bootstrap4.min.css') }}">
@@ -158,10 +159,11 @@
     <script src="{{ asset('deskapp/src/plugins/datatables/js/responsive.bootstrap4.min.js') }}"></script>
     {{-- <script src="{{ asset('deskapp/vendors/scripts/dashboard.js') }}"></script> --}}
     <script src="{{ asset('deskapp/vendors/scripts/datatable-setting.js') }}"></script>
+    <script src="{{ asset('deskapp/src/scripts/moment.js') }}"></script>
     <script src="{{ asset('iziToast/js/iziToast.js') }}"></script>
     @stack('scripts')
     <script>
-        $(document).on('show.bs.modal', '.modal', function() {
+      /*   $(document).on('show.bs.modal', '.modal', function() {
             const $modal = $(this);
             $modal.attr('role', 'dialog');
             $modal.find('.modal-dialog').attr('role', 'document');
@@ -174,7 +176,7 @@
             });
             $modal.find('.modal-dialog').css('margin-top', '5vh');
         });
-
+ */
         function iziToastNotify(type, message, title = '') {
             const icons = {
                 success: 'dw-checked',

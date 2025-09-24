@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\TradeController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TradeScreenshotController;
@@ -12,10 +13,16 @@ Route::post('/trades', [TradeController::class, 'store'])->name('trades.store');
 Route::delete('/trades/{trade}', [TradeController::class, 'destroy'])->name('trades.destroy');
 Route::put('/trades/{trade}', [TradeController::class, 'update'])->name('trades.update');
 Route::get('/trades/{trade}/edit', [TradeController::class, 'edit'])->name('trades.edit');
-
-
 Route::post('/trades/{trade}/screenshots', [TradeScreenshotController::class, 'store'])->name('screenshots.store');
 Route::delete('/screenshots/{screenshot}', [TradeScreenshotController::class, 'destroy'])->name('screenshots.destroy');
+Route::get('/screenshots/{screenshot}/edit', [TradeScreenshotController::class, 'edit'])
+    ->name('trades.screenshots.edit');
+Route::put('/screenshots/{screenshot}', [TradeScreenshotController::class, 'update'])
+    ->name('trades.screenshots.update');
+
+
+Route::get('/calendar', [CalendarController::class, 'index'])->name('calendar.index');
+Route::get('/calendar/events', [CalendarController::class, 'events'])->name('calendar.events');
 
 
 //i want an array of all tuesdays since 2019-08-06 till 2025-09-15

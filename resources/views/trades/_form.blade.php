@@ -69,8 +69,8 @@
 
                         <div class="col-md-4">
                             <div class="form-group">
-                                <label>Pips</label>
-                                <input type="number" step="0.1" name="pips" class="form-control">
+                                <label>PNL</label>
+                                <input type="number" step="0.1" name="pnl" class="form-control">
                             </div>
                         </div>
 

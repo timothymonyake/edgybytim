@@ -64,6 +64,12 @@
                 display: block;
                 margin: 0 auto;
             }
+
+            .screenshot-img {
+                object-fit: cover;
+                max-height: 250px;
+                border-radius: 6px;
+            }
         </style>
     @endpush
 
@@ -75,7 +81,7 @@
                     @csrf
                     <input type="hidden" id="tradeId" name="trade_id" value="">
                     <div class="modal-header">
-                        <h5 class="modal-title">Capture Trade Screenshot</h5>
+                        <h5 class="modal-title">Add Screenshot</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
@@ -120,7 +126,11 @@
                     </div>
 
                     <div class="modal-footer">
-                        <button id="saveScreenshotBtn" class="btn btn-primary">Save Trade</button>
+                        <button id="deleteScreenshotBtn" class="btn btn-sm btn-danger delete-screenshot pull-left"
+                            style="margin-right:auto; display:none">
+                            Delete
+                        </button>
+                        <button id="saveScreenshotBtn" class="btn btn-primary">Add</button>
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
                     </div>
                 </form>
@@ -132,24 +142,15 @@
         <div class="modal-dialog modal-lg modal-dialog-centered" role="document" style="max-width:900px">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Screenshots</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">&times;</button>
+                    <h5 class="modal-title">Logs</h5>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
                 </div>
-                <div class="modal-body">
-                    <div id="screenshotCarousel" class="carousel slide" data-ride="carousel">
-                        <ol class="carousel-indicators" id="screenshotIndicators"></ol>
-                        <div class="carousel-inner" id="screenshotInner"></div>
-                        <a class="carousel-control-prev" href="#screenshotCarousel" role="button" data-slide="prev">
-                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                        </a>
-                        <a class="carousel-control-next" href="#screenshotCarousel" role="button" data-slide="next">
-                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                        </a>
-                    </div>
+                <div class="modal-body" id="screenshotContainer">
+                    <!-- JS will inject screenshots here -->
                 </div>
+                <!-- Edit/Delete buttons -->
+
                 <div class="modal-footer">
-                    <a href="#" id="screenshotMiniPageLink" class="btn btn-outline-primary btn-sm"
-                        target="_blank">Open mini page</a>
                     <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Close</button>
                 </div>
             </div>
@@ -227,7 +228,7 @@
                         <th>Session</th>
                         <th>Outcome</th>
                         <th>RR</th>
-                        <th>Pips</th>
+                        <th>PNL</th>
                         <th>Xcution</th>
                         <th>Entry PD</th>
                         <th>4l'd Plan?</th>
@@ -239,7 +240,7 @@
                     <tr style="background: #304d6d;color:#fff">
                         <th colspan="6"></th>
                         <th></th> <!-- RR total -->
-                        <th></th> <!-- Pips total -->
+                        <th></th>
                         <th></th>
                         <th></th>
                         <th></th>
@@ -265,36 +266,151 @@
 
             $("#entry_pd_array_s2").select2();
 
-            $('#add_trade_btn').click(function() {
+            $('#add_trade_btn').click(function(e) {
+                e.preventDefault();
                 $('#add_trade_form')[0].reset();
                 $('#submit_trade_btn').text('Add');
                 $('#add_trade_form input[name="_method"]').remove(); // remove PUT if present
                 $('#add_trade_form').attr('action', '{{ route('trades.store') }}');
                 $('#add_trade_modal .modal-title').text('Add Trade');
                 $('#add_trade_modal').modal('show');
+            });
 
+            $('#add_trade_form').on('submit', function(e) {
+                e.preventDefault();
+                let formData = new FormData(this);
+                if ($('#add_trade_form input[name="rr"]').val() == '') {
+                    formData.append('rr', 0.00);
+                }
+                if ($('#add_trade_form input[name="pnl"]').val() == '') {
+                    formData.append('pnl', 0.00);
+                }
+                let entry_pds = $('#entry_pd_array_s2')
+                    .val(); // array
+                if (entry_pds && entry_pds.length) {
+                    formData.append('entry_pd_array', JSON.stringify(entry_pds));
+                }
+                let form = $(this);
+                let url = form.attr('action');
+                $.ajax({
+                    url: url,
+                    method: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(res) {
+                        $('#add_trade_modal').modal('hide');
+                        $('#add_trade_form')[0].reset();
+                        $('#add_trade_form input[name="_method"]')
+                            .remove(); // reset
+                        $('#add_trade_form').attr('action', '{{ route('trades.store') }}');
+                        table.draw();
+                        iziToastNotify('success', res.message);
+                    },
+                    error: function() {
+                        iziToastNotify('error', "Something went wrong!");
+                    }
+                });
             });
 
 
+            $('body').on('click', '.edit-trade', function() {
+                let id = $(this).data('id');
+                $.ajax({
+                    url: "{{ url('/trades/') }}" + '/' + id + '/edit',
+                    type: 'GET',
+                    success: function(
+                        res) { // Change form action & add PUT method
+                        $('#add_trade_form').attr('action', "{{ url('/trades/') }}" + '/' + id);
+                        $('#add_trade_form').attr('method', 'POST');
+                        $('#add_trade_form input[name="_method"]')
+                            .remove(); // avoid duplicates
+                        $('#add_trade_form').append(
+                            '<input type="hidden" name="_method" value="PUT">');
+                        $('#submit_trade_btn').text(
+                            'Save'); // Populate fields
+                        $('[name="asset"]').val(res.asset);
+                        $('[name="trade_date"]').val(res.trade_date);
+                        $('[name="direction"]').val(res.direction);
+                        $('[name="session"]').val(res.session);
+                        $('[name="rr"]').val(res.rr);
+                        $('[name="pnl"]').val(res.pnl);
+                        $('[name="outcome"]').val(res.outcome);
+                        $('[name="plan_followed"]').val(res.plan_followed);
+                        $('[name="entry_type"]').val(res.entry_type);
+                        $('[name="setup"]').val(res.setup);
+                        $('[name="news"]').val(res.news);
+                        $('[name="daily_log_url"]').val(res.daily_log_url);
+                        $('[name="emotions"]').val(res.emotions);
+                        $('[name="entry_narrative"]').val(res.entry_narrative);
+                        $('[name="notes"]').val(res
+                            .notes); // Handle Select2 (multi-select for entry_pd_array)
+                        if (res.entry_pd_array) {
+                            let selected = Array.isArray(res.entry_pd_array) ? res
+                                .entry_pd_array : JSON.parse(res.entry_pd_array);
+                            $('#entry_pd_array_s2').val(selected).trigger('change');
+                        } //change modal title
+                        $('#add_trade_modal .modal-title').text('Edit Trade');
+                        $('#add_trade_modal').modal(
+                            'show'); // ...existing code...
+                    },
+                    error: function(err) {
+                        toastr.error("Failed to fetch trade details");
+                    }
+                });
+            });
 
+            $(document).on('click', '.delete-trade', function(e) {
+                e.preventDefault();
+                let id = $(this).data('id');
+                if (!confirm('Are you sure you want to delete this trade?')) return;
+                $.ajax({
+                    url: "{{ url('/trades') }}" + "/" + id,
+                    type: 'DELETE',
+                    data: {
+                        _token: "{{ csrf_token() }}"
+                    },
+                    success: function(res) {
+                        if (res.success) {
+                            iziToastNotify('success', res.message);
+                            table.draw();
+                        } else {
+                            iziToastNotify('success', res.message);
+                        }
+                    },
+                    error: function(err) {
+                        iziToastNotify('error', "Something went wrong!");
+                    }
+                });
+            });
+            $('#filter_form').on('submit', function(e) {
+                e.preventDefault();
+                let formData = {
+                    market: $('#market').val(),
+                    status: $('#status').val(),
+                    start_date: $('#start_date').val(),
+                    end_date: $('#end_date').val(),
+                    _token: '{{ csrf_token() }}'
+                };
+                table.draw();
+            });
 
             function getTodayRange() {
                 let now = new Date();
-                let start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0);
-                let end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59);
+                let start = new Date(now.getFullYear(), now.getMonth(), now
+                    .getDate(), 0, 0);
+                let end = new Date(now.getFullYear(), now.getMonth(), now.getDate(),
+                    23, 59);
                 return [start, end];
             }
 
             let todayRange = getTodayRange();
 
-
             $("#date-picker").datepicker({
                 language: "en",
-                range: true, // enable range mode
-                // timepicker: true, // enable time
-                // timeFormat: 'hh:mm', // 24-hour format
-                dateFormat: 'dd/mm/yyyy', // desired output
-                multipleDatesSeparator: ' - ', // separator between dates
+                range: true,
+                dateFormat: 'dd/mm/yyyy',
+                multipleDatesSeparator: ' - ',
                 autoClose: false,
                 buttons: ['today', 'clear'],
                 minutesStep: 1,
@@ -304,22 +420,25 @@
                     date
                 }) {
                     if (date.length === 2) {
-                        document.getElementById('start_date').value = formattedDate[0];
-                        document.getElementById('end_date').value = formattedDate[1];
+                        document.getElementById('start_date').value =
+                            formattedDate[0];
+                        document.getElementById('end_date').value =
+                            formattedDate[1];
                     }
                 }
             });
 
-
             $('#start_date').val(
-                todayRange[0].toLocaleDateString('en-GB') + ' ' + todayRange[0].toLocaleTimeString('en-GB', {
+                todayRange[0].toLocaleDateString('en-GB') + ' ' +
+                todayRange[0].toLocaleTimeString('en-GB', {
                     hour: '2-digit',
                     minute: '2-digit',
                     hour12: false
                 })
             );
             $('#end_date').val(
-                todayRange[1].toLocaleDateString('en-GB') + ' ' + todayRange[1].toLocaleTimeString('en-GB', {
+                todayRange[1].toLocaleDateString('en-GB') + ' ' +
+                todayRange[1].toLocaleTimeString('en-GB', {
                     hour: '2-digit',
                     minute: '2-digit',
                     hour12: false
@@ -332,7 +451,7 @@
                 serverSide: true,
                 ajax: {
                     url: '{{ route('trades.data') }}',
-                    type: 'GET', // important, Laravel needs POST for CSRF
+                    type: 'GET',
                     data: function(d) {
                         d.market = $('#market').val();
                         d.status = $('#outcome').val();
@@ -373,8 +492,8 @@
                         name: 'rr'
                     },
                     {
-                        data: 'pips',
-                        name: 'pips'
+                        data: 'pnl',
+                        name: 'pnl'
                     },
                     {
                         data: 'entry_type',
@@ -399,7 +518,6 @@
                         searchable: false
                     },
                 ],
-
                 scrollCollapse: true,
                 order: [
                     [1, 'desc']
@@ -408,7 +526,7 @@
                 responsive: true,
                 columnDefs: [{
                     targets: "datatable-nosort",
-                    orderable: false,
+                    orderable: false
                 }],
                 lengthMenu: [
                     [10, 25, 50, -1],
@@ -424,35 +542,23 @@
                 },
                 footerCallback: function(row, data, start, end, display) {
                     let api = this.api();
-
-                    // Helper function to parse numbers
                     let intVal = function(i) {
-                        return typeof i === 'string' ?
-                            i.replace(/[\$,]/g, '') * 1 :
-                            typeof i === 'number' ?
-                            i :
-                            0;
+                        return typeof i === 'string' ? i.replace(
+                                /[\$,]/g, '') * 1 :
+                            typeof i === 'number' ? i : 0;
                     };
 
-                    // Total for RR
-                    let rrTotal = api
-                        .column(6, {
-                            page: 'current'
-                        })
-                        .data()
-                        .reduce((a, b) => intVal(a) + intVal(b), 0);
+                    let rrTotal = api.column(6, {
+                        page: 'current'
+                    }).data().reduce((a, b) => intVal(a) + intVal(
+                        b), 0);
+                    let pnlTotal = api.column(7, {
+                        page: 'current'
+                    }).data().reduce((a, b) => intVal(a) + intVal(
+                        b), 0);
 
-                    // Total for Pips
-                    let pipsTotal = api
-                        .column(7, {
-                            page: 'current'
-                        })
-                        .data()
-                        .reduce((a, b) => intVal(a) + intVal(b), 0);
-
-                    // Update footer
-                    $(api.column(6).footer()).html(rrTotal.toFixed(2));
-                    $(api.column(7).footer()).html(pipsTotal.toFixed(1));
+                    $(api.column(6).footer()).html(rrTotal.toFixed(1));
+                    $(api.column(7).footer()).html('$ '+pnlTotal.toFixed(2));
                 }
             });
 
@@ -460,7 +566,6 @@
                 let tr = $(this).closest('tr');
                 let row = table.row(tr);
 
-                // Close all other open child rows
                 $('#trades_table tbody tr.shown').each(function() {
                     if (!$(this).is(tr)) {
                         let otherRow = table.row(this);
@@ -480,139 +585,7 @@
                 }
             });
 
-            $('#add_trade_form').on('submit', function(e) {
-                e.preventDefault();
-                let formData = new FormData(this);
-                if ($('#add_trade_form input[name="rr"]').val() == '') {
-                    formData.append('rr', 0.00);
-                }
-                if ($('#add_trade_form input[name="pips"]').val() == '') {
-                    formData.append('pips', 0.00);
-                }
-                let entry_pds = $('#entry_pd_array_s2').val(); // array
-
-                if (entry_pds && entry_pds.length) {
-                    formData.append('entry_pd_array', JSON.stringify(entry_pds));
-                }
-                let form = $(this);
-                let url = form.attr('action');
-
-                $.ajax({
-                    url: url,
-                    method: 'POST',
-                    data: formData,
-                    processData: false,
-                    contentType: false,
-                    success: function(res) {
-                        $('#add_trade_modal').modal('hide');
-                        $('#add_trade_form')[0].reset();
-                        $('#add_trade_form input[name="_method"]').remove(); // reset
-                        $('#add_trade_form').attr('action', '{{ route('trades.store') }}');
-                        table.draw();
-                        iziToastNotify('success', res.message);
-                    },
-                    error: function() {
-
-                        iziToastNotify('error', "Something went wrong!");
-                    }
-                });
-            });
-
-
-
-            $('body').on('click', '.edit-trade', function() {
-                let id = $(this).data('id');
-
-                $.ajax({
-                    url: "{{ url('/trades/') }}" + '/' + id + '/edit',
-                    type: 'GET',
-                    success: function(res) {
-                        // Change form action & add PUT method
-                        $('#add_trade_form').attr('action', "{{ url('/trades/') }}" + '/' + id);
-                        $('#add_trade_form').attr('method', 'POST');
-                        $('#add_trade_form input[name="_method"]').remove(); // avoid duplicates
-                        $('#add_trade_form').append(
-                            '<input type="hidden" name="_method" value="PUT">');
-
-                        $('#submit_trade_btn').text('Save');
-
-
-                        // Populate fields
-                        $('[name="asset"]').val(res.asset);
-                        $('[name="trade_date"]').val(res.trade_date);
-                        $('[name="direction"]').val(res.direction);
-                        $('[name="session"]').val(res.session);
-                        $('[name="rr"]').val(res.rr);
-                        $('[name="pips"]').val(res.pips);
-                        $('[name="outcome"]').val(res.outcome);
-                        $('[name="plan_followed"]').val(res.plan_followed);
-                        $('[name="entry_type"]').val(res.entry_type);
-                        $('[name="setup"]').val(res.setup);
-                        $('[name="news"]').val(res.news);
-                        $('[name="daily_log_url"]').val(res.daily_log_url);
-                        $('[name="emotions"]').val(res.emotions);
-                        $('[name="entry_narrative"]').val(res.entry_narrative);
-                        $('[name="notes"]').val(res.notes);
-
-                        // Handle Select2 (multi-select for entry_pd_array)
-                        if (res.entry_pd_array) {
-                            let selected = Array.isArray(res.entry_pd_array) ? res
-                                .entry_pd_array : JSON.parse(res.entry_pd_array);
-                            $('#entry_pd_array_s2').val(selected).trigger('change');
-                        }
-                        //change modal title
-                        $('#add_trade_modal .modal-title').text('Edit Trade');
-                        $('#add_trade_modal').modal('show');
-                        // ...existing code...
-                    },
-                    error: function(err) {
-                        toastr.error("Failed to fetch trade details");
-                    }
-                });
-            });
-
-            $(document).on('click', '.delete-trade', function(e) {
-                e.preventDefault();
-
-                let id = $(this).data('id');
-
-                if (!confirm('Are you sure you want to delete this trade?')) return;
-
-                $.ajax({
-                    url: "{{ url('/trades') }}" + "/" + id,
-                    type: 'DELETE',
-                    data: {
-                        _token: "{{ csrf_token() }}"
-                    },
-                    success: function(res) {
-                        if (res.success) {
-                            iziToastNotify('success', res.message);
-                            table.draw();
-                        } else {
-                            iziToastNotify('success', res.message);
-                        }
-                    },
-                    error: function(err) {
-                        iziToastNotify('error', "Something went wrong!");
-                    }
-                });
-            });
-
-
-            $('#filter_form').on('submit', function(e) {
-                e.preventDefault();
-                let formData = {
-                    market: $('#market').val(),
-                    status: $('#status').val(),
-                    start_date: $('#start_date').val(),
-                    end_date: $('#end_date').val(),
-                    _token: '{{ csrf_token() }}'
-                };
-                table.draw();
-            });
-
-            /* HERE */
-            // helper: escape text for safe HTML
+            // helpers
             function escapeHtml(unsafe) {
                 if (unsafe === null || unsafe === undefined) return '—';
                 return String(unsafe)
@@ -623,111 +596,118 @@
                     .replace(/'/g, "&#039;");
             }
 
-            // helper: normalize an "array-like" field (JSON string, comma list or array)
             function parseArrayField(field) {
                 if (!field) return [];
                 if (Array.isArray(field)) return field;
                 if (typeof field === 'string') {
                     field = field.trim();
-                    // JSON
                     try {
                         let parsed = JSON.parse(field);
                         if (Array.isArray(parsed)) return parsed;
                     } catch (e) {}
-                    // comma-separated
                     if (field.indexOf(',') !== -1) {
                         return field.split(',').map(s => s.trim()).filter(Boolean);
                     }
-                    // single item string
                     return [field];
                 }
                 return [];
             }
 
+            function parseScreenshots(raw) {
+                if (!raw) return [];
+                if (Array.isArray(raw)) {
+                    return raw.map(item => {
+                        if (typeof item === 'string') return {
+                            src: item
+                        };
+                        return {
+                            src: item.url || item.src || ''
+                        };
+                    }).filter(i => i.src);
+                }
+                if (typeof raw === 'string') {
+                    try {
+                        let parsed = JSON.parse(raw);
+                        return parseScreenshots(parsed);
+                    } catch (e) {
+                        return [{
+                            src: raw
+                        }];
+                    }
+                }
+                return [];
+            }
 
             function format(d) {
-                // parse and safe values
-                let setupItems = escapeHtml(d.setup);
-                let emotions = parseArrayField(d.emotions || d.emotion || d.emotions_list);
-                let screenshots = parseScreenshots(d.screenshots || d.screenshot || d.images);
-                let entryNarrative = escapeHtml(d.entry_narrative || d.entryNarrative || d.entry_text);
+                let emotions = parseArrayField(d.emotions || d.emotion || d
+                    .emotions_list);
+                let screenshots = parseScreenshots(d.screenshots || d.screenshot ||
+                    d.images);
+                let entryNarrative = escapeHtml(d.entry_narrative || d
+                    .entryNarrative || d.entry_text);
                 let notes = escapeHtml(d.notes);
-                let dailyLog = escapeHtml(d.daily_log || d.dailyLog || d.daily);
                 let news = escapeHtml(d.news);
-                let journalLink = d.daily_log_url || d.daily_log_url || d.url || null;
-                let tradeId = d.id || d.trade_id || '';
+                let journalLink = d.daily_log_url || d.url || null;
+                let tradeId = d.id || '';
+                let tradeScreenshots = d.trade_screenshots || [];
 
-                // badges for setup
-                // badges for emotions (use info color)
-                let emotionBadges = emotions.length ? emotions.map(it =>
-                        `<span class="badge badge-info">${escapeHtml(it)}</span>`).join(' ') :
+                let emotionBadges = emotions.length ?
+                    emotions.map(it =>
+                        `<span class="badge badge-info">${escapeHtml(it)}</span>`)
+                    .join(
+                        ' ') :
                     '<span class="text-muted">—</span>';
 
-                // screenshots markup (show up to 4 thumbs)
-                // screenshots markup (show up to 6 thumbs)
                 let thumbsHtml = '';
-                if (screenshots.length) {
+
+
+                if (tradeScreenshots != '[]') {
                     thumbsHtml += '<div class="row screens-grid">';
                     screenshots.slice(0, 6).forEach((img, idx) => {
                         thumbsHtml += `
                         <div class="col-4 col-thumb mb-2">
-                            <img src="${escapeHtml(img.src)}"
-                                data-trade-id="${escapeHtml(tradeId)}"
-                                data-index="${idx}"
-                                class="screenshot-thumb img-fluid rounded border"
-                                alt="screenshot ${idx+1}">
                         </div>`;
                     });
                     thumbsHtml += '</div>';
 
-                    // "view all" / mini page link
                     thumbsHtml += `
-                        <div class="mt-2 table-expanded-links">
-                            <button class="btn btn-sm btn-outline-primary mr-2 view-screenshots"
-                                    data-trade-id="${escapeHtml(tradeId)}">
-                                View gallery
-                            </button>
-                           
-                        </div>`;
+                    <div class="mt-2 table-expanded-links" >
+                        <button class="btn btn-sm btn-outline-primary view-screenshots"
+                                data-trade-id="${escapeHtml(tradeId)}" data-screenshots='${tradeScreenshots}'>
+                            View Log
+                        </button>
+                    </div>`;
                 } else {
                     thumbsHtml = '<div class="text-muted">No screenshots</div>';
                 }
 
-                // assemble HTML with Bootstrap grid: left (8) info, right (4) thumbs
                 return `
-                    <div class="dataTables_child_row">
-                    <div class="container-fluid expanded-card">
-                        <div class="row">
+                <div class="container-fluid expanded-card">
+                    <div class="row">
                         <div class="col-md-8">
-                            <div class="row">
-                                <div class="col-md-5">
-                                    <div class="mb-2"><span class="small-label">Emotions:</span> ${emotionBadges}</div>
-                                    <div class="mb-2"><span class="small-label">News</span> <div class="note-text mt-1">${news}</div></div>
-                                    <div class="mb-2">
-                                    <span class="small-label">Journal:</span>
-                                    ${journalLink ? `<a href="${escapeHtml(journalLink)}" target="_blank" class="ml-1">${escapeHtml(journalLink)}</a>` : '<span class="text-muted ml-1">—</span>'}
-                                    </div>
-                                </div>
-                                <div class="col-md-7">
-                                     <div class="mb-2"><span class="small-label">Setup Narrative</span><div class="note-text mt-1">${setupItems}</div></div>
-                                     <div class="mb-2"><span class="small-label">Entry Narrative</span><div class="note-text mt-1">${entryNarrative}</div></div>
-                                     <div class="mb-2"><span class="small-label">Notes</span><div class="note-text mt-1">${notes}</div></div>
-                                </div>
+                            <div class="mb-2"><strong>News:</strong> ${news}</div>
+                            <div class="mb-2"><strong>Journal:</strong>
+                                ${journalLink ? `<a href="${escapeHtml(journalLink)}" target="_blank">${escapeHtml(journalLink)}</a>` : '—'}
                             </div>
+                            <div class="mb-2"><strong>Entry Narrative:</strong> ${entryNarrative}</div>
+                            <div class="mb-2"><strong>Notes:</strong> ${notes}</div>
+                            <div class="mb-2"><strong>Emotions:</strong> ${emotionBadges}</div>
                         </div>
                         <div class="col-md-4">
-                            <div style="margin-bottom:10px"><strong>Screenshots</strong><span class="btn btn-sm btn-outline-dark add_screenshot_btn" data-trade_id="${escapeHtml(tradeId)}" style="margin-left:10px"><i class="dw dw-add"></i></span></div>
+                            <div><strong>Screenshots</strong>
+                                <span class="btn btn-sm btn-outline-dark add_screenshot_btn"
+                                      data-trade_id="${escapeHtml(tradeId)}" style="margin-left:10px">
+                                    <i class="dw dw-add"></i>
+                                </span>
+                            </div>
                             <div class="mt-2">${thumbsHtml}</div>
                         </div>
-                        </div>
                     </div>
-                    </div>
-                `;
+                </div>
+            `;
             }
 
-
-
-
+            // add screenshot modal
             $('body').on('click', '.add_screenshot_btn', function() {
                 $('#add_screenshot_modal').modal('show');
                 $('#tradeId').val($(this).data('trade_id') || '');
@@ -735,17 +715,31 @@
                 $('#previewContainer').hide();
                 $('#tradeWhen').val('');
                 $('#tradeCaption').val('');
+                $('#saveScreenshotBtn').text('Add');
+                $('#add_screenshot_form .modal-title').text(
+                    'Add Screenshot');
+
+                //trades/{trade}/screenshots'
+                $('#add_screenshot_form').attr('action',
+                    "{{ url('/trades') }}/" + $(this).data(
+                        'trade_id') + "/screenshots");
+                $('#add_screenshot_form').attr('method', "POST");
+                $('#add_screenshot_form').remove(
+                    '<input type="hidden" name="_method" value="PUT">');
+                $('#deleteScreenshotBtn').hide().data('id', '').data(
+                    'trade-id', '');
             });
 
             $('#tvUrl').on('input', function() {
                 let url = $(this).val().trim();
-                let match = url.match(/tradingview\.com\/x\/([A-Za-z0-9]+)/);
-
+                let match = url.match(
+                    /tradingview\.com\/x\/([A-Za-z0-9]+)/);
                 if (match) {
                     let snapshotId = match[1];
-                    let embedUrl = `https://www.tradingview.com/x/${snapshotId}/`;
+                    let embedUrl =
+                        `https://www.tradingview.com/x/${snapshotId}/`;
                     $('#previewImage')
-                        .attr('src', embedUrl) // Use snapshot directly
+                        .attr('src', embedUrl)
                         .on('error', function() {
                             $('#previewContainer').hide();
                         })
@@ -759,124 +753,208 @@
 
             $('#add_screenshot_form').on('submit', function(e) {
                 e.preventDefault();
-                var trade_id = $('#add_screenshot_form #tradeId').val();
+                var trade_id = $('#tradeId').val();
                 var formData = $(this).serialize();
-                // submit via ajax
+                var is_edit = $(this).find('input[name="_method"]')
+                    .val() === 'PUT' ? true :
+                    false;
                 $.ajax({
-                    url: "{{ url('/trades') }}" + '/' + trade_id + '/screenshots',
-                    method: "POST",
+                    url: $(this).attr('action'),
+                    method: is_edit ? "PUT" : "POST",
                     data: formData,
                     success: function(response) {
-                        iziToastNotify('success', response.message);
+                        iziToastNotify('success', response
+                            .message);
+                        // Refresh table
+                        table.draw();
+                        // Optionally, close and reopen the expanded row to refresh screenshots
                     },
                     error: function(xhr) {
-                        iziToastNotify('error', xhr.responseJSON.message ||
+                        iziToastNotify('error', xhr.responseJSON
+                            .message ||
                             'Failed to add screenshot');
                     }
                 });
                 $('#add_screenshot_modal').modal('hide');
             });
 
+            // open modal with screenshots
 
-            // helper: normalize screenshots into [{src, type, id}]
-            function parseScreenshots(raw) {
-                if (!raw) return [];
-                if (Array.isArray(raw)) {
-                    return raw.map(item => {
-                        if (typeof item === 'string') {
-                            return {
-                                src: item,
-                                type: null,
-                                id: null
-                            };
-                        }
-                        return {
-                            src: item.url || item.src || '',
-                            type: item.type || null,
-                            id: item.id || null
-                        };
-                    }).filter(i => i.src);
+            function renderScreenshots(tradeScreenshots) {
+
+                let container = $('#screenshotContainer').empty();
+
+                if (tradeScreenshots.length < 1) {
+                    container.html(
+                        '<div class="text-muted text-center p-3">No screenshots available</div>'
+                    );
+                    return;
                 }
-                if (typeof raw === 'string') {
-                    try {
-                        let parsed = JSON.parse(raw);
-                        return parseScreenshots(parsed);
-                    } catch (e) {
-                        return [{
-                            src: raw,
-                            type: null,
-                            id: null
-                        }];
-                    }
-                }
-                return [];
+
+                tradeScreenshots.forEach(ss => {
+
+                    let src = resolveScreenshotUrl(ss.url);
+                    let caption = ss.notes || ss.when || '';
+
+
+                    let html = `
+                        <div class="screenshot-actions position-absolute wd-none" style="bottom:5px; right:5px;">
+                            <button class="btn btn-sm btn-outline-primary edit-screenshot mr-1" data-id="${ss.id}" data-trade-id="${tradeId}">
+                                <i class="dw dw-edit-2"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger delete-screenshot" data-id="${ss.id}" data-trade-id="${tradeId}">
+                                <i class="dw dw-delete-3"></i>
+                            </button>
+                        </div>
+                        <div class="screenshot-wrapper mb-3 text-center">
+                             <img src="${src}"
+                                class="screenshot-img rounded border"
+                                style="width: 100%; height: auto; max-height: 90vh;"
+                                onerror="this.onerror=null;this.src='/images/broken-image.png';">
+                            ${caption ? `<div class="mt-2 text-muted small">${caption}</div>` : ''}
+
+                        </div>
+                    `;
+                    container.append(html);
+                });
             }
 
-            // click handler for thumbnail
-            $(document).on('click', '.screenshot-thumb', function() {
-                let tradeId = $(this).data('trade-id');
-                let idx = parseInt($(this).data('index') || 0, 10);
-
-                // collect all thumbnails in the same grid
-                let all = [];
-                $(this).closest('.screens-grid').find('.screenshot-thumb').each(function() {
-                    all.push({
-                        src: $(this).attr('src')
-                    });
-                });
-
-                openScreenshotModal(all, idx, tradeId);
+            //hover event - add a download button for editing screenshots
+            $(document).on('mouseenter', '.screenshot-wrapper', function() {
+                $(this).find('.screenshot-actions').removeClass('d-none');
+            }).on('mouseleave', '.screenshot-wrapper', function() {
+                $(this).find('.screenshot-actions').addClass('d-none');
             });
 
 
-            // click handler for "View gallery" button
+            // Edit button
+            $(document).on('click', '.edit-screenshot', function() {
+                let ssId = $(this).data('id');
+                let tradeId = $(this).data('trade-id');
+                $('#screenshotModal').modal('hide');
+                $('#trades_table tbody tr.shown').each(function() {
+                    let row = table.row(this);
+                    if (row.child.isShown()) row.child.hide();
+                    $(this).removeClass('shown');
+                });
+                $('#saveScreenshotBtn').text('Save');
+                $('#add_screenshot_form .modal-title').text(
+                    'Edit Screenshot');
+                $('#add_screenshot_form').attr('action',
+                    "{{ url('/screenshots') }}" + '/' +
+                    ssId);
+                $('#add_screenshot_form').append(
+                    '<input type="hidden" name="_method" value="PUT">');
+                $('#deleteScreenshotBtn').show().data('id', ssId).data(
+                    'trade-id', tradeId);
+                $.ajax({
+                    url: "{{ url('/screenshots') }}" + '/' + ssId +
+                        '/edit',
+                    type: 'GET',
+                    success: function(res) {
+                        $('#tradeId').val(tradeId);
+                        $('#tvUrl').val(res.url || '');
+                        $('#tradeWhen').val(res.when || '');
+                        $('#tradeCaption').val(res.notes || '');
+                        $('#tvUrl').trigger(
+                            'input'); // to load preview
+                    },
+                    error: function() {
+                        iziToastNotify('error',
+                            'Failed to fetch screenshot data'
+                        );
+                    }
+                });
+                $('#add_screenshot_modal').modal('show');
+            });
+
+            // Delete button
+            $(document).on('click', '.delete-screenshot', function(e) {
+                e.preventDefault();
+                let ssId = $(this).data('id');
+                let tradeId = $(this).data('trade-id');
+
+                if (!confirm(
+                        'Are you sure you want to delete this screenshot?'))
+                    return;
+
+                $.ajax({
+                    url: "{{ url('/screenshots') }}" + '/' + ssId,
+                    type: 'DELETE',
+                    data: {
+                        _token: '{{ csrf_token() }}'
+                    },
+                    success: function(res) {
+                        iziToastNotify('success', res.message);
+                        // Refresh table
+                        table.draw(false);
+                        // Optionally, close and reopen the expanded row to refresh screenshots
+                        $(`#trades_table tbody tr`).each(
+                            function() {
+                                let row = table.row(this);
+                                if (row.child.isShown()) {
+                                    row.child.hide();
+                                    row.child(format(row
+                                        .data())).show();
+                                }
+                            });
+                        $('#add_screenshot_modal').modal(
+                            'hide');
+                        $('#screenshotModal').modal('hide');
+                        $('#saveScreenshotBtn').text('Add');
+                        $('#add_screenshot_form .modal-title')
+                            .text(
+                                'Add Screenshot');
+                        $('#add_screenshot_form').attr('action',
+                            "{{ url('/screenshots') }}");
+                        $('#add_screenshot_form').remove(
+                            '<input type="hidden" name="_method" value="PUT">'
+                        );
+                        $('#deleteScreenshotBtn').hide().data(
+                            'id', '').data(
+                            'trade-id', '');
+                    },
+                    error: function() {
+                        iziToastNotify('error',
+                            'Failed to delete screenshot');
+                    }
+                });
+            });
+
+
+            // Utility: resolve TradingView URLs -> snapshot .png
+            function resolveScreenshotUrl(tv_url) {
+
+                let url = tv_url.trim();
+                let match = url.match(/tradingview\.com\/x\/([A-Za-z0-9]+)/);
+                if (match) {
+                    let snapshotId = match[1];
+                    let embedUrl = `https://www.tradingview.com/x/${snapshotId}/`;
+                    return embedUrl;
+                }
+            }
+
+
+            // Open modal with screenshots
+            function openScreenshotModal(tradeScreenshots) {
+                tradeScreenshots = JSON.parse(tradeScreenshots);
+                renderScreenshots(tradeScreenshots);
+                $('#screenshotModal').modal('show');
+            }
+
+            // Click handler
             $(document).on('click', '.view-screenshots', function() {
                 let tradeId = $(this).data('trade-id');
-
-                // collect from the same expansion section
-                let all = [];
-                $(this).closest('.table-expanded-links')
-                    .prev('.screens-grid')
-                    .find('.screenshot-thumb')
-                    .each(function() {
-                        all.push({
-                            src: $(this).attr('src')
-                        });
-                    });
-
-                openScreenshotModal(all, 0, tradeId);
+                let tradeScreenshots = [];
+                try {
+                    tradeScreenshots = ($(this).attr('data-screenshots') ||
+                        '[]');
+                } catch (e) {
+                    tradeScreenshots = [];
+                }
+                openScreenshotModal(tradeScreenshots);
             });
 
-
-
-            function openScreenshotModal(screenshots, startIndex = 0, tradeId = '') {
-                let indicators = $('#screenshotIndicators').empty();
-                let inner = $('#screenshotInner').empty();
-
-                screenshots.forEach(function(img, i) {
-                    let active = (i === startIndex) ? 'active' : '';
-                    indicators.append(
-                        `<li data-target="#screenshotCarousel" data-slide-to="${i}" class="${active}"></li>`
-                    );
-                    inner.append(`
-                    <div class="carousel-item ${active}">
-                        <img src="${escapeHtml(img.src)}" alt="screenshot ${i+1}" class="d-block w-100">
-                    </div>
-                `);
-                });
-
-                $('#screenshotMiniPageLink').attr('href', tradeId ? "{{url('/trades')}}"+"/"+tradeId+"/screenshots" : '#');
-
-                if (!screenshots.length) {
-                    $('#screenshotInner').html('<div class="p-4 text-center text-muted">No screenshots</div>');
-                    $('#screenshotIndicators').empty();
-                }
-
-                $('#screenshotModal').modal('show');
-                $('#screenshotModal').on('shown.bs.modal.once', function() {
-                    $('#screenshotCarousel').carousel(startIndex);
-                });
-            }
 
 
 
