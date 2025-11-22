@@ -21,9 +21,9 @@
                                     <option value="xagusd">SILVER</option>
                                     <option value="us500">ES</option>
                                     <option value="us100">NQ</option>
-                                    <option value="btusd">Long</option>
+                                    <option value="btusd">BTC</option>
                                     <option value="ethusd">ETH</option>
-                                    <option value="audusd">BTC</option>
+                                    <option value="audusd">AU</option>
                                     <option value="nzdusd">NU</option>
                                     <option value="usdcad">UCAD</option>
                                     <option value="usdchf">UCHF</option>
@@ -77,7 +77,7 @@
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label>Outcome</label>
-                                <select name="outcome" class="form-control">
+                                <select name="outcome" id="outcome"  class="form-control">
                                     <option value="pending">Pending</option>
                                     <option value="win">Win</option>
                                     <option value="loss">Loss</option>
@@ -158,13 +158,19 @@
                                 <label>Notes</label>
                                 <input type="text" name="notes" class="form-control" />
                             </div>
-                        </div>{{--
-                        <div class="col-lg-12">
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="custom-control custom-checkbox mb-5">
+                                <input type="checkbox" class="custom-control-input" name="hin_day" id="hin_day">
+                                <label class="custom-control-label" for="hin_day">Day Has HIN?</label>
+                            </div>
+                        </div>
+                        <div class="col-lg-4" id="is_closed_checkbox_block">
                             <div class="custom-control custom-checkbox mb-5">
                                 <input type="checkbox" class="custom-control-input" name="status" id="status">
-                                <label class="custom-control-label" for="status">IS OPEN</label>
+                                <label class="custom-control-label" for="status">Is Closed</label>
                             </div>
-                        </div> --}}
+                        </div>
 
                         {{-- <div class="form-group">
                             <label>Tags (comma separated)</label>

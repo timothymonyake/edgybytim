@@ -14,13 +14,13 @@ class TradeScreenshotController extends Controller
         //place in try catch
         try {
             $request->validate([
-                'when' => 'required|in:before,during,after',
+               // 'when' => 'required|in:before,during,after',
                 'url' => 'required|url',
                 'notes' => 'nullable|string',
             ]);
             TradeScreenshot::create([
                 'trade_id' => $trade->id,
-                'when' => $request->when,
+              //  'when' => $request->when,
                 'url' => $request->url,
                 'notes' => $request->notes,
             ]);

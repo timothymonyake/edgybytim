@@ -2,57 +2,68 @@
 
 @section('title', 'Dashboard')
 
+@section('left-sidebar')
+    <div class="right-sidebar" style="right: 0 !important; z-index: 9999;">
+        <div class="sidebar-title d-flex justify-content-between align-items-center">
+            <h3 class="weight-600 font-16 text-primary mb-0">
+                <i class="dw dw-filter text-primary mr-2"></i> Filter Trades
+            </h3>
+            <div class="close-sidebar" data-toggle="right-sidebar-close">
+                <i class="icon-copy ion-close-round"></i>
+            </div>
+        </div>
+
+        <div class="right-sidebar-body customscroll">
+            <div class="right-sidebar-body-content">
+                <form id="filter_form" class="pb-20">
+                    <div class="form-group">
+                        <label for="market">Market</label>
+                        <select class="form-control" name="market" id="market">
+                            <option value="0">All Markets</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="outcome">Outcome</label>
+                        <select class="form-control" name="outcome" id="outcome">
+                            <option value="0">All Statuses</option>
+                            <option value="won">Won</option>
+                            <option value="pending">Pending</option>
+                            <option value="lost">Lost</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="date-picker">Date Range</label>
+                        <input class="form-control" id="date-picker" placeholder="Select Date" type="text">
+                        <input type="hidden" name="start_date" id="start_date">
+                        <input type="hidden" name="end_date" id="end_date">
+                    </div>
+
+                    <div class="form-group mb-0">
+                        <button type="submit" class="btn btn-primary btn-block">
+                            Apply Filters
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+@endsection
+
 @section('content')
-    {{-- <h2>Supabase Data Analysis</h2> --}}
-
-
     <div class="page-header">
         <div class="row">
-            {{-- <div class="col-md-3 col-sm-3">
+            <div class="col-md-12 col-sm-12">
                 <div class="title">
-                    <h4>Trades</h4>
+                    <h4>Dashboard</h4>
                 </div>
                 <nav aria-label="breadcrumb" role="navigation">
                     <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="index.html">Home</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">Supabase Bets</li>
+                        <li class="breadcrumb-item"><a href="{{ route('dashboard.index') }}">Home</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
                     </ol>
                 </nav>
-            </div> --}}
-            <div class="col-md-12 col-sm-12 ">
-                <form id="filter_form">
-                    <div class="row">
-                        <div class=" col-md-2">
-                            <select class="form-control" name="market" id="market">
-                                <option value="0">All Markets</option>
-                            </select>
-                        </div>
-                        <div class=" col-md-2">
-                            <select class="form-control" name="outcome" id="outcome">
-                                <option value="0">All Statuses</option>
-                                <option value="won">Won</option>
-                                <option value="pending">Pending</option>
-                                <option value="lost">Lost</option>
-                            </select>
-                        </div>
-                        <div class=" col-md-3">
-                            <input class="form-control" id="date-picker" placeholder="Select Date" type="text">
-                            <input type="hidden" name="start_date" id="start_date">
-                            <input type="hidden" name="end_date" id="end_date">
-                        </div>
-
-                        <div class=" col-md-1">
-                            <button type="submit" class="btn btn-primary btn-flat" href="#" role="button">
-                                Filter
-                            </button>
-                        </div>
-                        <div class=" col-md-1">
-                            <button class="btn btn-success" data-toggle="modal" data-target="#tradeModal">
-                                New
-                            </button>
-                        </div>
-                    </div>
-                </form>
             </div>
         </div>
     </div>
@@ -61,8 +72,11 @@
 
 
     <div class="card-box mb-30">
-        <div class="pd-20">
+        <div class="pd-20 d-flex justify-content-between align-items-center">
             <h4 class="text-blue h4">Trades</h4>
+            <button class="btn btn-success" data-toggle="modal" data-target="#tradeModal">
+                <i class="dw dw-add"></i> New Trade
+            </button>
         </div>
         <div class="pb-20">
             <table id="trades-table" class="data-table table stripe hover nowrap">
@@ -144,7 +158,7 @@
                 })
             );
 
-            let table = $('#tradesTable').DataTable({
+            let table = $('#trades-table').DataTable({
                 destroy: true,
                 processing: true,
                 serverSide: true,
@@ -242,14 +256,16 @@
 
             $('#filter_form').on('submit', function(e) {
                 e.preventDefault();
-                let formData = {
-                    market: $('#market').val(),
-                    status: $('#status').val(),
-                    start_date: $('#start_date').val(),
-                    end_date: $('#end_date').val(),
-                    _token: '{{ csrf_token() }}'
-                };
-                $('#bets-table').DataTable().ajax.reload(null, false);
+                table.ajax.reload();
+            });
+
+            // Sidebar Toggle Logic
+            $('.toggle-sidebar-btn').on('click', function() {
+                $('.right-sidebar').toggleClass('right-sidebar-visible');
+            });
+
+            $('[data-toggle="right-sidebar-close"]').on('click', function() {
+                $('.right-sidebar').removeClass('right-sidebar-visible');
             });
 
         });

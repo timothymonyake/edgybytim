@@ -3832,9 +3832,9 @@ body.IE .register-page-wrap .container{
 
 .right-sidebar{
 	position: fixed;
-	right: -315px;
+	right: -630px;
 	top: 0;
-	width: 315px;
+	width: 630px;
 	height: 100%;
 	background: #ffffff;
 	z-index: 123;

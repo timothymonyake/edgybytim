@@ -26,6 +26,117 @@
     <link rel="stylesheet" type="text/css" href="{{ asset('deskapp/vendors/styles/style.css') }}">
     <link rel="stylesheet" href="{{ asset('iziToast/css/iziToast.min.css') }}">
     <style>
+
+         #filter-summary {
+            max-width: 100%;
+            /* don’t overflow container */
+            overflow-x: auto;
+            /* enable horizontal scroll if needed */
+            white-space: nowrap;
+            /* keep everything in one line */
+            -webkit-overflow-scrolling: touch;
+            /* smooth scrolling on mobile */
+        }
+
+        #filter-summary::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        #filter-summary::-webkit-scrollbar-thumb {
+            background: #ccc;
+            border-radius: 3px;
+        }
+
+        .toast-success {
+            background-color: #28a745 !important;
+            color: #fff !important;
+        }
+
+        .toast-error {
+            background-color: #dc3545 !important;
+            color: #fff !important;
+        }
+
+        .toast-warning {
+            background-color: #ffc107 !important;
+            color: #212529 !important;
+        }
+
+        .toast-info {
+            background-color: #17a2b8 !important;
+            color: #fff !important;
+        }
+
+        #toast-success .iziToast-message,
+        #toast-error .iziToast-message,
+        #toast-warning .iziToast-message,
+        #toast-info .iziToast-message {
+            font-size: 1rem;
+            /* increase font size */
+            font-weight: 500;
+            /* slightly bolder */
+            line-height: 1.4;
+        }
+
+        /* Optional: enlarge title too */
+        #toast-success .iziToast-title,
+        #toast-error .iziToast-title,
+        #toast-warning .iziToast-title,
+        #toast-info .iziToast-title {
+            font-size: 1.05rem;
+            font-weight: 600;
+        }
+
+        /* Adjust icon alignment */
+        .iziToast-icon {
+            font-size: 1.2rem !important;
+            /* make FA icon a bit bigger */
+            margin-right: 8px;
+        }
+
+        .main-container {
+            margin-left: 0 !important;
+            padding-left: 0 !important;
+        }
+
+        .header {
+            margin-left: 0 !important;
+        }
+
+        .pd-ltr-20 {
+            padding-left: 20px;
+            padding-right: 0px;
+            /* keep a little padding */
+        }
+
+         .filter-summary {
+            background: #f0f4ff;
+            border: 1px solid #d0d7f5;
+            color: #2c3e50;
+            padding: 6px 12px;
+            border-radius: 25px;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            transition: 0.3s;
+            cursor: default;
+        }
+
+        .filter-summary:hover {
+            background: #e6edff;
+            border-color: #a8b3f0;
+        }
+
+        .filter-summary .dw {
+            font-size: 16px;
+        }
+
+        .header {
+            left: 0 !important;
+            width: 100% !important;
+        }
+
+
         .toast-success {
             background-color: #28a745 !important;
             color: #fff !important;
@@ -131,6 +242,9 @@
     {{--  @include('partials.loader')
  --}}
     {{-- Header --}}
+
+
+
     @include('layouts.partials.header')
 
     {{-- Sidebar --}}
@@ -157,6 +271,13 @@
     <script src="{{ asset('deskapp/src/plugins/datatables/js/dataTables.bootstrap4.min.js') }}"></script>
     <script src="{{ asset('deskapp/src/plugins/datatables/js/dataTables.responsive.min.js') }}"></script>
     <script src="{{ asset('deskapp/src/plugins/datatables/js/responsive.bootstrap4.min.js') }}"></script>
+	<script src="{{ asset('deskapp/src/plugins/datatables/js/dataTables.buttons.min.js') }}"></script>
+	<script src="{{ asset('deskapp/src/plugins/datatables/js/buttons.bootstrap4.min.js') }}"></script>
+	<script src="{{ asset('deskapp/src/plugins/datatables/js/buttons.print.min.js') }}"></script>
+	<script src="{{ asset('deskapp/src/plugins/datatables/js/buttons.html5.min.js') }}"></script>
+	<script src="{{ asset('deskapp/src/plugins/datatables/js/buttons.flash.min.js') }}"></script>
+	<script src="{{ asset('deskapp/src/plugins/datatables/js/pdfmake.min.js') }}"></script>
+	<script src="{{ asset('deskapp/src/plugins/datatables/js/vfs_fonts.js') }}"></script>
     {{-- <script src="{{ asset('deskapp/vendors/scripts/dashboard.js') }}"></script> --}}
     <script src="{{ asset('deskapp/vendors/scripts/datatable-setting.js') }}"></script>
     <script src="{{ asset('deskapp/src/scripts/moment.js') }}"></script>

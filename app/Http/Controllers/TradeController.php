@@ -19,6 +19,64 @@ class TradeController extends Controller
     {
         $trades = Trade::query();
 
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $start = \Carbon\Carbon::createFromFormat('d/m/Y', $request->start_date)->format('Y-m-d');
+            $end = \Carbon\Carbon::createFromFormat('d/m/Y', $request->end_date)->format('Y-m-d');
+            $trades->whereBetween('trade_date', [$start, $end]);
+        }
+
+        if ($request->filled('market') && $request->market != '0') {
+            $trades->where('asset', $request->market);
+        }
+
+        if ($request->filled('direction') && $request->direction != '0') {
+            $trades->where('direction', $request->direction);
+        }
+
+        if ($request->filled('session') && $request->session != '0') {
+            $trades->where('session', $request->session);
+        }
+
+        if ($request->filled('outcome') && $request->outcome != '0') {
+            $trades->where('outcome', $request->outcome);
+        }
+
+        if ($request->filled('hin_day') && $request->hin_day != '0') {
+            $trades->where('hin_day', $request->hin_day == 'yes' ? 1 : 0);
+        }
+
+        if ($request->filled('plan_followed') && $request->plan_followed != '0') {
+            $trades->where('plan_followed', $request->plan_followed == 'yes' ? 1 : 0);
+        }
+
+        if ($request->filled('entry_type') && $request->entry_type != '0') {
+            $trades->where('entry_type', $request->entry_type);
+        }
+
+        if ($request->filled('entry_pd') && $request->entry_pd != '0') {
+             $trades->where('entry_pd_array', 'like', '%' . $request->entry_pd . '%');
+        }
+
+        if ($request->filled('has_emotions') && $request->has_emotions != '0') {
+            if ($request->has_emotions == 'yes') {
+                $trades->whereNotNull('emotions')->where('emotions', '!=', '');
+            } else {
+                $trades->where(function ($q) {
+                    $q->whereNull('emotions')->orWhere('emotions', '');
+                });
+            }
+        }
+
+        if ($request->filled('has_news') && $request->has_news != '0') {
+            if ($request->has_news == 'yes') {
+                $trades->whereNotNull('news')->where('news', '!=', '');
+            } else {
+                $trades->where(function ($q) {
+                    $q->whereNull('news')->orWhere('news', '');
+                });
+            }
+        }
+
         return DataTables::of($trades)
             // ->addColumn('asset', fn($row) => $row->asset ?? '-') // placeholder
             ->addIndexColumn()
@@ -73,8 +131,18 @@ class TradeController extends Controller
                 }
                 // ...existing code...
 
+            })->addColumn('hin_day', function ($row) {
+
+                // ...existing code...
+                if ($row->hin_day == true) {
+                    return '<span class="badge badge-success">YES</span>';;
+                } else {
+                    return '<span class="badge badge-danger">NO</span>';
+                }
+                // ...existing code...
+
             })
-            ->addColumn('status', function ($row) {
+            ->editColumn('status', function ($row) {
 
                 // ...existing code...
                 if ($row->status === 'open') {
@@ -84,6 +152,9 @@ class TradeController extends Controller
                 }
                 // ...existing code...
 
+            })
+            ->addColumn('trade_status', function ($row) {
+                return $row->status;
             })
             ->addColumn('entry_type', fn($row) => strtoupper($row->entry_type))
             ->addColumn('rr', fn($row) => number_format($row->rr, 1))
@@ -124,7 +195,7 @@ class TradeController extends Controller
                     <button class="btn btn-sm btn-danger delete-trade" data-id="' . $row->id . '"><i class="dw dw-delete-3"></i></button>
                 ';
             })
-            ->rawColumns(['actions', 'screenshots', 'status', 'entry_pd_array', 'plan_followed', 'direction', 'outcome', 'rr', 'session', 'asset'])
+            ->rawColumns(['actions','hin_day', 'screenshots', 'status','trade_status', 'entry_pd_array', 'plan_followed', 'direction', 'outcome', 'rr', 'session', 'asset'])
             ->make(true);
     }
 

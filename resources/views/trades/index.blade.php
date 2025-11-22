@@ -1,4 +1,169 @@
 @extends('layouts.app')
+@section('title', 'Trades')
+
+@section('left-sidebar')
+    <div class="right-sidebar">
+        <div class="sidebar-title d-flex justify-content-between align-items-center">
+            <h3 class="weight-600 font-16 text-primary mb-0">
+                <i class="dw dw-filter text-primary mr-2"></i> Filter Bets
+            </h3>
+            <div class="close-sidebar" data-toggle="right-sidebar-close">
+                <i class="icon-copy ion-close-round"></i>
+            </div>
+        </div>
+
+        <div class="right-sidebar-body customscroll">
+            <div class="right-sidebar-body-content">
+                <form id="filter_form" class="pb-20">
+
+                    <div class="form-group">
+                        <label>Date Range</label>
+                        <div class="d-flex flex-wrap mb-2" id="date-ranges">
+                            <button type="button" class="btn btn-sm btn-outline-primary m-1 date-range-btn" data-range="today">Today</button>
+                            <button type="button" class="btn btn-sm btn-outline-primary m-1 date-range-btn" data-range="yesterday">Yesterday</button>
+                            <button type="button" class="btn btn-sm btn-outline-primary m-1 date-range-btn" data-range="this_week">This Week</button>
+                            <button type="button" class="btn btn-sm btn-outline-primary m-1 date-range-btn" data-range="last_week">Last Week</button>
+                            <button type="button" class="btn btn-sm btn-outline-primary m-1 date-range-btn" data-range="this_month">This Month</button>
+                            <button type="button" class="btn btn-sm btn-outline-primary m-1 date-range-btn" data-range="last_month">Last Month</button>
+                            <button type="button" class="btn btn-sm btn-outline-primary m-1 date-range-btn" data-range="this_year">This Year</button>
+                            <button type="button" class="btn btn-sm btn-outline-primary m-1 date-range-btn" data-range="last_year">Last Year</button>
+                        </div>
+                        <input class="form-control" id="date-picker" placeholder="Select Date" type="text">
+                        <input type="hidden" name="start_date" id="start_date">
+                        <input type="hidden" name="end_date" id="end_date">
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="market">Asset</label>
+                                <select class="form-control" name="market" id="market">
+                                    <option value="0">All</option>
+                                    <option value="eurusd">EU</option>
+                                    <option value="gbpusd">GU</option>
+                                    <option value="xauusd">GOLD</option>
+                                    <option value="xagusd">SILVER</option>
+                                    <option value="us500">ES</option>
+                                    <option value="us100">NQ</option>
+                                    <option value="btusd">BTC</option>
+                                    <option value="ethusd">ETH</option>
+                                    <option value="audusd">AU</option>
+                                    <option value="nzdusd">NU</option>
+                                    <option value="usdcad">UCAD</option>
+                                    <option value="usdchf">UCHF</option>
+                                    <option value="usdjpy">UJ</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="direction">Direction</label>
+                                <select class="form-control" name="direction" id="direction">
+                                    <option value="0">All</option>
+                                    <option value="long">Long</option>
+                                    <option value="short">Short</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="session">Session</label>
+                                <select class="form-control" name="session" id="session">
+                                    <option value="0">All</option>
+                                    <option value="london_open">London Open</option>
+                                    <option value="ny_open">New York Open</option>
+                                    <option value="london_close">London Close</option>
+                                    <option value="asia">Asian</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="outcome">Outcome</label>
+                                <select class="form-control" name="outcome" id="outcome">
+                                    <option value="0">All</option>
+                                    <option value="win">Win</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="loss">Loss</option>
+                                    <option value="breakeven">Breakeven</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="hin_day_filter">HIN Day?</label>
+                                <select class="form-control" name="hin_day" id="hin_day_filter">
+                                    <option value="0">All</option>
+                                    <option value="yes">Yes</option>
+                                    <option value="no">No</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="entry_pd">Entry PD</label>
+                                <select class="form-control" name="entry_pd" id="entry_pd">
+                                    <option value="0">All</option>
+                                    <option value="OB">OB</option>
+                                    <option value="FVG">FVG</option>
+                                    <option value="IFVG">IFVG</option>
+                                    <option value="BB">BB</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="plan_followed">Followed Plan?</label>
+                                <select class="form-control" name="plan_followed" id="plan_followed">
+                                    <option value="0">All</option>
+                                    <option value="yes">Yes</option>
+                                    <option value="no">No</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="entry_type">Exec Type</label>
+                                <select class="form-control" name="entry_type" id="entry_type">
+                                    <option value="0">All</option>
+                                    <option value="market">Market</option>
+                                    <option value="limit">Limit</option>
+                                    <option value="stop">Stop</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="has_emotions">Has Emotions</label>
+                                <select class="form-control" name="has_emotions" id="has_emotions">
+                                    <option value="0">All</option>
+                                    <option value="yes">Yes</option>
+                                    <option value="no">No</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="has_news">Has News</label>
+                                <select class="form-control" name="has_news" id="has_news">
+                                    <option value="0">All</option>
+                                    <option value="yes">Yes</option>
+                                    <option value="no">No</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- <div class="form-group mb-0 mt-3">
+                        <button type="submit" class="btn btn-primary btn-block">
+                            Apply Filters
+                        </button>
+                    </div> --}}
+                </form>
+            </div>
+        </div>
+    </div>
+@endsection
 
 @section('title', 'Dashboard')
 
@@ -55,7 +220,9 @@
 
             /* make modal images responsive */
             #screenshotModal .modal-body {
-                padding: 0.5rem;
+                padding: 1rem;
+                max-height: 70vh;
+                overflow-y: auto;
             }
 
             #screenshotModal .carousel-item img {
@@ -66,9 +233,253 @@
             }
 
             .screenshot-img {
-                object-fit: cover;
-                max-height: 250px;
-                border-radius: 6px;
+                object-fit: contain;
+                max-height: 500px;
+                width: 100%;
+                border-radius: 8px;
+            }
+
+            /* Fullscreen modal styles */
+            .modal.modal-fullscreen {
+                padding: 0 !important;
+            }
+
+            .modal.modal-fullscreen .modal-dialog {
+                max-width: 100vw !important;
+                width: 100vw !important;
+                height: 100vh !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                position: fixed !important;
+                top: 0 !important;
+                left: 0 !important;
+                right: 0 !important;
+                bottom: 0 !important;
+                transform: none !important;
+            }
+
+            .modal.modal-fullscreen .modal-content {
+                height: 100vh !important;
+                border: 0;
+                border-radius: 0 !important;
+            }
+
+            .modal.modal-fullscreen .modal-body {
+                max-height: calc(100vh - 120px) !important;
+                overflow-y: auto;
+            }
+
+            .fullscreen-toggle {
+                cursor: pointer;
+                transition: all 0.3s ease;
+            }
+
+            .fullscreen-toggle:hover {
+                transform: scale(1.1);
+            }
+
+            /* Image zoom overlay */
+            .screenshot-image-wrapper {
+                position: relative;
+                cursor: pointer;
+            }
+
+            .screenshot-image-wrapper:hover .zoom-overlay {
+                opacity: 1;
+            }
+
+            .zoom-overlay {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: rgba(0, 0, 0, 0.7);
+                color: white;
+                padding: 15px 20px;
+                border-radius: 50%;
+                opacity: 0;
+                transition: opacity 0.3s ease;
+                pointer-events: none;
+                z-index: 5;
+            }
+
+            .zoom-overlay i {
+                font-size: 24px;
+            }
+
+            /* Image fullscreen modal */
+            .image-fullscreen-modal {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100vw;
+                height: 100vh;
+                background: rgba(0, 0, 0, 0.95);
+                z-index: 99999;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .image-fullscreen-modal.active {
+                display: flex;
+            }
+
+            .image-fullscreen-modal img {
+                max-width: 95vw;
+                max-height: 95vh;
+                object-fit: contain;
+            }
+
+            .image-fullscreen-close {
+                position: absolute;
+                top: 20px;
+                right: 30px;
+                color: white;
+                font-size: 40px;
+                font-weight: bold;
+                cursor: pointer;
+                z-index: 100000;
+                transition: all 0.3s ease;
+            }
+
+            .image-fullscreen-close:hover {
+                color: #ff4444;
+                transform: scale(1.2);
+            }
+
+            /* Loading overlay */
+            .modal-loading-overlay {
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(255, 255, 255, 0.95);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 9999;
+                border-radius: 8px;
+            }
+
+            .modal-loading-overlay .spinner {
+                width: 50px;
+                height: 50px;
+                border: 4px solid #f3f3f3;
+                border-top: 4px solid #1b00ff;
+                border-radius: 50%;
+                animation: spin 1s linear infinite;
+            }
+
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+
+            .screenshot-card {
+                position: relative;
+                background: #fff;
+                border: 1px solid #e0e0e0;
+                border-radius: 8px;
+                padding: 15px;
+                margin-bottom: 20px;
+                transition: all 0.3s ease;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            }
+
+            .screenshot-card:hover {
+                box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+                transform: translateY(-2px);
+            }
+
+            .screenshot-card:hover .screenshot-actions {
+                opacity: 1;
+                visibility: visible;
+            }
+
+            .screenshot-actions {
+                position: absolute;
+                top: 20px;
+                right: 20px;
+                opacity: 0;
+                visibility: hidden;
+                transition: all 0.3s ease;
+                z-index: 10;
+            }
+
+            .screenshot-actions .btn {
+                margin-left: 5px;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            }
+
+            .screenshot-meta {
+                margin-top: 10px;
+                padding-top: 10px;
+                border-top: 1px solid #f0f0f0;
+            }
+
+            .screenshot-url {
+                font-size: 0.85rem;
+                color: #666;
+                word-break: break-all;
+                margin-bottom: 5px;
+            }
+
+            .screenshot-caption {
+                font-size: 0.9rem;
+                color: #333;
+                font-style: italic;
+            }
+
+            .screenshot-index {
+                position: absolute;
+                top: 20px;
+                left: 20px;
+                background: rgba(0,0,0,0.7);
+                color: white;
+                padding: 5px 10px;
+                border-radius: 4px;
+                font-size: 0.85rem;
+                font-weight: 600;
+            }
+
+            .modal-header-actions {
+                display: flex;
+                gap: 10px;
+            }
+
+            @media print {
+                .screenshot-actions,
+                .modal-header button,
+                .modal-footer {
+                    display: none !important;
+                }
+
+                .screenshot-card {
+                    page-break-inside: avoid;
+                    box-shadow: none;
+                    border: 1px solid #ddd;
+                }
+
+                #screenshotModal .modal-body {
+                    max-height: none;
+                    overflow: visible;
+                }
+            }
+
+            .right-sidebar {
+                width: 600px !important;
+                right: -600px;
+            }
+            .right-sidebar.right-sidebar-visible {
+                right: 0;
+            }
+            @media (max-width: 768px) {
+                .right-sidebar {
+                    width: 100% !important;
+                    right: -100%;
+                }
             }
         </style>
     @endpush
@@ -95,28 +506,14 @@
                         </div>
 
 
-                        <div class="row">
-                            <div class="col-md-6">
-                                <!-- URL Input -->
-                                <div class="form-group">
-                                    <label for="tvUrl">TradingView Snapshot URL</label>
-                                    <input type="url" name="url" class="form-control" id="tvUrl"
-                                        placeholder="https://www.tradingview.com/x/xxxxxxx/">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <!-- When Select -->
-                                <div class="form-group">
-                                    <label for="tradeWhen">When</label>
-                                    <select class="form-control" name="when" id="tradeWhen">
-                                        <option value="">-- Select --</option>
-                                        <option value="before">Before Entry</option>
-                                        <option value="during">During Entry</option>
-                                        <option value="after">After Entry</option>
-                                    </select>
-                                </div>
-                            </div>
+                        <!-- URL Input -->
+                        <div class="form-group">
+                            <label for="tvUrl">TradingView Snapshot URL</label>
+                            <input type="url" name="url" class="form-control" id="tvUrl"
+                                placeholder="https://www.tradingview.com/x/xxxxxxx/">
                         </div>
+
+
 
                         <!-- Caption -->
                         <div class="form-group">
@@ -142,72 +539,40 @@
         <div class="modal-dialog modal-lg modal-dialog-centered" role="document" style="max-width:900px">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Logs</h5>
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h5 class="modal-title">Trade Logs</h5>
+                    <div class="modal-header-actions">
+                        <button type="button" class="btn btn-sm btn-outline-secondary fullscreen-toggle" id="fullscreenToggleBtn" title="Toggle Fullscreen">
+                            <i class="fa fa-expand" id="fullscreenIcon"></i>
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-primary" id="printLogsBtn" title="Print Logs">
+                            <i class="fa fa-print"></i> Print
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-success" id="downloadPdfBtn" title="Download as PDF">
+                            <i class="fa fa-file-pdf-o"></i> PDF
+                        </button>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
                 </div>
-                <div class="modal-body" id="screenshotContainer">
+                <div class="modal-body" id="screenshotContainer" style="position: relative;">
+                    <!-- Loading overlay -->
+                    <div class="modal-loading-overlay" id="modalLoadingOverlay">
+                        <div class="spinner"></div>
+                    </div>
                     <!-- JS will inject screenshots here -->
                 </div>
-                <!-- Edit/Delete buttons -->
 
                 <div class="modal-footer">
+                    <span class="text-muted small" id="screenshotCount"></span>
                     <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
     </div>
 
-
-    <div class="page-header">
-        <div class="row">
-            {{-- <div class="col-md-3 col-sm-3">
-                <div class="title">
-                    <h4>Trades</h4>
-                </div>
-                <nav aria-label="breadcrumb" role="navigation">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="index.html">Home</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">Supabase Bets</li>
-                    </ol>
-                </nav>
-            </div> --}}
-            <div class="col-md-12 col-sm-12 ">
-                <form id="filter_form">
-                    <div class="row">
-                        <div class=" col-md-2">
-                            <select class="form-control" name="market" id="market">
-                                <option value="0">All Markets</option>
-                            </select>
-                        </div>
-                        <div class=" col-md-2">
-                            <select class="form-control" name="outcome" id="outcome">
-                                <option value="0">All Statuses</option>
-                                <option value="won">Won</option>
-                                <option value="pending">Pending</option>
-                                <option value="lost">Lost</option>
-                            </select>
-                        </div>
-                        <div class=" col-md-3">
-                            <input class="form-control" id="date-picker" placeholder="Select Date" type="text">
-                            <input type="hidden" name="start_date" id="start_date">
-                            <input type="hidden" name="end_date" id="end_date">
-                        </div>
-
-                        <div class=" col-md-1">
-                            <button type="submit" class="btn btn-flat" href="#"
-                                style="background: #d91072;color:#fff" role="button">
-                                Filter
-                            </button>
-                        </div>
-                        <div class=" col-md-1">
-                            <button class="btn btn-outline-dark" id="add_trade_btn">
-                                <i class="dw dw-add"></i>
-                            </button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
+    <!-- Image Fullscreen Modal -->
+    <div class="image-fullscreen-modal" id="imageFullscreenModal">
+        <span class="image-fullscreen-close" id="imageFullscreenClose">&times;</span>
+        <img src="" alt="Fullscreen Image" id="fullscreenImage">
     </div>
 
 
@@ -215,7 +580,23 @@
 
     <div class="card-box mb-30">
         <div class="pd-20">
-            <h4 class="text-blue h4">Trades</h4>
+            <div class="row">
+                <div class="col-lg-4">
+                    <h4 class="text-blue h4 ">Trades</h4>
+                </div>
+                <div class="col-lg-4">
+                    @if(env('DB_DATABASE') === 'edgy_demo')
+                        <h4 class="text-danger h4 text-center">Demo / Testing Data</h4>
+                    @else
+                        <h4 class="text-success h4 text-center">Real Data</h4>
+                    @endif
+                </div>
+                <div class="col-lg-4">
+                    <button class="btn btn-outline-dark pull-right" id="add_trade_btn">
+                        <i class="dw dw-add"></i>
+                    </button>
+                </div>
+            </div>
         </div>
         <div class="pb-20">
             <table id="trades_table" class="data-table table stripe hover nowrap">
@@ -228,8 +609,8 @@
                         <th>Session</th>
                         <th>Outcome</th>
                         <th>RR</th>
-                        <th>PNL</th>
-                        <th>Xcution</th>
+                        <th>PNL($)</th>
+                        <th>HIN Day?</th>
                         <th>Entry PD</th>
                         <th>4l'd Plan?</th>
                         <th>Status</th>
@@ -252,6 +633,70 @@
         </div>
     </div>
 
+    <!-- Collapsible Features Table -->
+    <div class="card-box mb-30">
+        <div class="pd-20 d-flex justify-content-between align-items-center" style="cursor:pointer;" data-toggle="collapse" data-target="#featuresTableCollapse" aria-expanded="false" aria-controls="featuresTableCollapse">
+            <h4 class="text-blue h4 mb-0">
+                <i class="dw dw-lightbulb"></i> Upcoming Features (Next Weeks)
+            </h4>
+            <span class="badge badge-info">Click to Expand/Collapse</span>
+        </div>
+        <div class="collapse" id="featuresTableCollapse">
+            <div class="pb-20">
+                <table class="table table-hover table-bordered">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th style="width:40px;">#</th>
+                            <th>Feature</th>
+                            <th>Week</th>
+                            <th>Status</th>
+                            <th>Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        <tr>
+                            <td>4</td>
+                            <td>
+                                <strong>COT Analysis</strong>
+                                <br>
+                                <span class="text-muted small">Commitment of Traders data integration</span>
+                            </td>
+                            <td>Week 5<br><span class="text-muted small">Sat 16 Nov - Fri 22 Nov 2024</span></td>
+                            <td><span class="badge badge-warning">Pending</span></td>
+                            <td><span class="text-muted">Visualize COT reports alongside trades</span></td>
+                        </tr>
+
+
+                        <tr>
+                            <td>9</td>
+                            <td>
+                                <strong>Year-End Review & Improvements</strong>
+                                <br>
+                                <span class="text-muted small">Summary dashboard and feedback collection</span>
+                            </td>
+                            <td>Week 10<br><span class="text-muted small">Sat 21 Dec - Tue 31 Dec 2024</span></td>
+                            <td><span class="badge badge-warning">Pending</span></td>
+                            <td><span class="text-muted">Wrap up and plan for next year</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="text-right text-muted small mt-2">
+                    <i class="dw dw-info"></i> Each feature is planned for one week (Saturday to Friday, except last week). Click on a row for more details (future).
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End Features Table -->
+    @push('scripts')
+    <script>
+        // Optionally, auto-expand on first visit
+        $(document).ready(function(){
+            // $('#featuresTableCollapse').collapse('show');
+        });
+    </script>
+    @endpush
+
 
 
     @include('trades._form') <!-- Modal form -->
@@ -261,8 +706,12 @@
 @endsection
 
 @push('scripts')
+    <!-- html2pdf library for PDF generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
     <script>
         $(document).ready(function() {
+            let table;
 
             $("#entry_pd_array_s2").select2();
 
@@ -274,6 +723,9 @@
                 $('#add_trade_form').attr('action', '{{ route('trades.store') }}');
                 $('#add_trade_modal .modal-title').text('Add Trade');
                 $('#add_trade_modal').modal('show');
+                $('#is_closed_checkbox_block').hide();
+                $('#status').attr('checked', false);
+                $('#hin_day').attr('checked', false);
             });
 
             $('#add_trade_form').on('submit', function(e) {
@@ -285,6 +737,23 @@
                 if ($('#add_trade_form input[name="pnl"]').val() == '') {
                     formData.append('pnl', 0.00);
                 }
+
+                if ($('#status').prop('checked') == true) {
+                    if ($('#outcome').val() == 'pending') {
+                        iziToastNotify('error', 'Cant close a pending trade');
+                        return
+                    }
+                    formData.append('status', 'closed');
+                }
+
+                if ($('#hin_day').prop('checked') == true) {
+                    if ($('input[name=news]').val() == '') {
+                        iziToastNotify('error', 'Please state the High Impact News (News Context)');
+                        return
+                    }
+                    formData.append('hin_day',1);
+                }
+
                 let entry_pds = $('#entry_pd_array_s2')
                     .val(); // array
                 if (entry_pds && entry_pds.length) {
@@ -320,7 +789,14 @@
                     url: "{{ url('/trades/') }}" + '/' + id + '/edit',
                     type: 'GET',
                     success: function(
-                        res) { // Change form action & add PUT method
+                        res) {
+
+
+                        $('#is_closed_checkbox_block').show();
+                        $('#status').attr('checked', false);
+
+                        $('#hin_day').attr('checked', res.hin_day == 1 ? true : false);
+                        // Change form action & add PUT method
                         $('#add_trade_form').attr('action', "{{ url('/trades/') }}" + '/' + id);
                         $('#add_trade_form').attr('method', 'POST');
                         $('#add_trade_form input[name="_method"]')
@@ -385,28 +861,104 @@
             });
             $('#filter_form').on('submit', function(e) {
                 e.preventDefault();
-                let formData = {
-                    market: $('#market').val(),
-                    status: $('#status').val(),
-                    start_date: $('#start_date').val(),
-                    end_date: $('#end_date').val(),
-                    _token: '{{ csrf_token() }}'
-                };
                 table.draw();
             });
 
-            function getTodayRange() {
+            // Sidebar Toggle Logic
+            $('.toggle-sidebar-btn').on('click', function() {
+                $('.right-sidebar').toggleClass('right-sidebar-visible');
+            });
+
+            $('[data-toggle="right-sidebar-close"]').on('click', function() {
+                $('.right-sidebar').removeClass('right-sidebar-visible');
+            });
+
+            // Date Range Helper
+            function setDateRange(range) {
                 let now = new Date();
-                let start = new Date(now.getFullYear(), now.getMonth(), now
-                    .getDate(), 0, 0);
-                let end = new Date(now.getFullYear(), now.getMonth(), now.getDate(),
-                    23, 59);
-                return [start, end];
+                let start, end;
+
+                switch (range) {
+                    case 'today':
+                        start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0);
+                        end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59);
+                        break;
+                    case 'yesterday':
+                        let yest = new Date(now);
+                        yest.setDate(now.getDate() - 1);
+                        start = new Date(yest.getFullYear(), yest.getMonth(), yest.getDate(), 0, 0);
+                        end = new Date(yest.getFullYear(), yest.getMonth(), yest.getDate(), 23, 59);
+                        break;
+                    case 'this_week':
+                        let day = now.getDay() || 7; // Get current day number, converting Sun (0) to 7
+                        if (day !== 1) now.setHours(-24 * (day - 1)); // Set to Monday of this week
+                        start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0);
+                        end = new Date(start);
+                        end.setDate(start.getDate() + 6);
+                        end.setHours(23, 59, 59);
+                        break;
+                    case 'last_week':
+                        let lastWeek = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7);
+                        let dayLast = lastWeek.getDay() || 7;
+                        if (dayLast !== 1) lastWeek.setHours(-24 * (dayLast - 1));
+                        start = new Date(lastWeek.getFullYear(), lastWeek.getMonth(), lastWeek.getDate(), 0, 0);
+                        end = new Date(start);
+                        end.setDate(start.getDate() + 6);
+                        end.setHours(23, 59, 59);
+                        break;
+                    case 'this_month':
+                        start = new Date(now.getFullYear(), now.getMonth(), 1);
+                        end = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+                        break;
+                    case 'last_month':
+                        start = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+                        end = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59);
+                        break;
+                    case 'this_year':
+                        start = new Date(now.getFullYear(), 0, 1);
+                        end = new Date(now.getFullYear(), 11, 31, 23, 59, 59);
+                        break;
+                    case 'last_year':
+                        start = new Date(now.getFullYear() - 1, 0, 1);
+                        end = new Date(now.getFullYear() - 1, 11, 31, 23, 59, 59);
+                        break;
+                    default:
+                        return;
+                }
+
+                // Update Inputs
+                let startStr = start.toLocaleDateString('en-GB') + ' ' + start.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false });
+                let endStr = end.toLocaleDateString('en-GB') + ' ' + end.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false });
+
+                $('#start_date').val(startStr);
+                $('#end_date').val(endStr);
+
+                // Update Datepicker
+                let dp = $('#date-picker').datepicker().data('datepicker');
+                if(dp){
+                    dp.selectDate([start, end]);
+                }
+
+                // Highlight active button
+                $('.date-range-btn').removeClass('active');
+                $(`.date-range-btn[data-range="${range}"]`).addClass('active');
+
+                if(table) table.draw();
             }
 
-            let todayRange = getTodayRange();
+            // Bind Buttons
+            $('.date-range-btn').on('click', function() {
+                let range = $(this).data('range');
+                setDateRange(range);
+            });
 
-            $("#date-picker").datepicker({
+            // Hot-wire filters
+            $('#market, #direction, #session, #outcome, #hin_day_filter, #entry_pd, #plan_followed, #entry_type, #has_emotions, #has_news').on('change', function() {
+                table.draw();
+            });
+
+            // Init Datepicker
+            let dp = $("#date-picker").datepicker({
                 language: "en",
                 range: true,
                 dateFormat: 'dd/mm/yyyy',
@@ -414,38 +966,20 @@
                 autoClose: false,
                 buttons: ['today', 'clear'],
                 minutesStep: 1,
-                selectedDates: todayRange,
-                onSelect({
-                    formattedDate,
-                    date
-                }) {
-                    if (date.length === 2) {
-                        document.getElementById('start_date').value =
-                            formattedDate[0];
-                        document.getElementById('end_date').value =
-                            formattedDate[1];
+                onSelect: function(formattedDate, date, inst) {
+                    if (date && date.length === 2) {
+                        document.getElementById('start_date').value = formattedDate.split(' - ')[0];
+                        document.getElementById('end_date').value = formattedDate.split(' - ')[1];
+                        $('.date-range-btn').removeClass('active'); // Clear buttons if manual select
+                        if(table) table.draw(); // Trigger redraw
                     }
                 }
             });
 
-            $('#start_date').val(
-                todayRange[0].toLocaleDateString('en-GB') + ' ' +
-                todayRange[0].toLocaleTimeString('en-GB', {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    hour12: false
-                })
-            );
-            $('#end_date').val(
-                todayRange[1].toLocaleDateString('en-GB') + ' ' +
-                todayRange[1].toLocaleTimeString('en-GB', {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    hour12: false
-                })
-            );
+            // Default to This Month
+            setDateRange('this_month');
 
-            let table = $('#trades_table').DataTable({
+            table = $('#trades_table').DataTable({
                 destroy: true,
                 processing: true,
                 serverSide: true,
@@ -454,7 +988,16 @@
                     type: 'GET',
                     data: function(d) {
                         d.market = $('#market').val();
-                        d.status = $('#outcome').val();
+                        d.status = $('#outcome').val(); // keeping 'status' key for backward compat if needed, but controller uses 'outcome' too? No, controller uses 'outcome' now.
+                        d.outcome = $('#outcome').val();
+                        d.direction = $('#direction').val();
+                        d.session = $('#session').val();
+                        d.hin_day = $('#hin_day_filter').val();
+                        d.entry_pd = $('#entry_pd').val();
+                        d.plan_followed = $('#plan_followed').val();
+                        d.entry_type = $('#entry_type').val();
+                        d.has_emotions = $('#has_emotions').val();
+                        d.has_news = $('#has_news').val();
                         d.start_date = $('#start_date').val();
                         d.end_date = $('#end_date').val();
                         d._token = '{{ csrf_token() }}';
@@ -496,8 +1039,8 @@
                         name: 'pnl'
                     },
                     {
-                        data: 'entry_type',
-                        name: 'entry_type'
+                        data: 'hin_day',
+                        name: 'hin_day'
                     },
                     {
                         data: 'entry_pd_array',
@@ -558,7 +1101,7 @@
                         b), 0);
 
                     $(api.column(6).footer()).html(rrTotal.toFixed(1));
-                    $(api.column(7).footer()).html('$ '+pnlTotal.toFixed(2));
+                    $(api.column(7).footer()).html( /*'$ '+*/ pnlTotal.toFixed(2));
                 }
             });
 
@@ -639,6 +1182,9 @@
             }
 
             function format(d) {
+
+                let tradeId = d.id || '';
+
                 let emotions = parseArrayField(d.emotions || d.emotion || d
                     .emotions_list);
                 let screenshots = parseScreenshots(d.screenshots || d.screenshot ||
@@ -646,9 +1192,10 @@
                 let entryNarrative = escapeHtml(d.entry_narrative || d
                     .entryNarrative || d.entry_text);
                 let notes = escapeHtml(d.notes);
+                let status = d.trade_status;
+                let entry_type = escapeHtml(d.entry_type);
                 let news = escapeHtml(d.news);
                 let journalLink = d.daily_log_url || d.url || null;
-                let tradeId = d.id || '';
                 let tradeScreenshots = d.trade_screenshots || [];
 
                 let emotionBadges = emotions.length ?
@@ -673,7 +1220,7 @@
                     thumbsHtml += `
                     <div class="mt-2 table-expanded-links" >
                         <button class="btn btn-sm btn-outline-primary view-screenshots"
-                                data-trade-id="${escapeHtml(tradeId)}" data-screenshots='${tradeScreenshots}'>
+                                data-trade-id="${escapeHtml(tradeId)}" data-trade-status="${escapeHtml(status)}" data-screenshots='${tradeScreenshots}'>
                             View Log
                         </button>
                     </div>`;
@@ -681,22 +1228,24 @@
                     thumbsHtml = '<div class="text-muted">No screenshots</div>';
                 }
 
+
                 return `
                 <div class="container-fluid expanded-card">
                     <div class="row">
                         <div class="col-md-8">
+                            <div class="mb-2"><strong>Entry/Execution Type:</strong><span class="text-success"> ${entry_type}</span></div>
+                            <div class="mb-2"><strong>Entry Narrative:</strong> ${entryNarrative}</div>
+                            <div class="mb-2"><strong>Emotions:</strong> ${emotionBadges}</div>
                             <div class="mb-2"><strong>News:</strong> ${news}</div>
+                            <div class="mb-2"><strong>Notes:</strong> ${notes}</div>
                             <div class="mb-2"><strong>Journal:</strong>
                                 ${journalLink ? `<a href="${escapeHtml(journalLink)}" target="_blank">${escapeHtml(journalLink)}</a>` : '—'}
                             </div>
-                            <div class="mb-2"><strong>Entry Narrative:</strong> ${entryNarrative}</div>
-                            <div class="mb-2"><strong>Notes:</strong> ${notes}</div>
-                            <div class="mb-2"><strong>Emotions:</strong> ${emotionBadges}</div>
                         </div>
                         <div class="col-md-4">
                             <div><strong>Screenshots</strong>
-                                <span class="btn btn-sm btn-outline-dark add_screenshot_btn"
-                                      data-trade_id="${escapeHtml(tradeId)}" style="margin-left:10px">
+                                <span  class="col-md-1  mt-2 btn btn-sm btn-outline-dark add_screenshot_btn"
+                                    data-trade_id="${escapeHtml(tradeId)}" style="display:${escapeHtml(status == 'open' ? 'block' : 'none')}">
                                     <i class="dw dw-add"></i>
                                 </span>
                             </div>
@@ -711,9 +1260,9 @@
             $('body').on('click', '.add_screenshot_btn', function() {
                 $('#add_screenshot_modal').modal('show');
                 $('#tradeId').val($(this).data('trade_id') || '');
+                var tradeId = $(this).data('trade_id') || '';
                 $('#tvUrl').val('');
                 $('#previewContainer').hide();
-                $('#tradeWhen').val('');
                 $('#tradeCaption').val('');
                 $('#saveScreenshotBtn').text('Add');
                 $('#add_screenshot_form .modal-title').text(
@@ -724,8 +1273,7 @@
                     "{{ url('/trades') }}/" + $(this).data(
                         'trade_id') + "/screenshots");
                 $('#add_screenshot_form').attr('method', "POST");
-                $('#add_screenshot_form').remove(
-                    '<input type="hidden" name="_method" value="PUT">');
+                $('#add_screenshot_form').remove('<input type="hidden" name="_method" value="PUT">');
                 $('#deleteScreenshotBtn').hide().data('id', '').data(
                     'trade-id', '');
             });
@@ -780,7 +1328,7 @@
 
             // open modal with screenshots
 
-            function renderScreenshots(tradeScreenshots) {
+            function renderScreenshots(tradeScreenshots, tradeId, tradeStatus) {
 
                 let container = $('#screenshotContainer').empty();
 
@@ -788,43 +1336,57 @@
                     container.html(
                         '<div class="text-muted text-center p-3">No screenshots available</div>'
                     );
+                    $('#screenshotCount').text('');
                     return;
                 }
 
-                tradeScreenshots.forEach(ss => {
+                // Sort screenshots in ascending order by ID
+                tradeScreenshots.sort((a, b) => a.id - b.id);
+
+                // Update count
+                $('#screenshotCount').text(`Total: ${tradeScreenshots.length} log${tradeScreenshots.length !== 1 ? 's' : ''}`);
+
+                // Check if trade is closed
+                let isClosed = tradeStatus === 'closed';
+
+                tradeScreenshots.forEach((ss, index) => {
 
                     let src = resolveScreenshotUrl(ss.url);
-                    let caption = ss.notes || ss.when || '';
-
+                    let caption = ss.notes || '';
 
                     let html = `
-                        <div class="screenshot-actions position-absolute wd-none" style="bottom:5px; right:5px;">
-                            <button class="btn btn-sm btn-outline-primary edit-screenshot mr-1" data-id="${ss.id}" data-trade-id="${tradeId}">
-                                <i class="dw dw-edit-2"></i>
-                            </button>
-                            <button class="btn btn-sm btn-outline-danger delete-screenshot" data-id="${ss.id}" data-trade-id="${tradeId}">
-                                <i class="dw dw-delete-3"></i>
-                            </button>
-                        </div>
-                        <div class="screenshot-wrapper mb-3 text-center">
-                             <img src="${src}"
-                                class="screenshot-img rounded border"
-                                style="width: 100%; height: auto; max-height: 90vh;"
-                                onerror="this.onerror=null;this.src='/images/broken-image.png';">
-                            ${caption ? `<div class="mt-2 text-muted small">${caption}</div>` : ''}
-
+                        <div class="screenshot-card" data-screenshot-id="${ss.id}">
+                            <div class="screenshot-index">#${index + 1}</div>
+                            ${!isClosed ? `
+                            <div class="screenshot-actions">
+                                <button class="btn btn-sm btn-primary edit-screenshot" data-id="${ss.id}" data-trade-id="${tradeId}" title="Edit">
+                                    <i class="fa fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-danger delete-screenshot" data-id="${ss.id}" data-trade-id="${tradeId}" title="Delete">
+                                    <i class="fa fa-trash"></i>
+                                </button>
+                            </div>
+                            ` : ''}
+                            <div class="screenshot-image-wrapper text-center" data-image-src="${src}">
+                                <div class="zoom-overlay">
+                                    <i class="fa fa-search-plus"></i>
+                                </div>
+                                <img src="${src}"
+                                    class="screenshot-img"
+                                    alt="Screenshot ${index + 1}"
+                                    onerror="this.onerror=null;this.src='/images/broken-image.png';">
+                            </div>
+                            <div class="screenshot-meta">
+                                <div class="screenshot-url">
+                                    <strong>URL:</strong> <a href="${ss.url}" target="_blank">${ss.url}</a>
+                                </div>
+                                ${caption ? `<div class="screenshot-caption"><strong>Notes:</strong> ${caption}</div>` : ''}
+                            </div>
                         </div>
                     `;
                     container.append(html);
                 });
             }
-
-            //hover event - add a download button for editing screenshots
-            $(document).on('mouseenter', '.screenshot-wrapper', function() {
-                $(this).find('.screenshot-actions').removeClass('d-none');
-            }).on('mouseleave', '.screenshot-wrapper', function() {
-                $(this).find('.screenshot-actions').addClass('d-none');
-            });
 
 
             // Edit button
@@ -854,7 +1416,6 @@
                     success: function(res) {
                         $('#tradeId').val(tradeId);
                         $('#tvUrl').val(res.url || '');
-                        $('#tradeWhen').val(res.when || '');
                         $('#tradeCaption').val(res.notes || '');
                         $('#tvUrl').trigger(
                             'input'); // to load preview
@@ -936,15 +1497,28 @@
 
 
             // Open modal with screenshots
-            function openScreenshotModal(tradeScreenshots) {
+            function openScreenshotModal(tradeScreenshots, tradeId, tradeStatus) {
+                // Show loading overlay
+                $('#modalLoadingOverlay').show();
+
+                // Parse screenshots
                 tradeScreenshots = JSON.parse(tradeScreenshots);
-                renderScreenshots(tradeScreenshots);
+
+                // Show modal first
                 $('#screenshotModal').modal('show');
+
+                // Simulate async loading (or use actual AJAX if needed)
+                setTimeout(function() {
+                    renderScreenshots(tradeScreenshots, tradeId, tradeStatus);
+                    // Hide loading overlay after rendering
+                    $('#modalLoadingOverlay').fadeOut(300);
+                }, 300);
             }
 
             // Click handler
             $(document).on('click', '.view-screenshots', function() {
                 let tradeId = $(this).data('trade-id');
+                let tradeStatus = $(this).data('trade-status') || 'open';
                 let tradeScreenshots = [];
                 try {
                     tradeScreenshots = ($(this).attr('data-screenshots') ||
@@ -952,7 +1526,70 @@
                 } catch (e) {
                     tradeScreenshots = [];
                 }
-                openScreenshotModal(tradeScreenshots);
+                openScreenshotModal(tradeScreenshots, tradeId, tradeStatus);
+            });
+
+            // Fullscreen toggle functionality
+            $(document).on('click', '#fullscreenToggleBtn', function() {
+                let modal = $('#screenshotModal');
+                let icon = $('#fullscreenIcon');
+
+                if (modal.hasClass('modal-fullscreen')) {
+                    modal.removeClass('modal-fullscreen');
+                    icon.removeClass('fa-compress').addClass('fa-expand');
+                } else {
+                    modal.addClass('modal-fullscreen');
+                    icon.removeClass('fa-expand').addClass('fa-compress');
+                }
+            });
+
+            // Reset fullscreen on modal close
+            $('#screenshotModal').on('hidden.bs.modal', function() {
+                $(this).removeClass('modal-fullscreen');
+                $('#fullscreenIcon').removeClass('fa-compress').addClass('fa-expand');
+                $('#modalLoadingOverlay').show(); // Reset loading for next open
+            });
+
+            // Image Fullscreen Zoom
+            $(document).on('click', '.screenshot-image-wrapper', function() {
+                let src = $(this).data('image-src');
+                $('#fullscreenImage').attr('src', src);
+                $('#imageFullscreenModal').addClass('active');
+            });
+
+            $(document).on('click', '#imageFullscreenClose, #imageFullscreenModal', function(e) {
+                if (e.target !== document.getElementById('fullscreenImage')) {
+                    $('#imageFullscreenModal').removeClass('active');
+                    $('#fullscreenImage').attr('src', '');
+                }
+            });
+
+            // Print functionality
+            $(document).on('click', '#printLogsBtn', function() {
+                window.print();
+            });
+
+            // Download as PDF functionality
+            $(document).on('click', '#downloadPdfBtn', function() {
+                // Get the modal title for filename
+                let filename = 'trade_logs_' + new Date().getTime() + '.pdf';
+
+                // Use html2pdf library if available, otherwise fallback to print
+                if (typeof html2pdf !== 'undefined') {
+                    let element = document.getElementById('screenshotContainer');
+                    let opt = {
+                        margin: 10,
+                        filename: filename,
+                        image: { type: 'jpeg', quality: 0.98 },
+                        html2canvas: { scale: 2, useCORS: true },
+                        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                    };
+                    html2pdf().set(opt).from(element).save();
+                } else {
+                    // Fallback: open print dialog
+                    iziToastNotify('info', 'Opening print dialog. You can save as PDF from there.');
+                    window.print();
+                }
             });
 
 

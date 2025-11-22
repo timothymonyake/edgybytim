@@ -33,6 +33,7 @@ class Trade extends Model
         'emotions',
         'pnl',
         'mistake',
+        'hin_day',
         'entry_narrative',
         'notes',
         'improvement_idea'

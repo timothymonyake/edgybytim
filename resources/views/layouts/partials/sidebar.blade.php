@@ -1,4 +1,4 @@
-<div class="left-side-bar">
+{{-- <div class="left-side-bar">
     <div class="brand-logo">
         <a href="index.html">
             <img src="{{ asset('deskapp/vendors/images/logo-dark.png') }}" alt="" class="dark-logo">
@@ -20,7 +20,7 @@
 							<li><a href="index2.html">Dashboard style 2</a></li>
 						</ul>
 					</li> --}}
-                <li>
+              {{--   <li>
                     <a href="{{ route('dashboard.index') }}" class="dropdown-toggle no-arrow">
                         <span class="micon dw"><i class="icon-copy dw dw-analytics-8"></i></span><span
                             class="mtext">Dashboard</span>
@@ -35,7 +35,6 @@
                 <li>
                     <a href="{{ route('dashboard.index') }}" class="dropdown-toggle no-arrow">
                         <span class="micon dw"><i class="icon-copy dw dw-analytics-21"></i></span><span
-                            class="mtext">Trades</span>
                     </a>
                 </li>
 
@@ -46,7 +45,7 @@
                     <ul class="submenu" style="display: block">
                         <li><a href="form-basic.html">Form Basic</a></li>
                     </ul>
-                </li>
+                </li> --}}
                 {{-- <li class="dropdown">
 						<a href="javascript:;" class="dropdown-toggle">
 							<span class="micon dw dw-edit2"></span><span class="mtext">Forms</span>
@@ -66,9 +65,10 @@
 						<a href="calendar.html" class="dropdown-toggle no-arrow">
 							<span class="micon dw dw-calendar1"></span><span class="mtext">Calendar</span>
 						</a>
-					</li> --}}
+					</li>
             </ul>
         </div>
     </div>
 </div>
-{{-- 	<div class="mobile-menu-overlay"></div> --}}
+{{-- 	<div class="mobile-menu-overlay"></div>
+ --}}

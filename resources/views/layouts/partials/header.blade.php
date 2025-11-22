@@ -1,109 +1,74 @@
 <div class="header">
-		<div class="header-left">
+    <div class="header-left">{{--
+        <div class="menu-icon dw dw-menu"></div> --}}{{--
+        <div class="search-toggle-icon dw dw-search2" data-toggle="header_search"></div> --}}
+        <div class="header-search">
+            <div class="brand-logo">
+                <a href="{{url('/')}}">
+                    <img src="{{ asset('deskapp/vendors/images/logo-white.png') }}" alt="" class="dark-logo">
+                    <img src="{{ asset('deskapp/vendors/images/logo-dark.png') }}" alt="" class="light-logo">
+                </a>
+            </div>
+        </div>
+        <div class="dropdown">
+            <button class="btn btn-outline-primary btn-sm ml-2 dropdown-toggle" type="button" id="menuDropdown"
+                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="dw dw-menu"></i>
+            </button>
 
-		</div>
-		<div class="header-right">
-			<div class="dashboard-setting user-notification">
-				<div class="dropdown">
-					<a class="dropdown-toggle no-arrow" href="javascript:;" data-toggle="right-sidebar">
-						<i class="dw dw-settings2"></i>
-					</a>
-				</div>
-			</div>
+            <div class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list" aria-labelledby="menuDropdown">
+                <a class="dropdown-item" href="{{ route('dashboard.index') }}">
+                    <i id="dashboard-icon" class="dw dw-analytics-8"></i> Dashboard
+                </a>
+                <a class="dropdown-item" href="{{ route('trades.index') }}">
+                    <i class="dw dw-table"></i> Trades
+                </a>
+                <a class="dropdown-item" href="{{ url('/calendar') }}">
+                    <i id="calendar-icon" class="dw dw-calendar"></i> Calendar
+                </a>
+                <!-- <a class="dropdown-item" href="{{ url('/charts') }}">
+                    <i class="dw dw-bar-chart1"></i> Charts
+                </a> -->
+                <a class="dropdown-item" href="{{ route('rules_tips.index') }}">
+                    <i class="dw dw-list"></i> Trading Guidelines
+                </a>
+                {{-- <a class="dropdown-item refresh_view_btn" href="{{ url('/calendar') }}">
+                    <i class="dw dw-refresh1"></i> Refresh View
+                </a> --}}
+            </div>
+        </div>
 
-			<div class="user-info-dropdown">
-				<div class="dropdown">
-					<a class="dropdown-toggle" href="#" role="button" data-toggle="dropdown">
-						<span class="user-icon">
-							<img src="{{asset('deskapp/src/images/milogo.png')}}" alt="">
-						</span>
-						<span class="user-name">Segolame T. Monyake</span>
-					</a>{{--
-					<div class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list">
-						<a class="dropdown-item" href="profile.html"><i class="dw dw-user1"></i> Profile</a>
-						<a class="dropdown-item" href="profile.html"><i class="dw dw-settings2"></i> Setting</a>
-						<a class="dropdown-item" href="faq.html"><i class="dw dw-help"></i> Help</a>
-						<a class="dropdown-item" href="login.html"><i class="dw dw-logout"></i> Log Out</a>
-					</div> --}}
-				</div>
-			</div>
-			<div class="github-link">
-			{{-- 	<a href="https://github.com/dropways/deskapp" target="_blank"><img src="vendors/images/github.svg" alt=""></a>
-			 --}}</div>
-		</div>
-	</div>
 
-	<div class="right-sidebar">
-		<div class="sidebar-title">
-			<h3 class="weight-600 font-16 text-blue">
-				Layout Settings
-				<span class="btn-block font-weight-400 font-12">User Interface Settings</span>
-			</h3>
-			<div class="close-sidebar" data-toggle="right-sidebar-close">
-				<i class="icon-copy ion-close-round"></i>
-			</div>
-		</div>
-		<div class="right-sidebar-body customscroll">
-			<div class="right-sidebar-body-content">
-				<h4 class="weight-600 font-18 pb-10">Header Background</h4>
-				<div class="sidebar-btn-group pb-30 mb-10">
-					<a href="javascript:void(0);" class="btn btn-outline-primary header-white active">White</a>
-					<a href="javascript:void(0);" class="btn btn-outline-primary header-dark">Dark</a>
-				</div>
+        <button class="btn btn-outline-primary btn-sm ml-2 toggle-sidebar-btn">
+            <i class="dw dw-filter"></i>
+        </button>
 
-				<h4 class="weight-600 font-18 pb-10">Sidebar Background</h4>
-				<div class="sidebar-btn-group pb-30 mb-10">
-					<a href="javascript:void(0);" class="btn btn-outline-primary sidebar-light ">White</a>
-					<a href="javascript:void(0);" class="btn btn-outline-primary sidebar-dark active">Dark</a>
-				</div>
 
-				<h4 class="weight-600 font-18 pb-10">Menu Dropdown Icon</h4>
-				<div class="sidebar-radio-group pb-10 mb-10">
-					<div class="custom-control custom-radio custom-control-inline">
-						<input type="radio" id="sidebaricon-1" name="menu-dropdown-icon" class="custom-control-input" value="icon-style-1" checked="">
-						<label class="custom-control-label" for="sidebaricon-1"><i class="fa fa-angle-down"></i></label>
-					</div>
-					<div class="custom-control custom-radio custom-control-inline">
-						<input type="radio" id="sidebaricon-2" name="menu-dropdown-icon" class="custom-control-input" value="icon-style-2">
-						<label class="custom-control-label" for="sidebaricon-2"><i class="ion-plus-round"></i></label>
-					</div>
-					<div class="custom-control custom-radio custom-control-inline">
-						<input type="radio" id="sidebaricon-3" name="menu-dropdown-icon" class="custom-control-input" value="icon-style-3">
-						<label class="custom-control-label" for="sidebaricon-3"><i class="fa fa-angle-double-right"></i></label>
-					</div>
-				</div>
+    </div>
+    <div class="header-right">
+        <div class="dashboard-setting user-notification">
 
-				<h4 class="weight-600 font-18 pb-10">Menu List Icon</h4>
-				<div class="sidebar-radio-group pb-30 mb-10">
-					<div class="custom-control custom-radio custom-control-inline">
-						<input type="radio" id="sidebariconlist-1" name="menu-list-icon" class="custom-control-input" value="icon-list-style-1" checked="">
-						<label class="custom-control-label" for="sidebariconlist-1"><i class="ion-minus-round"></i></label>
-					</div>
-					<div class="custom-control custom-radio custom-control-inline">
-						<input type="radio" id="sidebariconlist-2" name="menu-list-icon" class="custom-control-input" value="icon-list-style-2">
-						<label class="custom-control-label" for="sidebariconlist-2"><i class="fa fa-circle-o" aria-hidden="true"></i></label>
-					</div>
-					<div class="custom-control custom-radio custom-control-inline">
-						<input type="radio" id="sidebariconlist-3" name="menu-list-icon" class="custom-control-input" value="icon-list-style-3">
-						<label class="custom-control-label" for="sidebariconlist-3"><i class="dw dw-check"></i></label>
-					</div>
-					<div class="custom-control custom-radio custom-control-inline">
-						<input type="radio" id="sidebariconlist-4" name="menu-list-icon" class="custom-control-input" value="icon-list-style-4" checked="">
-						<label class="custom-control-label" for="sidebariconlist-4"><i class="icon-copy dw dw-next-2"></i></label>
-					</div>
-					<div class="custom-control custom-radio custom-control-inline">
-						<input type="radio" id="sidebariconlist-5" name="menu-list-icon" class="custom-control-input" value="icon-list-style-5">
-						<label class="custom-control-label" for="sidebariconlist-5"><i class="dw dw-fast-forward-1"></i></label>
-					</div>
-					<div class="custom-control custom-radio custom-control-inline">
-						<input type="radio" id="sidebariconlist-6" name="menu-list-icon" class="custom-control-input" value="icon-list-style-6">
-						<label class="custom-control-label" for="sidebariconlist-6"><i class="dw dw-next"></i></label>
-					</div>
-				</div>
+        </div>
+        <div class="user-info-dropdown">
+            <div class="dropdown">
+                <a class="dropdown-toggle" href="#" role="button" data-toggle="dropdown">
+                    <span class="user-icon">
+                        <img src="{{ asset('milogo.png') }}" alt="">
+                    </span>
+                    <span class="user-name">Admin</span>
+                </a>
+                <div class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list">
+                    <a class="dropdown-item update_bettica_data_btn" href="javascript:void(0)">
+                        <i class="dw dw-settings2"></i> Update Bettica Data
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="github-link">
+            <a href="https://github.com/dropways/deskapp" target="_blank"><img src="vendors/images/github.svg"
+                    alt=""></a>
+        </div>
+    </div>
+</div>
 
-				<div class="reset-options pt-30 text-center">
-					<button class="btn btn-danger" id="reset-settings">Reset Settings</button>
-				</div>
-			</div>
-		</div>
-	</div>
+@yield('left-sidebar')
