@@ -11,7 +11,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        // AutoLogin middleware disabled - uncomment for development auto-login
+        // $middleware->append(\App\Http\Middleware\AutoLogin::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

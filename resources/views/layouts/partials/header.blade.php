@@ -5,8 +5,8 @@
         <div class="header-search">
             <div class="brand-logo">
                 <a href="{{url('/')}}">
-                    <img src="{{ asset('deskapp/vendors/images/logo-white.png') }}" alt="" class="dark-logo">
-                    <img src="{{ asset('deskapp/vendors/images/logo-dark.png') }}" alt="" class="light-logo">
+                    <img src="{{ asset('deskapp/vendors/images/logo-white.png') }}" alt="Logo" class="dark-logo" style="max-height: 50px; max-width: 180px; object-fit: contain;">
+                    <img src="{{ asset('deskapp/vendors/images/logo-dark.png') }}" alt="Logo" class="light-logo" style="max-height: 50px; max-width: 180px; object-fit: contain;">
                 </a>
             </div>
         </div>
@@ -32,6 +32,9 @@
                 <a class="dropdown-item" href="{{ route('rules_tips.index') }}">
                     <i class="dw dw-list"></i> Trading Guidelines
                 </a>
+                <a class="dropdown-item" href="{{ route('ai-insights.index') }}">
+                    <i class="dw dw-analytics-21"></i> AI Insights
+                </a>
                 {{-- <a class="dropdown-item refresh_view_btn" href="{{ url('/calendar') }}">
                     <i class="dw dw-refresh1"></i> Refresh View
                 </a> --}}
@@ -55,12 +58,21 @@
                     <span class="user-icon">
                         <img src="{{ asset('milogo.png') }}" alt="">
                     </span>
-                    <span class="user-name">Admin</span>
+                    <span class="user-name">{{Auth::user()->name}}</span>
                 </a>
                 <div class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list">
+                    <a class="dropdown-item" href="{{ route('profile.edit') }}">
+                        <i class="dw dw-user1"></i> Profile
+                    </a>
                     <a class="dropdown-item update_bettica_data_btn" href="javascript:void(0)">
                         <i class="dw dw-settings2"></i> Update Bettica Data
                     </a>
+                    <form method="POST" action="{{ route('logout') }}" style="display: inline;">
+                        @csrf
+                        <button type="submit" class="dropdown-item" style="border: none; background: none; width: 100%; text-align: left; cursor: pointer;">
+                            <i class="dw dw-logout"></i> Log Out
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>
@@ -71,4 +83,4 @@
     </div>
 </div>
 
-@yield('left-sidebar')
+
