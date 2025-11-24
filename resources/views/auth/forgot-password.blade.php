@@ -12,6 +12,7 @@
 	<link rel="stylesheet" type="text/css" href="{{ asset('deskapp/vendors/styles/core.css') }}">
 	<link rel="stylesheet" type="text/css" href="{{ asset('deskapp/vendors/styles/icon-font.min.css') }}">
 	<link rel="stylesheet" type="text/css" href="{{ asset('deskapp/vendors/styles/style.css') }}">
+<link rel="stylesheet" type="text/css" href="{{ asset('css/custom-colors.css') }}">
 </head>
 <body class="login-page">
 	<div class="login-header box-shadow">

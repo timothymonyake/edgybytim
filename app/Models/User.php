@@ -22,6 +22,7 @@ class User extends Authenticatable
         'email',
         'password',
         'groq_api_key',
+        'profile_photo_path',
     ];
 
     /**

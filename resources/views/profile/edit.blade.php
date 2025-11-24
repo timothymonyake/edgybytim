@@ -24,7 +24,13 @@
         <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 mb-30">
             <div class="pd-20 card-box height-100-p">
                 <div class="profile-photo">
-                    <img src="{{ asset('milogo.png') }}" alt="" class="avatar-photo">
+                    @if($user->profile_photo_path)
+                        <img src="{{ asset('storage/' . $user->profile_photo_path) }}" alt="" class="avatar-photo" style="width: 160px; height: 160px; object-fit: cover; border-radius: 50%;">
+                    @else
+                        <div class="avatar-initials" style="width: 160px; height: 160px; background: #667eea; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 64px; font-weight: bold; margin: 0 auto;">
+                            {{ strtoupper(substr($user->name, 0, 2)) }}
+                        </div>
+                    @endif
                 </div>
                 <h5 class="text-center h5 mb-0">{{ $user->name }}</h5>
                 <p class="text-center text-muted font-14">{{ $user->email }}</p>
@@ -65,9 +71,18 @@
                                         </div>
                                     @endif
 
-                                    <form method="POST" action="{{ route('profile.update') }}">
+                                    <form method="POST" action="{{ route('profile.update') }}" enctype="multipart/form-data">
                                         @csrf
                                         @method('PATCH')
+                                        <div class="form-group row">
+                                            <label class="col-sm-12 col-md-2 col-form-label">Profile Photo</label>
+                                            <div class="col-sm-12 col-md-10">
+                                                <input class="form-control" type="file" name="profile_photo" accept="image/*">
+                                                @error('profile_photo')
+                                                    <div class="form-control-feedback text-danger">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                        </div>
                                         <div class="form-group row">
                                             <label class="col-sm-12 col-md-2 col-form-label">Name</label>
                                             <div class="col-sm-12 col-md-10">

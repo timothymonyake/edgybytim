@@ -21,7 +21,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard.index');
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard'); // Breeze compatibility
     Route::get('/analytics', [DashboardController::class, 'index'])->name('analytics.index');
-    
+
     // Trades
     Route::get('/trades', [TradeController::class, 'index'])->name('trades.index');
     Route::get('/trades/data', [TradeController::class, 'getTrades'])->name('trades.data');
@@ -65,7 +65,8 @@ Route::middleware(['auth'])->group(function () {
     // AI Insights
     Route::get('/ai-insights', [AIInsightsController::class, 'index'])->name('ai-insights.index');
     Route::post('/ai-insights/analyze', [AIInsightsController::class, 'analyze'])->name('ai-insights.analyze');
+    Route::get('/ai-insights/history', [AIInsightsController::class, 'history'])->name('ai-insights.history');
     Route::post('/ai-insights/monthly', [AIInsightsController::class, 'monthlyInsights'])->name('ai-insights.monthly');
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

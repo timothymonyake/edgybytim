@@ -15,15 +15,48 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     @stack('styles')
+    <style>
+        .sticky-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: #fff;
+            padding: 10px 0;
+            text-align: center;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            z-index: 9999;
+            font-family: 'Inter', sans-serif; /* Assuming Inter is used, or inherit */
+        }
+        .footer-text-bold {
+            font-weight: 700;
+            font-size: 14px;
+            color: #333;
+        }
+        .footer-text-italic {
+            font-style: italic;
+            color: #555;
+            margin: 0 4px;
+            font-size: 14px;
+        }
+    </style>
 </head>
 <body>
     @include('layouts.partials.header')
     
     <div class="main-container">
-        <div class="pd-ltr-20">
+        <div class="pd-ltr-20" style="padding-bottom: 50px;">
             @yield('content')
         </div>
     </div>
+
+    <div class="sticky-footer">
+        <span class="footer-text-bold">HLEAABSSYGAC</span> - 
+        <span class="footer-text-italic">I accept the risk.Anything can happen.My job is execution, not prediction.</span>
+        <span class="footer-text-bold"> #IGWT - You're Great!</span>
+    </div>
+    
+    @yield('left-sidebar')
     
     <!-- JS -->
     <script src="{{ asset('deskapp/vendors/scripts/core.js') }}"></script>

@@ -481,6 +481,62 @@
                     right: -100%;
                 }
             }
+
+            /* dt-control expand button - blue circle with + */
+            td.dt-control {
+                background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%231b00ff"><circle cx="12" cy="12" r="10"/><path fill="white" d="M11 7h2v10h-2z"/><path fill="white" d="M7 11h10v2H7z"/></svg>') no-repeat center center;
+                background-size: 24px 24px;
+                cursor: pointer;
+                width: 40px;
+                text-align: center;
+            }
+
+            td.dt-control:hover {
+                background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%230056b3"><circle cx="12" cy="12" r="10"/><path fill="white" d="M11 7h2v10h-2z"/><path fill="white" d="M7 11h10v2H7z"/></svg>');
+            }
+
+            tr.shown td.dt-control {
+                background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%231b00ff"><circle cx="12" cy="12" r="10"/><path fill="white" d="M7 11h10v2H7z"/></svg>');
+            }
+
+            tr.shown td.dt-control:hover {
+                background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%230056b3"><circle cx="12" cy="12" r="10"/><path fill="white" d="M7 11h10v2H7z"/></svg>');
+            }
+
+            /* Hide the responsive arrow that appears on small screens */
+            td.dt-control:before {
+                display: none !important;
+            }
+
+            /* Reduce row padding */
+            #trades_table tbody td {
+                padding: 8px 10px !important;
+                vertical-align: middle;
+            }
+
+            #trades_table thead th {
+                padding: 10px !important;
+            }
+
+            /* Make table text darker and bolder (except badges) */
+            #trades_table tbody td {
+                color: #333 !important;
+                font-weight: 500;
+            }
+
+            /* Keep badges with their own styling */
+            #trades_table tbody td .badge {
+                font-weight: 600;
+            }
+
+            /* Make specific columns extra bold: Asset, Date, RR, PNL */
+            #trades_table tbody td:nth-child(2),  /* Date */
+            #trades_table tbody td:nth-child(3),  /* Asset */
+            #trades_table tbody td:nth-child(7),  /* RR */
+            #trades_table tbody td:nth-child(8) { /* PNL */
+                font-weight: 600 !important;
+                color: #222 !important;
+            }
         </style>
     @endpush
 
@@ -718,6 +774,11 @@
             $('#add_trade_btn').click(function(e) {
                 e.preventDefault();
                 $('#add_trade_form')[0].reset();
+                
+                // Set today's date as default
+                let today = new Date().toISOString().split('T')[0];
+                $('[name="trade_date"]').val(today);
+                
                 $('#submit_trade_btn').text('Add');
                 $('#add_trade_form input[name="_method"]').remove(); // remove PUT if present
                 $('#add_trade_form').attr('action', '{{ route('trades.store') }}');
@@ -926,9 +987,9 @@
                         return;
                 }
 
-                // Update Inputs
-                let startStr = start.toLocaleDateString('en-GB') + ' ' + start.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false });
-                let endStr = end.toLocaleDateString('en-GB') + ' ' + end.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false });
+                // Update Inputs - format as dd/mm/yyyy only (no time)
+                let startStr = start.toLocaleDateString('en-GB');
+                let endStr = end.toLocaleDateString('en-GB');
 
                 $('#start_date').val(startStr);
                 $('#end_date').val(endStr);

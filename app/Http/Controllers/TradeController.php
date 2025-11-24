@@ -19,6 +19,7 @@ class TradeController extends Controller
     {
         $trades = Trade::query();
 
+
         if ($request->filled('start_date') && $request->filled('end_date')) {
             $start = \Carbon\Carbon::createFromFormat('d/m/Y', $request->start_date)->format('Y-m-d');
             $end = \Carbon\Carbon::createFromFormat('d/m/Y', $request->end_date)->format('Y-m-d');
@@ -33,17 +34,21 @@ class TradeController extends Controller
             $trades->where('direction', $request->direction);
         }
 
+        
         if ($request->filled('session') && $request->session != '0') {
             $trades->where('session', $request->session);
         }
 
-        if ($request->filled('outcome') && $request->outcome != '0') {
+        
+       /*  if ($request->filled('outcome') && $request->outcome != '0') {
             $trades->where('outcome', $request->outcome);
-        }
+        } */
 
         if ($request->filled('hin_day') && $request->hin_day != '0') {
             $trades->where('hin_day', $request->hin_day == 'yes' ? 1 : 0);
         }
+
+        
 
         if ($request->filled('plan_followed') && $request->plan_followed != '0') {
             $trades->where('plan_followed', $request->plan_followed == 'yes' ? 1 : 0);

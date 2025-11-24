@@ -19,7 +19,7 @@
         background: linear-gradient(135deg, var(--ai-primary), var(--ai-secondary));
         border-radius: 16px;
         padding: 40px;
-        margin-bottom: 30px;
+        margin-bottom: 60px;
         color: #fff;
         box-shadow: 0 8px 24px rgba(102, 126, 234, 0.2);
         position: relative;
@@ -275,6 +275,11 @@
     <div class="ai-header text-center mb-5">
         <h1><i class="fa fa-brain mr-3"></i>AI Trading Insights</h1>
         <p>Get intelligent analysis and recommendations powered by Groq LLaMA 3.3</p>
+        <div class="mt-4">
+            <a href="{{ route('ai-insights.history') }}" class="btn btn-light font-weight-bold text-primary">
+                <i class="dw dw-time-management mr-2"></i> View History
+            </a>
+        </div>
     </div>
 
     @if(!auth()->user()->groq_api_key)

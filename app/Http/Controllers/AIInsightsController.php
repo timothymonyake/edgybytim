@@ -16,12 +16,8 @@ class AIInsightsController extends Controller
 
     public function analyze(Request $request)
     {
-
-      //  dd(typeOf($request->include_trade_data));
-
         $request->validate([
             'prompt' => 'required|string|max:1000',
- //           'include_trade_data' => 'boolean',
         ]);
 
         $user = $request->user();
@@ -32,12 +28,30 @@ class AIInsightsController extends Controller
             ], 400);
         }
 
-        $prompt = $request->prompt;
+        // Fetch detailed trade data (CSV format)
+        $trades = Trade::where('user_id', $user->id)
+            ->orderBy('trade_date', 'desc')
+            ->take(50)
+            ->get();
+        
+        $csvData = "Date,Asset,Direction,Outcome,P&L,RR,Session,Entry Type,Plan Followed,Emotions,Mistakes\n";
+        foreach ($trades as $trade) {
+            $csvData .= "{$trade->trade_date},{$trade->asset},{$trade->direction},{$trade->outcome},{$trade->pnl},{$trade->rr},{$trade->session},{$trade->entry_type},{$trade->plan_followed},{$trade->emotions},{$trade->mistakes}\n";
+        }
 
-        // If user wants to include trade data
-        if ($request->include_trade_data) {
-            $tradeData = $this->getTradeDataSummary();
-            $prompt .= "\n\nHere is my recent trading data:\n" . $tradeData;
+        // Get screenshots (limit to last 5 trades to avoid token limits)
+        $screenshots = [];
+        foreach ($trades->take(5) as $trade) {
+            foreach ($trade->screenshots as $screenshot) {
+                $screenshots[] = asset('storage/' . $screenshot->path);
+            }
+        }
+
+        $prompt = $request->prompt;
+        $prompt .= "\n\nHere is my recent trading data (CSV):\n" . $csvData;
+
+        if (!empty($screenshots)) {
+            $prompt .= "\n\nScreenshot Links (for context): " . implode(', ', $screenshots);
         }
 
         try {
@@ -61,7 +75,6 @@ class AIInsightsController extends Controller
             ]);
 
             if (!$response->successful()) {
-
                 \Log::error('Groq API Error', ['body' => $response->body()]);
                 return response()->json([
                     'error' => 'AI service error: ' . ($response->json()['error']['message'] ?? 'Unknown error')
@@ -71,12 +84,22 @@ class AIInsightsController extends Controller
             $data = $response->json();
             $insight = $data['choices'][0]['message']['content'] ?? 'No response generated.';
 
+            // Save to database
+            \App\Models\SavedInsight::create([
+                'user_id' => $user->id,
+                'type' => 'quick',
+                'title' => substr($request->prompt, 0, 50) . '...',
+                'prompt' => $request->prompt,
+                'response' => $insight,
+                'metadata' => ['trade_count' => $trades->count()]
+            ]);
+
             return response()->json([
                 'insight' => $insight
             ]);
 
         } catch (\Exception $e) {
-            Log::error('AI Analysis Exception', ['error' => $e->getMessage()]);
+            \Log::error('AI Analysis Exception', ['error' => $e->getMessage()]);
             return response()->json([
                 'error' => 'An error occurred while communicating with the AI service.'
             ], 500);
@@ -257,5 +280,30 @@ class AIInsightsController extends Controller
         $analysis .= "- Trades with Plan: $withPlan (" . round(($withPlan / $trades->count()) * 100, 2) . "%)\n";
 
         return $analysis;
+    }
+
+    public function history()
+    {
+        $quickInsights = \App\Models\SavedInsight::where('user_id', auth()->id())
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function ($insight) {
+                $insight->source = 'quick';
+                return $insight;
+            });
+
+        $monthlyInsights = \App\Models\MonthlyInsight::where('user_id', auth()->id())
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function ($insight) {
+                $insight->source = 'monthly';
+                $insight->title = 'Monthly Report - ' . $insight->period;
+                $insight->response = $insight->insight; // Map insight to response
+                return $insight;
+            });
+
+        $history = $quickInsights->concat($monthlyInsights)->sortByDesc('created_at');
+
+        return view('ai_insights.history', compact('history'));
     }
 }

@@ -54,7 +54,7 @@
                     <span class="badge badge-primary ml-2">Strategy</span>
                 </div>
                 <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#addRuleModal">
-                    <i class="dw dw-add"></i> Add Rule
+                    <i class="dw dw-add"></i>
                 </button>
             </div>
             
@@ -102,7 +102,7 @@
                     <span class="badge badge-success ml-2">Pre-Flight</span>
                 </div>
                 <button class="btn btn-success btn-sm" data-toggle="modal" data-target="#addChecklistModal">
-                    <i class="dw dw-add"></i> Add Item
+                    <i class="dw dw-add"></i>
                 </button>
             </div>
             
@@ -151,7 +151,7 @@
                 </div>
                 <button class="btn btn-sm" style="background-color: #6f42c1; border-color: #6f42c1; color: white;" 
                     data-toggle="modal" data-target="#addTipModal">
-                    <i class="dw dw-add"></i> Add Tip
+                    <i class="dw dw-add"></i>
                 </button>
             </div>
             

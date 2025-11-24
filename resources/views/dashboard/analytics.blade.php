@@ -516,6 +516,21 @@
     .progress-fill.danger {
         background: linear-gradient(90deg, #ff5252, #d32f2f);
     }
+
+    /* Sidebar Width Override */
+    .right-sidebar {
+        width: 600px !important;
+        right: -600px;
+    }
+    .right-sidebar.right-sidebar-visible {
+        right: 0;
+    }
+    @media (max-width: 768px) {
+        .right-sidebar {
+            width: 100% !important;
+            right: -100%;
+        }
+    }
 </style>
 @endpush
 
