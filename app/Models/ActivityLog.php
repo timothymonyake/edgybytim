@@ -2,14 +2,11 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class EntryChecklist extends Model
+class ActivityLog extends Model
 {
-    use HasFactory;
-
-    protected $fillable = ['user_id', 'content'];
+    protected $fillable = ['user_id', 'action', 'description', 'subject_type', 'subject_id', 'url'];
 
     public function user()
     {

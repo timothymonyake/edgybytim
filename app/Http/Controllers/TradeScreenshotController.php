@@ -11,16 +11,17 @@ class TradeScreenshotController extends Controller
 {
     public function store(Request $request, Trade $trade)
     {
-        //place in try catch
+        if ($trade->user_id !== auth()->id()) {
+            return response()->json(['error' => ['message' => 'Unauthorized']], 403);
+        }
+
         try {
             $request->validate([
-               // 'when' => 'required|in:before,during,after',
                 'url' => 'required|url',
                 'notes' => 'nullable|string',
             ]);
             TradeScreenshot::create([
                 'trade_id' => $trade->id,
-              //  'when' => $request->when,
                 'url' => $request->url,
                 'notes' => $request->notes,
             ]);
@@ -31,14 +32,21 @@ class TradeScreenshotController extends Controller
         }
     }
 
-    public function edit(Trade $trade, TradeScreenshot $screenshot)
+    public function edit(TradeScreenshot $screenshot)
     {
+        if ($screenshot->trade->user_id !== auth()->id()) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
         return response()->json($screenshot);
     }
 
     // Update screenshot
-    public function update(Request $request, Trade $trade, TradeScreenshot $screenshot)
+    public function update(Request $request, TradeScreenshot $screenshot)
     {
+        if ($screenshot->trade->user_id !== auth()->id()) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
         $request->validate([
             'notes' => 'nullable|string',
             'url' => 'required|url',
@@ -54,6 +62,10 @@ class TradeScreenshotController extends Controller
 
     public function destroy(TradeScreenshot $screenshot)
     {
+        if ($screenshot->trade->user_id !== auth()->id()) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+        
         $screenshot->delete();
         return response()->json(['success' => true, 'message' => 'Screenshot deleted successfully.']);
     }

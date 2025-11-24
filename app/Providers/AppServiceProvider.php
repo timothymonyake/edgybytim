@@ -19,6 +19,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        \App\Models\Trade::observe(\App\Observers\TradeObserver::class);
+        \App\Models\Milestone::observe(\App\Observers\MilestoneObserver::class);
     }
 }

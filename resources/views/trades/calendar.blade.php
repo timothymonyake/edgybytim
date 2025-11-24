@@ -223,6 +223,24 @@
 
     @include('trades._form') <!-- Modal form -->
 
+    <!-- Day Trades Modal -->
+    <div class="modal fade" id="dayTradesModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Trades on <span id="modalDate"></span></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div id="dayTradesList" class="list-group">
+                        <!-- Trades injected here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @push('scripts')
@@ -268,21 +286,61 @@
                     // Trigger when month changes
                     updateMonthSummary();
                     setTimeout(updateWeeklySummaries, 100);
+
+                    // Linkify Title
+                    const title = view.title; 
+                    const viewDate = moment(view.intervalStart);
+                    const start = moment(viewDate).startOf('month').format('DD/MM/YYYY');
+                    const end = moment(viewDate).endOf('month').format('DD/MM/YYYY');
+                    
+                    // Use setTimeout to ensure the title is rendered before we replace it
+                    setTimeout(() => {
+                        $('.fc-center h2').html(`<a href="{{ route('trades.index') }}?start_date=${start}&end_date=${end}" class="text-dark" style="text-decoration:none;" title="View trades for this month">${title}</a>`);
+                    }, 100);
                 },
                 dayClick: function(date) {
                     // Prevent clicking on Saturday (Summary column)
                     if (date.day() === 6) return;
 
-                    $('#add_trade_form')[0].reset();
-                    $('#submit_trade_btn').text('Add');
-                    $('#add_trade_form input[name="_method"]').remove();
-                    $('#add_trade_form').attr('action', '{{ route('trades.store') }}');
-                    $('#add_trade_modal .modal-title').text('Add Trade');
+                    const dateStr = date.format('YYYY-MM-DD');
+                    const formattedDate = date.format('DD MMM YYYY');
                     
-                    // Pre-fill the date
-                    $('#add_trade_form input[name="trade_date"]').val(date.format('YYYY-MM-DD'));
-                    
-                    $('#add_trade_modal').modal('show');
+                    $('#modalDate').text(formattedDate);
+                    $('#dayTradesList').html('<div class="text-center py-4"><div class="spinner-border text-primary" role="status"></div></div>');
+                    $('#dayTradesModal').modal('show');
+
+                    $.ajax({
+                        url: '/trades/date/' + dateStr,
+                        type: 'GET',
+                        success: function(response) {
+                            let html = '';
+                            if (response.trades.length > 0) {
+                                response.trades.forEach(trade => {
+                                    const pnlClass = trade.pips >= 0 ? 'text-success' : 'text-danger';
+                                    const pnlSign = trade.pips >= 0 ? '+' : '';
+                                    
+                                    html += `
+                                        <a href="{{ route('trades.index') }}?trade_id=${trade.id}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <h6 class="mb-1 font-weight-bold">${trade.symbol.toUpperCase()} <span class="badge badge-light ml-2">${trade.type}</span></h6>
+                                                <small class="text-muted">${trade.time} - ${trade.outcome.toUpperCase()}</small>
+                                            </div>
+                                            <div class="text-right">
+                                                <h5 class="${pnlClass} mb-0">${pnlSign}$${trade.pips}</h5>
+                                                <small class="text-muted">RR: ${trade.rr}</small>
+                                            </div>
+                                        </a>
+                                    `;
+                                });
+                            } else {
+                                html = '<div class="text-center text-muted py-4">No trades recorded for this day.</div>';
+                            }
+                            $('#dayTradesList').html(html);
+                        },
+                        error: function() {
+                            $('#dayTradesList').html('<div class="text-center text-danger py-4">Error loading trades.</div>');
+                        }
+                    });
                 }
             });
 

@@ -16,18 +16,7 @@
     
     @stack('styles')
     <style>
-        .sticky-footer {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background-color: #fff;
-            padding: 10px 0;
-            text-align: center;
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
-            z-index: 9999;
-            font-family: 'Inter', sans-serif; /* Assuming Inter is used, or inherit */
-        }
+        /* Sticky footer removed as per user request */
         .footer-text-bold {
             font-weight: 700;
             font-size: 14px;
@@ -50,7 +39,7 @@
         </div>
     </div>
 
-    <div class="sticky-footer">
+    <div class="footer-wrap pd-20 mb-20 card-box">
         <span class="footer-text-bold">HLEAABSSYGAC</span> - 
         <span class="footer-text-italic">I accept the risk.Anything can happen.My job is execution, not prediction.</span>
         <span class="footer-text-bold"> #IGWT - You're Great!</span>
@@ -68,6 +57,7 @@
     <script src="{{ asset('deskapp/src/plugins/datatables/js/dataTables.responsive.min.js') }}"></script>
     <script src="{{ asset('deskapp/src/plugins/datatables/js/responsive.bootstrap4.min.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     
     @stack('scripts')
 </body>

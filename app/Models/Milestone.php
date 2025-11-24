@@ -2,14 +2,12 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\User;
 
-class EntryChecklist extends Model
+class Milestone extends Model
 {
-    use HasFactory;
-
-    protected $fillable = ['user_id', 'content'];
+    protected $fillable = ['user_id', 'date', 'img_path', 'text'];
 
     public function user()
     {

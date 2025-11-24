@@ -6,10 +6,18 @@
 <style>
     .guideline-item {
         transition: all 0.2s ease;
+        border: none;
+        border-bottom: 1px solid #f0f0f0;
+        padding: 15px;
+    }
+    
+    .guideline-item:last-child {
+        border-bottom: none;
     }
     
     .guideline-item:hover {
-        background-color: #f8f9fa;
+        background-color: #f8fcfc; /* Very subtle blue tint */
+        transform: translateX(5px);
     }
     
     .guideline-item .action-buttons {
@@ -23,6 +31,45 @@
     
     .action-buttons .btn {
         margin-left: 5px;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .card-box {
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.05); /* Softer shadow */
+        border: none;
+    }
+
+    .h4 {
+        font-weight: 600;
+        letter-spacing: -0.5px;
+    }
+
+    .badge {
+        font-weight: 500;
+        padding: 5px 10px;
+        border-radius: 6px;
+    }
+    
+    /* Custom Scrollbar for lists */
+    .list-group::-webkit-scrollbar {
+        width: 6px;
+    }
+    .list-group::-webkit-scrollbar-track {
+        background: #f1f1f1; 
+    }
+    .list-group::-webkit-scrollbar-thumb {
+        background: #d1d1d1; 
+        border-radius: 3px;
+    }
+    .list-group::-webkit-scrollbar-thumb:hover {
+        background: #b1b1b1; 
     }
 </style>
 

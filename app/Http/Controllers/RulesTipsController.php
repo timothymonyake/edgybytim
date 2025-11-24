@@ -7,13 +7,16 @@ use App\Models\Rule;
 use App\Models\PsychologicalTip;
 use App\Models\EntryChecklist;
 
+use Illuminate\Support\Facades\Auth;
+
 class RulesTipsController extends Controller
 {
     public function index()
     {
-        $rules = Rule::all();
-        $tips = PsychologicalTip::all();
-        $checklists = EntryChecklist::all();
+        $user_id = Auth::id();
+        $rules = Rule::where('user_id', $user_id)->get();
+        $tips = PsychologicalTip::where('user_id', $user_id)->get();
+        $checklists = EntryChecklist::where('user_id', $user_id)->get();
         return view('rules_tips.index', compact('rules', 'tips', 'checklists'));
     }
 
@@ -23,7 +26,9 @@ class RulesTipsController extends Controller
     {
         try {
             $request->validate(['content' => 'required']);
-            $checklist = EntryChecklist::create($request->all());
+            $data = $request->all();
+            $data['user_id'] = Auth::id();
+            $checklist = EntryChecklist::create($data);
             return response()->json([
                 'success' => true,
                 'message' => 'Checklist item added successfully',
@@ -75,7 +80,9 @@ class RulesTipsController extends Controller
     {
         try {
             $request->validate(['content' => 'required']);
-            $rule = Rule::create($request->all());
+            $data = $request->all();
+            $data['user_id'] = Auth::id();
+            $rule = Rule::create($data);
             return response()->json([
                 'success' => true,
                 'message' => 'Rule added successfully',
@@ -93,7 +100,9 @@ class RulesTipsController extends Controller
     {
         try {
             $request->validate(['content' => 'required']);
-            $tip = PsychologicalTip::create($request->all());
+            $data = $request->all();
+            $data['user_id'] = Auth::id();
+            $tip = PsychologicalTip::create($data);
             return response()->json([
                 'success' => true,
                 'message' => 'Tip added successfully',

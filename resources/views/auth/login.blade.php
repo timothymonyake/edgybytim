@@ -14,7 +14,7 @@
 	<link rel="stylesheet" type="text/css" href="{{ asset('deskapp/vendors/styles/style.css') }}">
 </head>
 <body class="login-page">
-	<div class="login-header box-shadow">
+	{{-- <div class="login-header box-shadow">
 		<div class="container-fluid d-flex justify-content-between align-items-center">
 			<div class="brand-logo">
 				<a href="{{ url('/') }}">
@@ -22,7 +22,7 @@
 				</a>
 			</div>
 		</div>
-	</div>
+	</div> --}}
 	<div class="login-wrap d-flex align-items-center flex-wrap justify-content-center">
 		<div class="container">
 			<div class="row align-items-center">
@@ -48,7 +48,7 @@
 						<form method="POST" action="{{ route('login') }}">
 							@csrf
 							<div class="input-group custom">
-								<input type="email" class="form-control form-control-lg @error('email') is-invalid @enderror" 
+								<input type="email" class="form-control form-control-lg @error('email') is-invalid @enderror"
 									   placeholder="Email" name="email" value="{{ old('email') }}" required autofocus autocomplete="username">
 								<div class="input-group-append custom">
 									<span class="input-group-text"><i class="icon-copy dw dw-user1"></i></span>
@@ -58,7 +58,7 @@
 								@enderror
 							</div>
 							<div class="input-group custom">
-								<input type="password" class="form-control form-control-lg @error('password') is-invalid @enderror" 
+								<input type="password" class="form-control form-control-lg @error('password') is-invalid @enderror"
 									   placeholder="Password" name="password" required autocomplete="current-password">
 								<div class="input-group-append custom">
 									<span class="input-group-text"><i class="dw dw-padlock1"></i></span>

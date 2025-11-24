@@ -67,6 +67,14 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/ai-insights/analyze', [AIInsightsController::class, 'analyze'])->name('ai-insights.analyze');
     Route::get('/ai-insights/history', [AIInsightsController::class, 'history'])->name('ai-insights.history');
     Route::post('/ai-insights/monthly', [AIInsightsController::class, 'monthlyInsights'])->name('ai-insights.monthly');
+
+    // Milestones
+    Route::get('/milestones', [App\Http\Controllers\MilestoneController::class, 'index'])->name('milestones.index');
+    Route::post('/milestones', [App\Http\Controllers\MilestoneController::class, 'store'])->name('milestones.store');
+    Route::delete('/milestones/{milestone}', [App\Http\Controllers\MilestoneController::class, 'destroy'])->name('milestones.destroy');
+
+    // Single Trade View
+    Route::get('/trades/{trade}', [TradeController::class, 'show'])->name('trades.show');
 });
 
 require __DIR__ . '/auth.php';

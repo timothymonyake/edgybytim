@@ -6,5 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class PsychologicalTip extends Model
 {
-    protected $fillable = ['content'];
+    protected $fillable = ['user_id', 'content'];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

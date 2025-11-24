@@ -121,7 +121,9 @@ class AIInsightsController extends Controller
         $endDate = Carbon::now()->subMonth()->endOfMonth();
         $period = $startDate->format('Y-m');
 
-        $trades = Trade::whereBetween('trade_date', [$startDate, $endDate])->get();
+        $trades = Trade::where('user_id', $user->id)
+            ->whereBetween('trade_date', [$startDate, $endDate])
+            ->get();
 
         if ($trades->isEmpty()) {
             return response()->json([
@@ -204,7 +206,11 @@ class AIInsightsController extends Controller
 
     private function getTradeDataSummary()
     {
-        $trades = Trade::where('status', 'closed')->orderBy('trade_date', 'desc')->take(50)->get();
+        $trades = Trade::where('user_id', auth()->id())
+            ->where('status', 'closed')
+            ->orderBy('trade_date', 'desc')
+            ->take(50)
+            ->get();
 
         $summary = "Recent Trading Summary (Last 50 trades):\n\n";
         $summary .= "Total Trades: " . $trades->count() . "\n";

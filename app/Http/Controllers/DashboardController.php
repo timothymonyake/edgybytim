@@ -12,7 +12,7 @@ class DashboardController extends Controller
     public function index(Request $request)
     {
         // Start with base query
-        $query = Trade::query();
+        $query = Trade::where('user_id', auth()->id());
         
         // Apply Filters
         $this->applyFilters($query, $request);
@@ -167,14 +167,17 @@ class DashboardController extends Controller
             return $dayTrades->sum('pnl');
         });
         
-        $bestDay = $dailyPnL->max() ?? 0;
-        $worstDay = $dailyPnL->min() ?? 0;
+        $bestDayVal = $dailyPnL->max() ?? 0;
+        $worstDayVal = $dailyPnL->min() ?? 0;
+        
+        $bestDayDate = $dailyPnL->search($bestDayVal);
+        $worstDayDate = $dailyPnL->search($worstDayVal);
         
         // Compliance Score
         $complianceScore = $this->calculateComplianceScore($trades);
         
         // Lifetime Win Rate (Exempt from filters)
-        $allClosedTrades = Trade::where('status', 'closed')->get();
+        $allClosedTrades = Trade::where('user_id', auth()->id())->where('status', 'closed')->get();
         $lifetimeWon = $allClosedTrades->where('outcome', 'win')->count();
         $lifetimeTotal = $allClosedTrades->count();
         $lifetimeWinRate = $lifetimeTotal > 0 ? ($lifetimeWon / $lifetimeTotal) * 100 : 0;
@@ -189,8 +192,10 @@ class DashboardController extends Controller
             'monthly_win_rate' => round($periodWinRate, 1),
             'monthly_avg_rr' => round($periodAvgRR, 2),
             'monthly_total_rr' => round($periodTotalRR, 2),
-            'best_day' => round($bestDay, 2),
-            'worst_day' => round($worstDay, 2),
+            'best_day' => round($bestDayVal, 2),
+            'best_day_date' => $bestDayDate,
+            'worst_day' => round($worstDayVal, 2),
+            'worst_day_date' => $worstDayDate,
             'compliance_score' => round($complianceScore, 1)
         ];
     }

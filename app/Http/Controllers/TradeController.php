@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Trade;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
+use Illuminate\Support\Facades\Auth;
 
 class TradeController extends Controller
 {
@@ -17,7 +18,7 @@ class TradeController extends Controller
     // Data for DataTables
     public function getTrades(Request $request)
     {
-        $trades = Trade::query();
+        $trades = Trade::where('user_id', Auth::id());
 
 
         if ($request->filled('start_date') && $request->filled('end_date')) {
@@ -80,6 +81,10 @@ class TradeController extends Controller
                     $q->whereNull('news')->orWhere('news', '');
                 });
             }
+        }
+
+        if ($request->filled('trade_id')) {
+            $trades->where('id', $request->trade_id);
         }
 
         return DataTables::of($trades)
@@ -216,7 +221,9 @@ class TradeController extends Controller
     {
 
         try {
-            $trade = Trade::create($request->all());
+            $data = $request->all();
+            $data['user_id'] = Auth::id();
+            $trade = Trade::create($data);
             return response()->json(['success' => true, 'message' => 'Trade sucessfully saved!']);
         } catch (\Throwable $th) {
             return response()->json(['success' => false, 'message' => $th->getMessage()]);

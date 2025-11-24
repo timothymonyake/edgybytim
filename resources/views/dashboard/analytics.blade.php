@@ -630,28 +630,32 @@
 
     <!-- Best Day -->
     <div class="kpi-tile">
-        <div class="d-flex justify-content-between align-items-start">
-            <div class="kpi-icon" style="background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%); color: #fff; margin-bottom: 0;">
-                <i class="fa fa-star"></i>
+        <a href="{{ route('trades.index', ['start_date' => \Carbon\Carbon::parse($kpis['best_day_date'])->format('d/m/Y'), 'end_date' => \Carbon\Carbon::parse($kpis['best_day_date'])->format('d/m/Y')]) }}" class="text-decoration-none text-dark" style="display: block; height: 100%;">
+            <div class="d-flex justify-content-between align-items-start">
+                <div class="kpi-icon" style="background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%); color: #fff; margin-bottom: 0;">
+                    <i class="fa fa-star"></i>
+                </div>
             </div>
-        </div>
-        <div>
-            <div class="kpi-value" id="kpi-best-day" style="color: var(--ag-warning);">${{ number_format($kpis['best_day'], 2) }}</div>
-            <div class="kpi-label">Best Day</div>
-        </div>
+            <div>
+                <div class="kpi-value" id="kpi-best-day" style="color: var(--ag-warning);">${{ number_format($kpis['best_day'], 2) }}</div>
+                <div class="kpi-label">Best Day</div>
+            </div>
+        </a>
     </div>
 
     <!-- Worst Day -->
     <div class="kpi-tile">
-        <div class="d-flex justify-content-between align-items-start">
-            <div class="kpi-icon" style="background: linear-gradient(135deg, #ff5252 0%, #d32f2f 100%); color: #fff; margin-bottom: 0;">
-                <i class="fa fa-exclamation-triangle"></i>
+        <a href="{{ route('trades.index', ['start_date' => \Carbon\Carbon::parse($kpis['worst_day_date'])->format('d/m/Y'), 'end_date' => \Carbon\Carbon::parse($kpis['worst_day_date'])->format('d/m/Y')]) }}" class="text-decoration-none text-dark" style="display: block; height: 100%;">
+            <div class="d-flex justify-content-between align-items-start">
+                <div class="kpi-icon" style="background: linear-gradient(135deg, #ff5252 0%, #d32f2f 100%); color: #fff; margin-bottom: 0;">
+                    <i class="fa fa-exclamation-triangle"></i>
+                </div>
             </div>
-        </div>
-        <div>
-            <div class="kpi-value" id="kpi-worst-day" style="color: var(--ag-danger);">${{ number_format($kpis['worst_day'], 2) }}</div>
-            <div class="kpi-label">Worst Day</div>
-        </div>
+            <div>
+                <div class="kpi-value" id="kpi-worst-day" style="color: var(--ag-danger);">${{ number_format($kpis['worst_day'], 2) }}</div>
+                <div class="kpi-label">Worst Day</div>
+            </div>
+        </a>
     </div>
 
     <!-- Compliance Score -->
@@ -835,70 +839,74 @@
         <div class="trade-showcase">
             <!-- Best Trade -->
             @if($bestWorst['best'])
-            <div class="trade-card" id="best-trade-card">
-                <div class="trade-card-header best">
-                    <div style="font-weight: 700;">BEST TRADE</div>
-                    <div style="font-size: 18px;" id="best-trade-pnl">+${{ number_format($bestWorst['best']->pnl, 2) }}</div>
+            <a href="{{ route('trades.index', ['trade_id' => $bestWorst['best']->id]) }}" class="text-decoration-none text-dark">
+                <div class="trade-card" id="best-trade-card">
+                    <div class="trade-card-header best">
+                        <div style="font-weight: 700;">BEST TRADE</div>
+                        <div style="font-size: 18px;" id="best-trade-pnl">+${{ number_format($bestWorst['best']->pnl, 2) }}</div>
+                    </div>
+                    <div class="trade-card-body">
+                        <div class="trade-pair">
+                            <div class="pair-icon"><i class="fa fa-chart-line"></i></div>
+                            <span id="best-trade-pair">{{ strtoupper($bestWorst['best']->asset )}}</span>
+                            <span class="badge badge-success ml-auto">WIN</span>
+                        </div>
+                        <div style="color: var(--ag-neutral-700); font-size: 13px; margin-bottom: 12px;">
+                            <i class="fa fa-calendar-alt mr-1"></i> <span id="best-trade-date">{{ \Carbon\Carbon::parse($bestWorst['best']->trade_date)->format('d M Y') }}</span>
+                        </div>
+                        <div class="trade-stats-grid">
+                            <div class="trade-stat">
+                                <div class="trade-stat-label">Risk/Reward</div>
+                                <div class="trade-stat-value" id="best-trade-rr">{{ $bestWorst['best']->rr }}</div>
+                            </div>
+                            <div class="trade-stat">
+                                <div class="trade-stat-label">Session</div>
+                                <div class="trade-stat-value" style="font-size: 14px;" id="best-trade-session">{{ strtoupper(str_replace('_', ' ', $bestWorst['best']->session)) }}</div>
+                            </div>
+                            <div class="trade-stat" style="grid-column: span 2;">
+                                <div class="trade-stat-label">Setup</div>
+                                <div class="trade-stat-value" style="font-size: 14px;" id="best-trade-setup">{{ $bestWorst['best']->setup ?? 'N/A' }}</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="trade-card-body">
-                    <div class="trade-pair">
-                        <div class="pair-icon"><i class="fa fa-chart-line"></i></div>
-                        <span id="best-trade-pair">{{ strtoupper($bestWorst['best']->asset )}}</span>
-                        <span class="badge badge-success ml-auto">WIN</span>
-                    </div>
-                    <div style="color: var(--ag-neutral-700); font-size: 13px; margin-bottom: 12px;">
-                        <i class="fa fa-calendar-alt mr-1"></i> <span id="best-trade-date">{{ \Carbon\Carbon::parse($bestWorst['best']->trade_date)->format('d M Y') }}</span>
-                    </div>
-                    <div class="trade-stats-grid">
-                        <div class="trade-stat">
-                            <div class="trade-stat-label">Risk/Reward</div>
-                            <div class="trade-stat-value" id="best-trade-rr">{{ $bestWorst['best']->rr }}</div>
-                        </div>
-                        <div class="trade-stat">
-                            <div class="trade-stat-label">Session</div>
-                            <div class="trade-stat-value" style="font-size: 14px;" id="best-trade-session">{{ strtoupper(str_replace('_', ' ', $bestWorst['best']->session)) }}</div>
-                        </div>
-                        <div class="trade-stat" style="grid-column: span 2;">
-                            <div class="trade-stat-label">Setup</div>
-                            <div class="trade-stat-value" style="font-size: 14px;" id="best-trade-setup">{{ $bestWorst['best']->setup ?? 'N/A' }}</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            </a>
             @endif
 
             <!-- Worst Trade -->
             @if($bestWorst['worst'])
-            <div class="trade-card" id="worst-trade-card">
-                <div class="trade-card-header worst">
-                    <div style="font-weight: 700;">WORST TRADE</div>
-                    <div style="font-size: 18px;" id="worst-trade-pnl">-${{ number_format(abs($bestWorst['worst']->pnl), 2) }}</div>
+            <a href="{{ route('trades.index', ['trade_id' => $bestWorst['worst']->id]) }}" class="text-decoration-none text-dark">
+                <div class="trade-card" id="worst-trade-card">
+                    <div class="trade-card-header worst">
+                        <div style="font-weight: 700;">WORST TRADE</div>
+                        <div style="font-size: 18px;" id="worst-trade-pnl">-${{ number_format(abs($bestWorst['worst']->pnl), 2) }}</div>
+                    </div>
+                    <div class="trade-card-body">
+                        <div class="trade-pair">
+                            <div class="pair-icon"><i class="fa fa-chart-line"></i></div>
+                            <span id="worst-trade-pair">{{ strtoupper($bestWorst['worst']->asset) }}</span>
+                            <span class="badge badge-danger ml-auto">LOSS</span>
+                        </div>
+                        <div style="color: var(--ag-neutral-700); font-size: 13px; margin-bottom: 12px;">
+                            <i class="fa fa-calendar-alt mr-1"></i> <span id="worst-trade-date">{{ \Carbon\Carbon::parse($bestWorst['worst']->trade_date)->format('d M Y') }}</span>
+                        </div>
+                        <div class="trade-stats-grid">
+                            <div class="trade-stat">
+                                <div class="trade-stat-label">Risk/Reward</div>
+                                <div class="trade-stat-value" id="worst-trade-rr">{{ $bestWorst['worst']->rr }}</div>
+                            </div>
+                            <div class="trade-stat">
+                                <div class="trade-stat-label">Session</div>
+                                <div class="trade-stat-value" style="font-size: 14px;" id="worst-trade-session">{{ strtoupper(str_replace('_', ' ', $bestWorst['worst']->session)) }}</div>
+                            </div>
+                            <div class="trade-stat" style="grid-column: span 2;">
+                                <div class="trade-stat-label">Setup</div>
+                                <div class="trade-stat-value" style="font-size: 14px;" id="worst-trade-setup">{{ $bestWorst['worst']->setup ?? 'N/A' }}</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="trade-card-body">
-                    <div class="trade-pair">
-                        <div class="pair-icon"><i class="fa fa-chart-line"></i></div>
-                        <span id="worst-trade-pair">{{ strtoupper($bestWorst['worst']->asset) }}</span>
-                        <span class="badge badge-danger ml-auto">LOSS</span>
-                    </div>
-                    <div style="color: var(--ag-neutral-700); font-size: 13px; margin-bottom: 12px;">
-                        <i class="fa fa-calendar-alt mr-1"></i> <span id="worst-trade-date">{{ \Carbon\Carbon::parse($bestWorst['worst']->trade_date)->format('d M Y') }}</span>
-                    </div>
-                    <div class="trade-stats-grid">
-                        <div class="trade-stat">
-                            <div class="trade-stat-label">Risk/Reward</div>
-                            <div class="trade-stat-value" id="worst-trade-rr">{{ $bestWorst['worst']->rr }}</div>
-                        </div>
-                        <div class="trade-stat">
-                            <div class="trade-stat-label">Session</div>
-                            <div class="trade-stat-value" style="font-size: 14px;" id="worst-trade-session">{{ strtoupper(str_replace('_', ' ', $bestWorst['worst']->session)) }}</div>
-                        </div>
-                        <div class="trade-stat" style="grid-column: span 2;">
-                            <div class="trade-stat-label">Setup</div>
-                            <div class="trade-stat-value" style="font-size: 14px;" id="worst-trade-setup">{{ $bestWorst['worst']->setup ?? 'N/A' }}</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            </a>
             @endif
         </div>
     </div>
@@ -1330,6 +1338,16 @@
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                onClick: (e, activeEls) => {
+                    if (activeEls.length > 0) {
+                        const index = activeEls[0].index;
+                        const rawDate = monthlyData[index].date; // "YYYY-MM"
+                        const startDate = moment(rawDate, "YYYY-MM").startOf('month').format('DD/MM/YYYY');
+                        const endDate = moment(rawDate, "YYYY-MM").endOf('month').format('DD/MM/YYYY');
+                        
+                        window.location.href = `{{ route('trades.index') }}?start_date=${startDate}&end_date=${endDate}`;
+                    }
+                },
                 plugins: {
                     legend: { display: false },
                     tooltip: {

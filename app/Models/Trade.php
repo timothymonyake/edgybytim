@@ -43,6 +43,11 @@ class Trade extends Model
         'entry_pd_array' => 'array',
     ];
 
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
     public function screenshots()
     {
         return $this->hasMany(TradeScreenshot::class);

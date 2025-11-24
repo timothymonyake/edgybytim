@@ -148,8 +148,25 @@
 
     .insight-output.show {
         display: block;
+        margin-top: 20px;
         animation: fadeInUp 0.5s ease;
     }
+
+    /* Markdown Styles */
+    .insight-output h1, .insight-output h2, .insight-output h3 {
+        margin-top: 1.5em;
+        margin-bottom: 0.5em;
+        font-weight: 700;
+        color: #2d3748;
+    }
+    .insight-output h3 { font-size: 1.25rem; }
+    .insight-output ul, .insight-output ol {
+        padding-left: 1.5em;
+        margin-bottom: 1em;
+    }
+    .insight-output li { margin-bottom: 0.5em; }
+    .insight-output strong { color: #4a5568; }
+    .insight-output p { margin-bottom: 1em; }
 
     @keyframes fadeInUp {
         from {
@@ -288,7 +305,7 @@
         </div>
     @endif
 
-    <div class="row">
+    <div class="row" style="margin-top:20px">
         <!-- On-Demand Analysis -->
         <div class="col-md-6">
             <div class="ai-card">
@@ -336,18 +353,26 @@
                 </div>
 
                 <p style="color: #6c757d; margin-bottom: 24px;">
-                    Get a comprehensive AI-powered analysis of last month's trading performance with actionable recommendations.
+                    Your comprehensive monthly analysis is generated automatically on the 1st of every month.
                 </p>
 
-                <button type="button" class="btn btn-ai btn-ai-secondary" id="monthly-btn">
-                    <i class="fa fa-chart-line"></i>
-                    Generate Monthly Report
-                </button>
-
-                <div class="loading-spinner" id="loading-monthly">
-                    <div class="spinner"></div>
-                    <p style="color: #6c757d; font-weight: 500;">Generating comprehensive report...</p>
+                <div class="alert alert-info border-0" style="background: rgba(102, 126, 234, 0.1); color: #5a67d8;">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="fa fa-clock mr-2"></i>
+                        <strong>Next Scheduled Run:</strong>
+                        <span class="ml-auto">{{ now()->endOfMonth()->addSecond()->format('M j, Y H:i') }}</span>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <i class="fa fa-history mr-2"></i>
+                        <strong>Last Run:</strong>
+                        <span class="ml-auto">Nov 1, 2025 (October Report)</span>
+                    </div>
                 </div>
+
+                <a href="{{ route('ai-insights.history') }}" class="btn btn-ai btn-ai-secondary btn-block text-center text-white" style="text-decoration: none;">
+                    <i class="fa fa-archive mr-2"></i>
+                    View Past Reports
+                </a>
 
                 <div class="insight-output" id="monthly-output"></div>
             </div>
@@ -421,7 +446,8 @@ $(document).ready(function() {
             },
             success: function(response) {
                 $('#loading-analyze').removeClass('show');
-                $('#insight-output').text(response.insight).addClass('show');
+                const htmlContent = marked.parse(response.insight);
+                $('#insight-output').html(htmlContent).addClass('show');
                 $('#analyze-btn').prop('disabled', false);
             },
             error: function(xhr) {

@@ -26,18 +26,18 @@
                 <a class="dropdown-item" href="{{ url('/calendar') }}">
                     <i id="calendar-icon" class="dw dw-calendar"></i> Calendar
                 </a>
+                <a class="dropdown-item" href="{{ route('milestones.index') }}">
+                    <i class="dw dw-flag"></i> Milestones
+                </a>
+                <a class="dropdown-item" href="{{ route('ai-insights.index') }}">
+                    <i class="dw dw-analytics-21"></i> AI Insights
+                </a>
                 <!-- <a class="dropdown-item" href="{{ url('/charts') }}">
                     <i class="dw dw-bar-chart1"></i> Charts
                 </a> -->
                 <a class="dropdown-item" href="{{ route('rules_tips.index') }}">
                     <i class="dw dw-list"></i> Trading Guidelines
                 </a>
-                <a class="dropdown-item" href="{{ route('ai-insights.index') }}">
-                    <i class="dw dw-analytics-21"></i> AI Insights
-                </a>
-                {{-- <a class="dropdown-item refresh_view_btn" href="{{ url('/calendar') }}">
-                    <i class="dw dw-refresh1"></i> Refresh View
-                </a> --}}
             </div>
         </div>
 

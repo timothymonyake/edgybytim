@@ -768,6 +768,10 @@
     <script>
         $(document).ready(function() {
             let table;
+            
+            // Check for trade_id in URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const tradeId = urlParams.get('trade_id');
 
             $("#entry_pd_array_s2").select2();
 
@@ -1062,6 +1066,12 @@
                         d.start_date = $('#start_date').val();
                         d.end_date = $('#end_date').val();
                         d._token = '{{ csrf_token() }}';
+                        // Pass trade_id if present in URL
+                        const urlParams = new URLSearchParams(window.location.search);
+                        const tradeIdFromUrl = urlParams.get('trade_id');
+                        if (tradeIdFromUrl) {
+                            d.trade_id = tradeIdFromUrl;
+                        }
                     }
                 },
                 columns: [{
@@ -1304,11 +1314,12 @@
                             </div>
                         </div>
                         <div class="col-md-4">
-                            <div><strong>Screenshots</strong>
-                                <span  class="col-md-1  mt-2 btn btn-sm btn-outline-dark add_screenshot_btn"
-                                    data-trade_id="${escapeHtml(tradeId)}" style="display:${escapeHtml(status == 'open' ? 'block' : 'none')}">
-                                    <i class="dw dw-add"></i>
-                                </span>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <strong>Screenshots</strong>
+                                <button class="btn btn-sm btn-outline-dark add_screenshot_btn"
+                                    data-trade_id="${escapeHtml(tradeId)}" style="display:${escapeHtml(status == 'open' ? 'inline-flex' : 'none')}; align-items: center; gap: 4px;">
+                                    <i class="dw dw-add"></i> Add
+                                </button>
                             </div>
                             <div class="mt-2">${thumbsHtml}</div>
                         </div>

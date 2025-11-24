@@ -15,8 +15,11 @@ class CalendarController extends Controller
 
     public function events(Request $request)
     {
+        $userId = auth()->id();
+
         // Daily data
-        $daily = Trade::selectRaw('
+        $daily = Trade::where('user_id', $userId)
+            ->selectRaw('
                 trade_date as date,
                 SUM(pnl) as pnl,
                 COUNT(id) as trades,
@@ -27,7 +30,8 @@ class CalendarController extends Controller
             ->get();
 
         // Monthly summary
-        $monthly = Trade::selectRaw('
+        $monthly = Trade::where('user_id', $userId)
+            ->selectRaw('
                 DATE_FORMAT(trade_date, "%Y-%m") as month,
                 SUM(pnl) as pnl,
                 COUNT(id) as trades,
@@ -90,7 +94,8 @@ class CalendarController extends Controller
         }
 
         // Weekly summary - group by year and week number
-        $weekly = Trade::selectRaw('
+        $weekly = Trade::where('user_id', $userId)
+            ->selectRaw('
                 YEARWEEK(trade_date, 1) as year_week,
                 MIN(trade_date) as week_start,
                 SUM(pnl) as pnl,
@@ -123,7 +128,8 @@ class CalendarController extends Controller
 
     public function getTradesByDate($date)
     {
-        $trades = Trade::where('trade_date', $date)
+        $trades = Trade::where('user_id', auth()->id())
+            ->where('trade_date', $date)
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -151,10 +157,10 @@ class CalendarController extends Controller
 
             return [
                 'id' => $trade->id,
-                'symbol' => $trade->symbol,
-                'type' => ucfirst($trade->type),
+                'symbol' => $trade->asset, // Changed from symbol to asset
+                'type' => ucfirst($trade->direction), // Changed from type to direction
                 'outcome' => $trade->outcome,
-                'pips' => round($trade->pips, 2),
+                'pips' => round($trade->pnl, 2), // Changed from pips to pnl
                 'rr' => $trade->rr ?? 'N/A',
                 'time' => $trade->created_at->format('H:i'),
                 'notes' => $trade->notes,
