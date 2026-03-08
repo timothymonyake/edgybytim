@@ -596,6 +596,8 @@
                 <span style="color: var(--ag-success); font-weight: 700;" id="kpi-wins">{{ $kpis['monthly_wins'] }}W</span>
                 <span style="color: var(--ag-neutral-200);">/</span>
                 <span style="color: var(--ag-danger); font-weight: 700;" id="kpi-losses">{{ $kpis['monthly_losses'] }}L</span>
+                <span style="color: var(--ag-neutral-200);">/</span>
+                <span style="color: var(--ag-neutral-600); font-weight: 700;" id="kpi-breakeven">{{ $kpis['monthly_breakeven'] }}BE</span>
                 <div style="font-size: 10px; color: var(--ag-neutral-700); margin-top: 2px;"><span id="kpi-trades">{{ $kpis['monthly_trades'] }}</span> Trades</div>
             </div>
             <div class="text-right">
@@ -1029,6 +1031,7 @@
             $('#kpi-period-wr').text(data.kpis.monthly_win_rate + '%');
             $('#kpi-wins').text(data.kpis.monthly_wins + 'W');
             $('#kpi-losses').text(data.kpis.monthly_losses + 'L');
+            $('#kpi-breakeven').text(data.kpis.monthly_breakeven + 'BE');
             $('#kpi-trades').text(data.kpis.monthly_trades);
             
             let rrColor = data.kpis.monthly_total_rr >= 0 ? 'var(--ag-success)' : 'var(--ag-danger)';

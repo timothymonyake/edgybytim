@@ -9,6 +9,7 @@ use App\Http\Controllers\RulesTipsController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AIInsightsController;
+use App\Http\Controllers\AssetController;
 
 // Public routes
 Route::get('/login', function () {
@@ -42,7 +43,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/trades/date/{date}', [CalendarController::class, 'getTradesByDate'])->name('trades.by_date');
 
     // Reminders
-    Route::resource('reminders', ReminderController::class)->only(['index', 'store', 'destroy']);
+    Route::get('/reminders/upcoming', [ReminderController::class, 'upcoming'])->name('reminders.upcoming');
+    Route::post('/reminders/{reminder}/notified', [ReminderController::class, 'notified'])->name('reminders.notified');
+    Route::resource('reminders', ReminderController::class)->only(['index', 'store', 'update', 'destroy']);
 
     // Rules & Tips
     Route::get('/rules-tips', [RulesTipsController::class, 'index'])->name('rules_tips.index');
@@ -72,6 +75,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/milestones', [App\Http\Controllers\MilestoneController::class, 'index'])->name('milestones.index');
     Route::post('/milestones', [App\Http\Controllers\MilestoneController::class, 'store'])->name('milestones.store');
     Route::delete('/milestones/{milestone}', [App\Http\Controllers\MilestoneController::class, 'destroy'])->name('milestones.destroy');
+
+    // Assets
+    Route::resource('assets', AssetController::class)->except(['create', 'show', 'edit']);
 
     // Single Trade View
     Route::get('/trades/{trade}', [TradeController::class, 'show'])->name('trades.show');

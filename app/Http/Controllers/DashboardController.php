@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Trade;
+use App\Models\Asset;
+use App\Models\AssetType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -46,7 +48,10 @@ class DashboardController extends Controller
             ]);
         }
         
-        return view('dashboard.analytics', compact('kpis', 'chartData', 'behavioral', 'bestWorst', 'streaks'));
+        $assets = Asset::where('user_id', auth()->id())->orderBy('name')->get();
+        $assetTypes = AssetType::all();
+        
+        return view('dashboard.analytics', compact('kpis', 'chartData', 'behavioral', 'bestWorst', 'streaks', 'assets', 'assetTypes'));
     }
     
     private function applyFilters($query, $request)
@@ -68,7 +73,13 @@ class DashboardController extends Controller
         }
 
         if ($request->filled('market') && $request->market != '0') {
-            $query->where('asset', $request->market);
+            $query->where('asset_id', $request->market);
+        }
+
+        if ($request->filled('asset_type') && $request->asset_type != '0') {
+            $query->whereHas('associatedAsset', function($q) use ($request) {
+                $q->where('asset_type_id', $request->asset_type);
+            });
         }
 
         if ($request->filled('direction') && $request->direction != '0') {
@@ -156,6 +167,7 @@ class DashboardController extends Controller
         $periodCount = $closedTrades->count();
         $periodWins = $closedTrades->where('outcome', 'win')->count();
         $periodLosses = $closedTrades->where('outcome', 'loss')->count();
+        $periodBreakeven = $closedTrades->where('outcome', 'breakeven')->count();
         $periodWinRate = $periodCount > 0 ? ($periodWins / $periodCount) * 100 : 0;
         $periodAvgRR = $closedTrades->avg('rr') ?? 0;
         $periodTotalRR = $closedTrades->sum('rr') ?? 0;
@@ -189,6 +201,7 @@ class DashboardController extends Controller
             'monthly_trades' => $periodCount,
             'monthly_wins' => $periodWins,
             'monthly_losses' => $periodLosses,
+            'monthly_breakeven' => $periodBreakeven,
             'monthly_win_rate' => round($periodWinRate, 1),
             'monthly_avg_rr' => round($periodAvgRR, 2),
             'monthly_total_rr' => round($periodTotalRR, 2),
@@ -224,17 +237,22 @@ class DashboardController extends Controller
         $equityCurve = $this->getEquityCurve($closedTrades);
         
         // Top 3 Instruments
-        $topInstruments = $trades->groupBy('asset')
-            ->map(function($pairTrades, $asset) {
+        $topInstruments = $trades->groupBy('asset_id')
+            ->map(function($pairTrades, $assetId) {
+                $asset = $pairTrades->first()->associatedAsset;
+                $assetName = $asset ? strtoupper($asset->name) : 'UNKNOWN';
+                
                 $wins = $pairTrades->where('outcome', 'win')->count();
                 $losses = $pairTrades->where('outcome', 'loss')->count();
-                $total = $wins + $losses;
-                $winRate = $total > 0 ? ($wins / $total) * 100 : 0;
+                $breakeven = $pairTrades->where('outcome', 'breakeven')->count();
+                $total = $wins + $losses + $breakeven;
+                $winRate = ($wins + $losses) > 0 ? ($wins / ($wins + $losses)) * 100 : 0;
                 
                 return [
-                    'pair' => $asset, // Keeping key 'pair' for frontend compatibility or change to 'asset'
+                    'pair' => $assetName,
                     'wins' => $wins,
                     'losses' => $losses,
+                    'breakeven' => $breakeven,
                     'total' => $total,
                     'win_rate' => round($winRate, 1)
                 ];

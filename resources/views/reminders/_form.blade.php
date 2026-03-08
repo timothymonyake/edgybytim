@@ -1,120 +1,129 @@
-<div class="modal fade" id="tradeModal" tabindex="-1" role="dialog">
-    <div class="modal-dialog modal-lg" role="document">
-        <form id="tradeForm" enctype="multipart/form-data">
-            @csrf
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Log Trade</h5>
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                </div>
-
+<div class="modal fade" id="reminderModal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="myLargeModalLabel">Add Reminder</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <form action="{{ route('reminders.store') }}" method="POST">
+                @csrf
                 <div class="modal-body">
-                    <div class="row">
-                        <!-- Left Column -->
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label>Date</label>
-                                <input type="date" name="trade_date" class="form-control" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Asset</label>
-                                <input type="text" name="asset" class="form-control" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Direction</label>
-                                <select name="direction" class="form-control">
-                                    <option value="long">Long</option>
-                                    <option value="short">Short</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>Trade Type</label>
-                                <select name="trade_type" class="form-control">
-                                    <option value="scalp">Scalp</option>
-                                    <option value="intraday">Intraday</option>
-                                    <option value="swing">Swing</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>Session</label>
-                                <select name="session" class="form-control">
-                                    <option value="London">London</option>
-                                    <option value="New York">New York</option>
-                                    <option value="Asian">Asian</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <!-- Right Column -->
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label>Setup</label>
-                                <input type="text" name="setup" class="form-control">
-                            </div>
-                            <div class="form-group">
-                                <label>RR</label>
-                                <input type="number" step="0.01" name="rr" class="form-control">
-                            </div>
-                            <div class="form-group">
-                                <label>Pips</label>
-                                <input type="number" step="0.1" name="pips" class="form-control">
-                            </div>
-                            <div class="form-group">
-                                <label>Outcome</label>
-                                <select name="outcome" class="form-control">
-                                    <option value="win">Win</option>
-                                    <option value="loss">Loss</option>
-                                    <option value="breakeven">Breakeven</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>Tags (comma separated)</label>
-                                <input type="text" name="tags" class="form-control">
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Psychology -->
                     <div class="form-group">
-                        <label>Emotions</label>
-                        <textarea name="emotions" class="form-control" rows="2"></textarea>
+                        <label>Title</label>
+                        <input class="form-control" type="text" name="title" required placeholder="e.g. CPI Release, Check EURGBP">
                     </div>
                     <div class="form-group">
-                        <label>Entry Narrative</label>
-                        <textarea name="entry_narrative" class="form-control" rows="2"></textarea>
+                        <label>Content (Optional)</label>
+                        <textarea class="form-control" name="content" rows="3"></textarea>
                     </div>
+                    
                     <div class="form-group">
-                        <label>Notes</label>
-                        <textarea name="notes" class="form-control" rows="2"></textarea>
-                    </div>
-
-                    <!-- Screenshots -->
-                    <div class="form-group">
-                        <label>Screenshots</label>
-                        <input type="file" name="screenshots[]" class="form-control" multiple>
-                        <small class="text-muted">Upload D1, H1, Entry, After charts (multiple allowed)</small>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Plan Followed?</label>
-                        <select name="plan_followed" class="form-control">
-                            <option value="1">Yes</option>
-                            <option value="0">No</option>
+                        <label>Frequency</label>
+                        <select class="form-control" name="frequency" id="freqSelect" onchange="toggleFreqOptions()">
+                            <option value="once">One-off / Timed</option>
+                            <option value="daily">Daily</option>
+                            <option value="weekly">Weekly</option>
+                            <option value="custom">Custom Days</option>
                         </select>
                     </div>
 
-                    <div class="form-group">
-                        <label>News Context</label>
-                        <textarea name="news" class="form-control" rows="2" placeholder="FOMC, CPI, High Impact News..."></textarea>
+                    <div id="timedOption" class="form-group">
+                        <label>Remind At</label>
+                        <input class="form-control daterange-single" name="remind_at" type="text" placeholder="Select Date & Time">
                     </div>
 
-                </div>
+                    <div id="dailyOption" class="form-group" style="display:none;">
+                        <label>Select Hours (Daily)</label>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <h6>Morning</h6>
+                                @foreach([6, 7, 8, 9, 10] as $h)
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input" id="hour-{{ $h }}" name="recurrence_days[]" value="{{ $h }}">
+                                        <label class="custom-control-label" for="hour-{{ $h }}">{{ sprintf('%02d:00', $h) }}</label>
+                                    </div>
+                                @endforeach
+                            </div>
+                            <div class="col-md-4">
+                                <h6>Afternoon</h6>
+                                @foreach([12, 13, 14, 15, 16] as $h)
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input" id="hour-{{ $h }}" name="recurrence_days[]" value="{{ $h }}">
+                                        <label class="custom-control-label" for="hour-{{ $h }}">{{ sprintf('%02d:00', $h) }}</label>
+                                    </div>
+                                @endforeach
+                            </div>
+                            <div class="col-md-4">
+                                <h6>Evening</h6>
+                                @foreach([19, 20, 21, 22] as $h)
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input" id="hour-{{ $h }}" name="recurrence_days[]" value="{{ $h }}">
+                                        <label class="custom-control-label" for="hour-{{ $h }}">{{ sprintf('%02d:00', $h) }}</label>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
 
-                <div class="modal-footer">
-                    <button type="submit" class="btn btn-success">Save Trade</button>
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <div class="form-group">
+                        <label>Repeat Until (Optional)</label>
+                        <input class="form-control daterange-single" name="expires_at" type="text" placeholder="Select Expiration Date">
+                        <small class="text-muted">Reminder will stop after this date.</small>
+                    </div>
+
+                    <div id="customDaysOption" class="form-group" style="display:none;">
+                        <label>Select Days</label>
+                        <div class="d-flex flex-wrap">
+                            @foreach(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] as $day)
+                                <div class="custom-control custom-checkbox mr-3 mb-2">
+                                    <input type="checkbox" class="custom-control-input" id="day-{{ $day }}" name="recurrence_days[]" value="{{ $day }}">
+                                    <label class="custom-control-label" for="day-{{ $day }}">{{ substr($day, 0, 3) }}</label>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </form>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save Reminder</button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
+
+@push('scripts')
+<script>
+    function toggleFreqOptions() {
+        const freq = document.getElementById('freqSelect').value;
+        const timed = document.getElementById('timedOption');
+        const custom = document.getElementById('customDaysOption');
+        const daily = document.getElementById('dailyOption');
+
+        // Reset all
+        timed.style.display = 'none';
+        custom.style.display = 'none';
+        daily.style.display = 'none';
+
+        if (freq === 'once') {
+            timed.style.display = 'block';
+        } else if (freq === 'custom') {
+            custom.style.display = 'block';
+        } else if (freq === 'daily') {
+            daily.style.display = 'block';
+        }
+    }
+
+    // Initialize daterangepicker single picker
+    $(document).ready(function() {
+        $('.daterange-single').daterangepicker({
+            singleDatePicker: true,
+            timePicker: true,
+            timePicker24Hour: true,
+            locale: {
+                format: 'YYYY-MM-DD HH:mm:ss'
+            }
+        });
+    });
+</script>
+@endpush

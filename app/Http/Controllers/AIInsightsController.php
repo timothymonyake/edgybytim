@@ -29,14 +29,14 @@ class AIInsightsController extends Controller
         }
 
         // Fetch detailed trade data (CSV format)
-        $trades = Trade::where('user_id', $user->id)
+        $trades = Trade::with('associatedAsset')->where('user_id', $user->id)
             ->orderBy('trade_date', 'desc')
             ->take(50)
             ->get();
         
         $csvData = "Date,Asset,Direction,Outcome,P&L,RR,Session,Entry Type,Plan Followed,Emotions,Mistakes\n";
         foreach ($trades as $trade) {
-            $csvData .= "{$trade->trade_date},{$trade->asset},{$trade->direction},{$trade->outcome},{$trade->pnl},{$trade->rr},{$trade->session},{$trade->entry_type},{$trade->plan_followed},{$trade->emotions},{$trade->mistakes}\n";
+            $csvData .= "{$trade->trade_date},{$trade->getAssetName()},{$trade->direction},{$trade->outcome},{$trade->pnl},{$trade->rr},{$trade->session},{$trade->entry_type},{$trade->plan_followed},{$trade->emotions},{$trade->mistakes}\n";
         }
 
         // Get screenshots (limit to last 5 trades to avoid token limits)
@@ -121,7 +121,7 @@ class AIInsightsController extends Controller
         $endDate = Carbon::now()->subMonth()->endOfMonth();
         $period = $startDate->format('Y-m');
 
-        $trades = Trade::where('user_id', $user->id)
+        $trades = Trade::with('asset')->where('user_id', $user->id)
             ->whereBetween('trade_date', [$startDate, $endDate])
             ->get();
 
@@ -219,7 +219,9 @@ class AIInsightsController extends Controller
         $summary .= "Average R:R: " . round($trades->avg('rr'), 2) . "\n\n";
 
         $summary .= "Performance by Asset:\n";
-        $byAsset = $trades->groupBy('asset');
+        $byAsset = $trades->groupBy(function($trade) {
+            return $trade->getAssetName();
+        });
         foreach ($byAsset as $asset => $assetTrades) {
             $winRate = round(($assetTrades->where('outcome', 'win')->count() / $assetTrades->count()) * 100, 2);
             $summary .= "- $asset: {$assetTrades->count()} trades, {$winRate}% win rate, P&L: $" . $assetTrades->sum('pnl') . "\n";
@@ -252,7 +254,9 @@ class AIInsightsController extends Controller
         $analysis .= "Average R:R: " . round($closedTrades->avg('rr'), 2) . "\n\n";
 
         $analysis .= "Breakdown by Asset:\n";
-        $byAsset = $closedTrades->groupBy('asset');
+        $byAsset = $closedTrades->groupBy(function($trade) {
+            return $trade->getAssetName();
+        });
         foreach ($byAsset as $asset => $assetTrades) {
             $wins = $assetTrades->where('outcome', 'win')->count();
             $total = $assetTrades->count();

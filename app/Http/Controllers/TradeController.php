@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Trade;
+use App\Models\Asset;
+use App\Models\AssetType;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
 use Illuminate\Support\Facades\Auth;
@@ -12,23 +14,35 @@ class TradeController extends Controller
     // Show trades list
     public function index()
     {
-        return view('trades.index');
+        $assets = Asset::where('user_id', Auth::id())->orderBy('name')->get();
+        $assetTypes = AssetType::all();
+        return view('trades.index', compact('assets', 'assetTypes'));
     }
 
     // Data for DataTables
     public function getTrades(Request $request)
     {
-        $trades = Trade::where('user_id', Auth::id());
-
+        $trades = Trade::with('associatedAsset.assetType')->where('user_id', Auth::id());
 
         if ($request->filled('start_date') && $request->filled('end_date')) {
-            $start = \Carbon\Carbon::createFromFormat('d/m/Y', $request->start_date)->format('Y-m-d');
-            $end = \Carbon\Carbon::createFromFormat('d/m/Y', $request->end_date)->format('Y-m-d');
-            $trades->whereBetween('trade_date', [$start, $end]);
+            try {
+                $start = \Carbon\Carbon::createFromFormat('d/m/Y', $request->start_date)->format('Y-m-d');
+                $end = \Carbon\Carbon::createFromFormat('d/m/Y', $request->end_date)->format('Y-m-d');
+                $trades->whereBetween('trade_date', [$start, $end]);
+            } catch (\Exception $e) {
+                // If date parsing fails, don't apply date filter
+                \Log::warning('Date parsing failed in getTrades: ' . $e->getMessage());
+            }
         }
 
         if ($request->filled('market') && $request->market != '0') {
-            $trades->where('asset', $request->market);
+            $trades->where('asset_id', $request->market);
+        }
+
+        if ($request->filled('asset_type') && $request->asset_type != '0') {
+            $trades->whereHas('associatedAsset', function($q) use ($request) {
+                $q->where('asset_type_id', $request->asset_type);
+            });
         }
 
         if ($request->filled('direction') && $request->direction != '0') {
@@ -41,9 +55,9 @@ class TradeController extends Controller
         }
 
         
-       /*  if ($request->filled('outcome') && $request->outcome != '0') {
+        if ($request->filled('outcome') && $request->outcome != '0') {
             $trades->where('outcome', $request->outcome);
-        } */
+        }
 
         if ($request->filled('hin_day') && $request->hin_day != '0') {
             $trades->where('hin_day', $request->hin_day == 'yes' ? 1 : 0);
@@ -88,9 +102,9 @@ class TradeController extends Controller
         }
 
         return DataTables::of($trades)
-            // ->addColumn('asset', fn($row) => $row->asset ?? '-') // placeholder
-            ->addIndexColumn()
-            ->addColumn('asset', fn($row) => strtoupper($row->asset))
+            ->addColumn('asset', function ($row) {
+                return strtoupper($row->getAssetName());
+            })
             ->addColumn('session', function ($row) {
 
                 if ($row->session === 'london_open') {

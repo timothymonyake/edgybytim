@@ -12,6 +12,7 @@ class Trade extends Model
     protected $fillable = [
         'user_id',
         'asset',
+        'asset_id',
         'direction',
         'trade_type',
         'trade_date',
@@ -48,8 +49,24 @@ class Trade extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function associatedAsset()
+    {
+        return $this->belongsTo(Asset::class, 'asset_id');
+    }
+
     public function screenshots()
     {
         return $this->hasMany(TradeScreenshot::class);
+    }
+
+    /**
+     * Helper to get asset name from relationship or fallback to legacy column
+     */
+    public function getAssetName()
+    {
+        if ($this->asset_id && $this->associatedAsset) {
+            return $this->associatedAsset->name;
+        }
+        return $this->attributes['asset'] ?? '-';
     }
 }

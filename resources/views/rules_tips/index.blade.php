@@ -4,73 +4,91 @@
 
 @section('content')
 <style>
-    .guideline-item {
-        transition: all 0.2s ease;
+    .rules-card {
+        border-radius: 16px;
+        overflow: hidden;
         border: none;
-        border-bottom: 1px solid #f0f0f0;
-        padding: 15px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        height: 700px;
+        display: flex;
+        flex-direction: column;
+        transition: transform 0.3s ease;
+        background: #fff;
+    }
+    .rules-card:hover {
+        transform: translateY(-5px);
+    }
+    .rules-header {
+        padding: 25px;
+        position: relative;
+        color: white;
+    }
+    .header-rule { background: linear-gradient(135deg, #1b00ff 0%, #4facfe 100%); }
+    .header-checklist { background: linear-gradient(135deg, #13b02d 0%, #38ef7d 100%); }
+    .header-psych { background: linear-gradient(135deg, #6f42c1 0%, #a18cd1 100%); }
+    
+    .rules-content {
+        padding: 0;
+        flex-grow: 1;
+        overflow-y: auto;
+        background: #fff;
+    }
+    .rules-footer {
+        padding: 15px 25px;
+        background: #fcfcfc;
+        border-top: 1px solid #f0f0f0;
     }
     
+    .guideline-item {
+        padding: 18px 25px;
+        border-bottom: 1px solid #f5f5f5;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: background 0.2s;
+        cursor: pointer;
+    }
+    .guideline-item:hover {
+        background-color: #f9f9ff;
+    }
     .guideline-item:last-child {
         border-bottom: none;
     }
-    
-    .guideline-item:hover {
-        background-color: #f8fcfc; /* Very subtle blue tint */
-        transform: translateX(5px);
+    .item-text {
+        font-size: 14px;
+        line-height: 1.6;
+        color: #444;
+        font-weight: 500;
     }
-    
-    .guideline-item .action-buttons {
+    .item-icon {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 12px;
+        flex-shrink: 0;
+        font-size: 12px;
+    }
+    .icon-rule { background: rgba(27, 0, 255, 0.1); color: #1b00ff; }
+    .icon-checklist { background: rgba(19, 176, 45, 0.1); color: #13b02d; }
+    .icon-psych { background: rgba(111, 66, 193, 0.1); color: #6f42c1; }
+
+    .action-buttons {
+        display: flex;
+        gap: 8px;
         opacity: 0;
-        transition: opacity 0.2s ease;
+        transition: opacity 0.2s;
     }
-    
     .guideline-item:hover .action-buttons {
         opacity: 1;
     }
     
-    .action-buttons .btn {
-        margin-left: 5px;
-        border-radius: 50%;
-        width: 30px;
-        height: 30px;
-        padding: 0;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .card-box {
-        border-radius: 15px;
-        box-shadow: 0 5px 20px rgba(0,0,0,0.05); /* Softer shadow */
-        border: none;
-    }
-
-    .h4 {
-        font-weight: 600;
-        letter-spacing: -0.5px;
-    }
-
-    .badge {
-        font-weight: 500;
-        padding: 5px 10px;
-        border-radius: 6px;
-    }
-    
-    /* Custom Scrollbar for lists */
-    .list-group::-webkit-scrollbar {
-        width: 6px;
-    }
-    .list-group::-webkit-scrollbar-track {
-        background: #f1f1f1; 
-    }
-    .list-group::-webkit-scrollbar-thumb {
-        background: #d1d1d1; 
-        border-radius: 3px;
-    }
-    .list-group::-webkit-scrollbar-thumb:hover {
-        background: #b1b1b1; 
-    }
+    /* Custom Scrollbar */
+    .rules-content::-webkit-scrollbar { width: 4px; }
+    .rules-content::-webkit-scrollbar-track { background: #f1f1f1; }
+    .rules-content::-webkit-scrollbar-thumb { background: #ccc; border-radius: 10px; }
 </style>
 
 <!-- <div class="page-header">
@@ -90,147 +108,131 @@
 </div> -->
 
 <div class="row">
-    <!-- Rules Section (Left) -->
+    <!-- Trading Rules -->
     <div class="col-lg-4 col-md-6 mb-30">
-        <div class="card-box pd-20 h-100">
-            <div class="d-flex justify-content-between align-items-center mb-20">
-                <div class="d-flex align-items-center">
-                    <h4 class="text-blue h4 mb-0">
-                        <i class="dw dw-list mr-2"></i>Trading Rules
-                    </h4>
-                    <span class="badge badge-primary ml-2">Strategy</span>
+        <div class="card-box rules-card">
+            <div class="rules-header header-rule">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h4 class="text-white h4 mb-1">Trading Rules</h4>
+                        <p class="text-white-50 mb-0 font-12">Strict Guidelines & Risk Management</p>
+                    </div>
+                    <i class="dw dw-book-1 font-30 opacity-5"></i>
                 </div>
-                <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#addRuleModal">
-                    <i class="dw dw-add"></i>
-                </button>
             </div>
-            
-            <p class="text-muted mb-20">
-                Strict guidelines for analysis, risk management, and entry execution.
-            </p>
-
-            <!-- Rules List -->
-            <div id="rulesList" class="list-group" style="max-height: 400px; overflow-y: visible;">
+            <div class="rules-content" id="rulesList">
                 @forelse($rules as $rule)
-                    <div class="list-group-item guideline-item d-flex justify-content-between align-items-center" data-id="{{ $rule->id }}">
+                    <div class="guideline-item" data-id="{{ $rule->id }}">
                         <div class="d-flex align-items-start flex-grow-1">
-                            <span class="text-primary mr-2">•</span>
-                            <span class="rule-content">{{ $rule->content }}</span>
+                            <div class="item-icon icon-rule"><i class="fa fa-bolt"></i></div>
+                            <span class="item-text rule-content">{{ $rule->content }}</span>
                         </div>
                         <div class="action-buttons">
-                            <button type="button" class="btn btn-warning btn-sm edit-rule" 
-                                data-id="{{ $rule->id }}" 
-                                data-content="{{ $rule->content }}">
-                                <i class="dw dw-edit2"></i>
+                            <button class="btn btn-sm btn-outline-warning edit-rule" data-id="{{ $rule->id }}" data-content="{{ $rule->content }}">
+                                <i class="fa fa-pen"></i>
                             </button>
-                            <button type="button" class="btn btn-danger btn-sm delete-rule" 
-                                data-id="{{ $rule->id }}">
-                                <i class="dw dw-delete-3"></i>
+                            <button class="btn btn-sm btn-outline-danger delete-rule" data-id="{{ $rule->id }}">
+                                <i class="fa fa-trash"></i>
                             </button>
                         </div>
                     </div>
                 @empty
-                    <div class="text-center py-4 text-muted" id="noRulesMessage">
+                    <div class="text-center py-5 text-muted" id="noRulesMessage">
+                        <i class="dw dw-list font-40 d-block mb-3 opacity-2"></i>
                         No rules defined yet.
                     </div>
                 @endforelse
             </div>
+            <div class="rules-footer">
+                <button class="btn btn-primary btn-block btn-sm" data-toggle="modal" data-target="#addRuleModal">
+                    <i class="dw dw-add mr-2"></i> New Rule
+                </button>
+            </div>
         </div>
     </div>
 
-    <!-- Entry Checklist Section (Middle) -->
+    <!-- Entry Checklist -->
     <div class="col-lg-4 col-md-6 mb-30">
-        <div class="card-box pd-20 h-100">
-            <div class="d-flex justify-content-between align-items-center mb-20">
-                <div class="d-flex align-items-center">
-                    <h4 class="text-success h4 mb-0">
-                        <i class="dw dw-check mr-2"></i>Entry Checklist
-                    </h4>
-                    <span class="badge badge-success ml-2">Pre-Flight</span>
+        <div class="card-box rules-card">
+            <div class="rules-header header-checklist">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h4 class="text-white h4 mb-1">Entry Checklist</h4>
+                        <p class="text-white-50 mb-0 font-12">Mandatory Pre-Flight Checks</p>
+                    </div>
+                    <i class="dw dw-checked-1 font-30 opacity-5"></i>
                 </div>
-                <button class="btn btn-success btn-sm" data-toggle="modal" data-target="#addChecklistModal">
-                    <i class="dw dw-add"></i>
-                </button>
             </div>
-            
-            <p class="text-muted mb-20">
-                Mandatory checks before entering any trade.
-            </p>
-
-            <!-- Checklist List -->
-            <div id="checklistList" class="list-group" style="max-height: 400px; overflow-y: visible;">
+            <div class="rules-content" id="checklistList">
                 @forelse($checklists as $checklist)
-                    <div class="list-group-item guideline-item d-flex justify-content-between align-items-center" data-id="{{ $checklist->id }}">
+                    <div class="guideline-item" data-id="{{ $checklist->id }}">
                         <div class="d-flex align-items-start flex-grow-1">
-                            <span class="text-success mr-2">✓</span>
-                            <span class="checklist-content">{{ $checklist->content }}</span>
+                            <div class="item-icon icon-checklist"><i class="fa fa-check"></i></div>
+                            <span class="item-text checklist-content">{{ $checklist->content }}</span>
                         </div>
                         <div class="action-buttons">
-                            <button type="button" class="btn btn-warning btn-sm edit-checklist" 
-                                data-id="{{ $checklist->id }}" 
-                                data-content="{{ $checklist->content }}">
-                                <i class="dw dw-edit2"></i>
+                            <button class="btn btn-sm btn-outline-warning edit-checklist" data-id="{{ $checklist->id }}" data-content="{{ $checklist->content }}">
+                                <i class="fa fa-pen"></i>
                             </button>
-                            <button type="button" class="btn btn-danger btn-sm delete-checklist" 
-                                data-id="{{ $checklist->id }}">
-                                <i class="dw dw-delete-3"></i>
+                            <button class="btn btn-sm btn-outline-danger delete-checklist" data-id="{{ $checklist->id }}">
+                                <i class="fa fa-trash"></i>
                             </button>
                         </div>
                     </div>
                 @empty
-                    <div class="text-center py-4 text-muted" id="noChecklistMessage">
+                    <div class="text-center py-5 text-muted" id="noChecklistMessage">
+                        <i class="dw dw-checked font-40 d-block mb-3 opacity-2"></i>
                         No checklist items yet.
                     </div>
                 @endforelse
             </div>
+            <div class="rules-footer">
+                <button class="btn btn-success btn-block btn-sm" data-toggle="modal" data-target="#addChecklistModal">
+                    <i class="dw dw-add mr-2"></i> New Item
+                </button>
+            </div>
         </div>
     </div>
 
-    <!-- Psychological Tips Section (Right) -->
+    <!-- Psychology -->
     <div class="col-lg-4 col-md-6 mb-30">
-        <div class="card-box pd-20 h-100">
-            <div class="d-flex justify-content-between align-items-center mb-20">
-                <div class="d-flex align-items-center">
-                    <h4 class="text-purple h4 mb-0" style="color: #6f42c1;">
-                        <i class="dw dw-idea mr-2"></i>Psychology
-                    </h4>
-                    <span class="badge ml-2" style="background-color: #6f42c1;color: white;">Mindset</span>
+        <div class="card-box rules-card">
+            <div class="rules-header header-psych">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h4 class="text-white h4 mb-1">Psychology</h4>
+                        <p class="text-white-50 mb-0 font-12">Mental Frameworks & Mindset</p>
+                    </div>
+                    <i class="dw dw-idea font-30 opacity-5"></i>
                 </div>
-                <button class="btn btn-sm" style="background-color: #6f42c1; border-color: #6f42c1; color: white;" 
-                    data-toggle="modal" data-target="#addTipModal">
-                    <i class="dw dw-add"></i>
-                </button>
             </div>
-            
-            <p class="text-muted mb-20">
-                Mental frameworks and reminders. Keep your mind sharp.
-            </p>
-
-            <!-- Tips List -->
-            <div id="tipsList" class="list-group" style="max-height: 400px; overflow-y: visible;">
+            <div class="rules-content" id="tipsList">
                 @forelse($tips as $tip)
-                    <div class="list-group-item guideline-item d-flex justify-content-between align-items-center" data-id="{{ $tip->id }}">
+                    <div class="guideline-item" data-id="{{ $tip->id }}">
                         <div class="d-flex align-items-start flex-grow-1">
-                            <span class="mr-2" style="color: #6f42c1;">•</span>
-                            <span class="tip-content">{{ $tip->content }}</span>
+                            <div class="item-icon icon-psych"><i class="fa fa-brain"></i></div>
+                            <span class="item-text tip-content">{{ $tip->content }}</span>
                         </div>
                         <div class="action-buttons">
-                            <button type="button" class="btn btn-warning btn-sm edit-tip" 
-                                data-id="{{ $tip->id }}" 
-                                data-content="{{ $tip->content }}">
-                                <i class="dw dw-edit2"></i>
+                            <button class="btn btn-sm btn-outline-warning edit-tip" data-id="{{ $tip->id }}" data-content="{{ $tip->content }}">
+                                <i class="fa fa-pen"></i>
                             </button>
-                            <button type="button" class="btn btn-danger btn-sm delete-tip" 
-                                data-id="{{ $tip->id }}">
-                                <i class="dw dw-delete-3"></i>
+                            <button class="btn btn-sm btn-outline-danger delete-tip" data-id="{{ $tip->id }}">
+                                <i class="fa fa-trash"></i>
                             </button>
                         </div>
                     </div>
                 @empty
-                    <div class="text-center py-4 text-muted" id="noTipsMessage">
-                        No psychological tips yet.
+                    <div class="text-center py-5 text-muted" id="noTipsMessage">
+                        <i class="dw dw-idea font-40 d-block mb-3 opacity-2"></i>
+                        No tips added yet.
                     </div>
                 @endforelse
+            </div>
+            <div class="rules-footer">
+                <button class="btn btn-sm btn-block text-white" style="background: #6f42c1;" data-toggle="modal" data-target="#addTipModal">
+                    <i class="dw dw-add mr-2"></i> New Tip
+                </button>
             </div>
         </div>
     </div>

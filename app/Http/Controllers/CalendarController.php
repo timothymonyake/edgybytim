@@ -128,7 +128,7 @@ class CalendarController extends Controller
 
     public function getTradesByDate($date)
     {
-        $trades = Trade::where('user_id', auth()->id())
+        $trades = Trade::with('associatedAsset')->where('user_id', auth()->id())
             ->where('trade_date', $date)
             ->orderBy('created_at', 'desc')
             ->get();
@@ -157,7 +157,7 @@ class CalendarController extends Controller
 
             return [
                 'id' => $trade->id,
-                'symbol' => $trade->asset, // Changed from symbol to asset
+                'symbol' => $trade->getAssetName(), // Changed from symbol to asset
                 'type' => ucfirst($trade->direction), // Changed from type to direction
                 'outcome' => $trade->outcome,
                 'pips' => round($trade->pnl, 2), // Changed from pips to pnl

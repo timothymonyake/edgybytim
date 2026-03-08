@@ -1,253 +1,116 @@
 @extends('layouts.app')
 
-@section('title', 'Dashboard')
+@section('title', 'Reminders')
 
 @section('content')
-    {{-- <h2>Supabase Data Analysis</h2> --}}
-
-
     <div class="page-header">
         <div class="row">
-            {{-- <div class="col-md-3 col-sm-3">
+            <div class="col-md-6 col-sm-12">
                 <div class="title">
-                    <h4>Trades</h4>
+                    <h4>Reminders</h4>
                 </div>
                 <nav aria-label="breadcrumb" role="navigation">
                     <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="index.html">Home</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">Supabase Bets</li>
+                        <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Home</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Reminders</li>
                     </ol>
                 </nav>
-            </div> --}}
-            <div class="col-md-12 col-sm-12 ">
-                <form id="filter_form">
-                    <div class="row">
-                        <div class=" col-md-2">
-                            <select class="form-control" name="market" id="market">
-                                <option value="0">All Markets</option>
-                            </select>
-                        </div>
-                        <div class=" col-md-2">
-                            <select class="form-control" name="outcome" id="outcome">
-                                <option value="0">All Statuses</option>
-                                <option value="won">Won</option>
-                                <option value="pending">Pending</option>
-                                <option value="lost">Lost</option>
-                            </select>
-                        </div>
-                        <div class=" col-md-3">
-                            <input class="form-control" id="date-picker" placeholder="Select Date" type="text">
-                            <input type="hidden" name="start_date" id="start_date">
-                            <input type="hidden" name="end_date" id="end_date">
-                        </div>
-
-                        <div class=" col-md-1">
-                            <button type="submit" class="btn btn-primary btn-flat" href="#" role="button">
-                                Filter
-                            </button>
-                        </div>
-                        <div class=" col-md-1">
-                            <button class="btn btn-success" data-toggle="modal" data-target="#tradeModal">
-                                New
-                            </button>
-                        </div>
-                    </div>
-                </form>
+            </div>
+            <div class="col-md-6 col-sm-12 text-right">
+                <button class="btn btn-info" onclick="ReminderSystem.requestPermission()">
+                    <i class="fa fa-bell"></i> Enable Notifications
+                </button>
+                <button class="btn btn-primary" data-toggle="modal" data-target="#reminderModal">
+                    <i class="fa fa-plus"></i> New Reminder
+                </button>
             </div>
         </div>
     </div>
 
-
-
-
-    <div class="card-box mb-30">
-        <div class="pd-20">
-            <h4 class="text-blue h4">Trades</h4>
-        </div>
-        <div class="pb-20">
-            <table id="trades-table" class="data-table table stripe hover nowrap">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Title</th>
-                        <th>Content</th>
-                        <th>Setup</th>
-                        <th>Created</th>
-                    </tr>
-                </thead>
-            </table>
-        </div>
+    <div class="row">
+        @forelse($reminders as $reminder)
+            <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-30">
+                <div class="card-box height-100-p pd-20">
+                    <div class="d-flex justify-content-between align-items-center mb-10">
+                        <h5 class="h5 mb-0">{{ $reminder->title }}</h5>
+                        <div class="dropdown">
+                            <a class="btn btn-link font-24 p-0 line-height-1 no-arrow dropdown-toggle" href="#" role="button" data-toggle="dropdown">
+                                <i class="dw dw-more"></i>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list">
+                                <form action="{{ route('reminders.destroy', $reminder) }}" method="POST" onsubmit="return confirm('Delete this reminder?')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="dropdown-item"><i class="dw dw-delete-3"></i> Delete</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="mb-10">{{ $reminder->content }}</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            @if($reminder->frequency == 'once')
+                                <span class="badge badge-primary">One-off</span>
+                                <small class="text-muted d-block mt-1">
+                                    <i class="fa fa-clock"></i> {{ $reminder->remind_at ? $reminder->remind_at->format('M d, H:i') : 'No time set' }}
+                                </small>
+                            @else
+                                <span class="badge badge-success">{{ ucfirst($reminder->frequency) }}</span>
+                                @if($reminder->expires_at)
+                                    <small class="text-muted d-block mt-1">
+                                        <i class="fa fa-hourglass-end"></i> Until: {{ $reminder->expires_at->format('M d, Y') }}
+                                    </small>
+                                @endif
+                                @if($reminder->frequency == 'daily' && $reminder->recurrence_days)
+                                    <small class="text-muted d-block mt-1">
+                                        Hours: {{ implode(':00, ', $reminder->recurrence_days) }}:00
+                                    </small>
+                                @elseif($reminder->frequency == 'custom' && $reminder->recurrence_days)
+                                    <small class="text-muted d-block mt-1">
+                                        Days: {{ implode(', ', $reminder->recurrence_days) }}
+                                    </small>
+                                @endif
+                            @endif
+                        </div>
+                        <div class="custom-control custom-switch">
+                            <input type="checkbox" class="custom-control-input" id="switch-{{ $reminder->id }}" {{ $reminder->is_active ? 'checked' : '' }} onchange="toggleReminder({{ $reminder->id }}, this.checked)">
+                            <label class="custom-control-label" for="switch-{{ $reminder->id }}"></label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @empty
+            <div class="col-12">
+                <div class="card-box pd-20 text-center">
+                    <p class="mb-0">No reminders set. Create one to stay on top of your trading.</p>
+                </div>
+            </div>
+        @endforelse
     </div>
 
-
-
-    @include('trades._form') <!-- Modal form -->
-
-
-
+    @include('reminders._form')
 @endsection
 
 @push('scripts')
-    <script>
-        $(document).ready(function() {
-
-
-            function getTodayRange() {
-                let now = new Date();
-                let start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0);
-                let end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59);
-                return [start, end];
+<script>
+    function toggleReminder(id, status) {
+        $.ajax({
+            url: `/reminders/${id}`,
+            method: 'POST',
+            data: {
+                _token: '{{ csrf_token() }}',
+                _method: 'PUT',
+                is_active: status ? 1 : 0,
+                // We'd need to send other required fields too if the controller validation is strict
+                // For a quick toggle, a partial update endpoint would be better
+            },
+            success: function() {
+                iziToastNotify('success', 'Reminder status updated');
+            },
+            error: function() {
+                iziToastNotify('error', 'Failed to update reminder');
             }
-
-            let todayRange = getTodayRange();
-
-
-            $("#date-picker").datepicker({
-                language: "en",
-                range: true, // enable range mode
-                // timepicker: true, // enable time
-                // timeFormat: 'hh:mm', // 24-hour format
-                dateFormat: 'dd/mm/yyyy', // desired output
-                multipleDatesSeparator: ' - ', // separator between dates
-                autoClose: false,
-                buttons: ['today', 'clear'],
-                minutesStep: 1,
-                selectedDates: todayRange,
-                onSelect({
-                    formattedDate,
-                    date
-                }) {
-                    if (date.length === 2) {
-                        document.getElementById('start_date').value = formattedDate[0];
-                        document.getElementById('end_date').value = formattedDate[1];
-                    }
-                }
-            });
-
-
-            $('#start_date').val(
-                todayRange[0].toLocaleDateString('en-GB') + ' ' + todayRange[0].toLocaleTimeString('en-GB', {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    hour12: false
-                })
-            );
-            $('#end_date').val(
-                todayRange[1].toLocaleDateString('en-GB') + ' ' + todayRange[1].toLocaleTimeString('en-GB', {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    hour12: false
-                })
-            );
-
-            let table = $('#tradesTable').DataTable({
-                destroy: true,
-                processing: true,
-                serverSide: true,
-                ajax: {
-                    url: '{{ route('trades.data') }}',
-                    type: 'POST', // important, Laravel needs POST for CSRF
-                    data: function(d) {
-                        d.market = $('#market').val();
-                        d.status = $('#outcome').val();
-                        d.start_date = $('#start_date').val();
-                        d.end_date = $('#end_date').val();
-                        d._token = '{{ csrf_token() }}';
-                    }
-                },
-                columns: [{
-                        data: 'trade_date',
-                        name: 'trade_date'
-                    },
-                    {
-                        data: 'asset',
-                        name: 'asset'
-                    },
-                    {
-                        data: 'direction',
-                        name: 'direction'
-                    },
-                    {
-                        data: 'setup',
-                        name: 'setup'
-                    },
-                    {
-                        data: 'outcome',
-                        name: 'outcome'
-                    },
-                    {
-                        data: 'rr',
-                        name: 'rr'
-                    },
-                    {
-                        data: 'tags',
-                        name: 'tags',
-                        orderable: false,
-                        searchable: false
-                    },
-                    {
-                        data: 'actions',
-                        name: 'actions',
-                        orderable: false,
-                        searchable: false
-                    },
-                ],
-                scrollCollapse: true,
-                autoWidth: false,
-                responsive: true,
-                columnDefs: [{
-                    targets: "datatable-nosort",
-                    orderable: false,
-                }],
-                lengthMenu: [
-                    [10, 25, 50, -1],
-                    [10, 25, 50, "All"]
-                ],
-                language: {
-                    info: "_START_-_END_ of _TOTAL_ entries",
-                    searchPlaceholder: "Search",
-                    paginate: {
-                        next: '<i class="ion-chevron-right"></i>',
-                        previous: '<i class="ion-chevron-left"></i>'
-                    }
-                }
-            });
-
-
-            $('#add_trade_form').on('submit', function(e) {
-                e.preventDefault();
-                let formData = new FormData(this);
-
-                $.ajax({
-                    url: '{{ route('trades.store') }}',
-                    method: 'POST',
-                    data: formData,
-                    processData: false,
-                    contentType: false,
-                    success: function(res) {
-                        $('#tradeModal').modal('hide');
-                        $('#tradeForm')[0].reset();
-                        table.ajax.reload();
-                        toastr.success("Trade logged successfully!");
-                    },
-                    error: function(xhr) {
-                        toastr.error("Something went wrong!");
-                    }
-                });
-            });
-
-            $('#filter_form').on('submit', function(e) {
-                e.preventDefault();
-                let formData = {
-                    market: $('#market').val(),
-                    status: $('#status').val(),
-                    start_date: $('#start_date').val(),
-                    end_date: $('#end_date').val(),
-                    _token: '{{ csrf_token() }}'
-                };
-                $('#bets-table').DataTable().ajax.reload(null, false);
-            });
-
         });
-    </script>
+    }
+</script>
 @endpush

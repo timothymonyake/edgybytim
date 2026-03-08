@@ -36,22 +36,23 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
+                                <label for="asset_type">Asset Type</label>
+                                <select class="form-control" name="asset_type" id="asset_type">
+                                    <option value="0">All</option>
+                                    @foreach($assetTypes ?? [] as $type)
+                                    <option value="{{ $type->id }}">{{ $type->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
                                 <label for="market">Asset</label>
                                 <select class="form-control" name="market" id="market">
                                     <option value="0">All</option>
-                                    <option value="eurusd">EU</option>
-                                    <option value="gbpusd">GU</option>
-                                    <option value="xauusd">GOLD</option>
-                                    <option value="xagusd">SILVER</option>
-                                    <option value="us500">ES</option>
-                                    <option value="us100">NQ</option>
-                                    <option value="btusd">BTC</option>
-                                    <option value="ethusd">ETH</option>
-                                    <option value="audusd">AU</option>
-                                    <option value="nzdusd">NU</option>
-                                    <option value="usdcad">UCAD</option>
-                                    <option value="usdchf">UCHF</option>
-                                    <option value="usdjpy">UJ</option>
+                                    @foreach($assets ?? [] as $asset)
+                                    <option value="{{ $asset->id }}">{{ strtoupper($asset->name) }}</option>
+                                    @endforeach
                                 </select>
                             </div>
                         </div>
@@ -789,8 +790,8 @@
                 $('#add_trade_modal .modal-title').text('Add Trade');
                 $('#add_trade_modal').modal('show');
                 $('#is_closed_checkbox_block').hide();
-                $('#status').attr('checked', false);
-                $('#hin_day').attr('checked', false);
+                $('#trade_status').attr('checked', false);
+                $('#trade_hin_day').attr('checked', false);
             });
 
             $('#add_trade_form').on('submit', function(e) {
@@ -803,15 +804,15 @@
                     formData.append('pnl', 0.00);
                 }
 
-                if ($('#status').prop('checked') == true) {
-                    if ($('#outcome').val() == 'pending') {
+                if ($('#trade_status').prop('checked') == true) {
+                    if ($('#trade_outcome').val() == 'pending') {
                         iziToastNotify('error', 'Cant close a pending trade');
                         return
                     }
                     formData.append('status', 'closed');
                 }
 
-                if ($('#hin_day').prop('checked') == true) {
+                if ($('#trade_hin_day').prop('checked') == true) {
                     if ($('input[name=news]').val() == '') {
                         iziToastNotify('error', 'Please state the High Impact News (News Context)');
                         return
@@ -848,29 +849,20 @@
             });
 
 
-            $('body').on('click', '.edit-trade', function() {
+
+            $(document).on('click', '.edit-trade', function(e) {
+                e.preventDefault();
                 let id = $(this).data('id');
                 $.ajax({
-                    url: "{{ url('/trades/') }}" + '/' + id + '/edit',
+                    url: "{{ url('/trades') }}" + "/" + id + "/edit",
                     type: 'GET',
-                    success: function(
-                        res) {
-
-
-                        $('#is_closed_checkbox_block').show();
-                        $('#status').attr('checked', false);
-
-                        $('#hin_day').attr('checked', res.hin_day == 1 ? true : false);
-                        // Change form action & add PUT method
-                        $('#add_trade_form').attr('action', "{{ url('/trades/') }}" + '/' + id);
-                        $('#add_trade_form').attr('method', 'POST');
-                        $('#add_trade_form input[name="_method"]')
-                            .remove(); // avoid duplicates
-                        $('#add_trade_form').append(
-                            '<input type="hidden" name="_method" value="PUT">');
-                        $('#submit_trade_btn').text(
-                            'Save'); // Populate fields
-                        $('[name="asset"]').val(res.asset);
+                    success: function(res) {
+                        // Set flag to prevent filter triggering
+                        isEditingTrade = true;
+                        
+                        // Populate fields
+                        $('#trade_id').val(res.id);
+                        $('[name="asset_id"]').val(res.asset_id);
                         $('[name="trade_date"]').val(res.trade_date);
                         $('[name="direction"]').val(res.direction);
                         $('[name="session"]').val(res.session);
@@ -884,18 +876,39 @@
                         $('[name="daily_log_url"]').val(res.daily_log_url);
                         $('[name="emotions"]').val(res.emotions);
                         $('[name="entry_narrative"]').val(res.entry_narrative);
-                        $('[name="notes"]').val(res
-                            .notes); // Handle Select2 (multi-select for entry_pd_array)
+                        $('[name="notes"]').val(res.notes);
+                        
+                        // Handle Select2 (multi-select for entry_pd_array)
                         if (res.entry_pd_array) {
-                            let selected = Array.isArray(res.entry_pd_array) ? res
-                                .entry_pd_array : JSON.parse(res.entry_pd_array);
+                            let selected = Array.isArray(res.entry_pd_array) ? res.entry_pd_array : JSON.parse(res.entry_pd_array);
                             $('#entry_pd_array_s2').val(selected).trigger('change');
-                        } //change modal title
+                        }
+
+                        // Handle checkboxes and form action
+                        $('#is_closed_checkbox_block').show();
+                        $('#trade_status').attr('checked', res.status === 'closed' ? true : false);
+                        $('#trade_hin_day').attr('checked', res.hin_day == 1 ? true : false);
+
+                        // Change form action & add PUT method
+                        $('#add_trade_form').attr('action', "{{ url('/trades/') }}" + '/' + id);
+                        $('#add_trade_form').attr('method', 'POST');
+                        $('#add_trade_form input[name="_method"]').remove(); // avoid duplicates
+                        $('#add_trade_form').append('<input type="hidden" name="_method" value="PUT">');
+                        $('#submit_trade_btn').text('Save');
+                        
+                        // Change modal title
                         $('#add_trade_modal .modal-title').text('Edit Trade');
-                        $('#add_trade_modal').modal(
-                            'show'); // ...existing code...
+                        
+                        // Show modal
+                        $('#add_trade_modal').modal('show');
+
+                        // Reset flag after a short delay to allow UI updates without triggering filters
+                        setTimeout(function() {
+                            isEditingTrade = false;
+                        }, 100);
                     },
                     error: function(err) {
+                        isEditingTrade = false;
                         toastr.error("Failed to fetch trade details");
                     }
                 });
@@ -1018,8 +1031,13 @@
             });
 
             // Hot-wire filters
+            // Use a flag to prevent filter triggering during programmatic changes
+            let isEditingTrade = false;
+            
             $('#market, #direction, #session, #outcome, #hin_day_filter, #entry_pd, #plan_followed, #entry_type, #has_emotions, #has_news').on('change', function() {
-                table.draw();
+                if (!isEditingTrade) {
+                    table.draw();
+                }
             });
 
             // Init Datepicker
@@ -1041,8 +1059,10 @@
                 }
             });
 
+
             // Default to This Month
             setDateRange('this_month');
+
 
             table = $('#trades_table').DataTable({
                 destroy: true,
@@ -1072,6 +1092,16 @@
                         if (tradeIdFromUrl) {
                             d.trade_id = tradeIdFromUrl;
                         }
+                        console.log('DataTables request data:', d);
+                    },
+                    error: function(xhr, error, thrown) {
+                        console.error('DataTables AJAX Error:', {
+                            status: xhr.status,
+                            error: error,
+                            thrown: thrown,
+                            response: xhr.responseText
+                        });
+                        iziToastNotify('error', 'Failed to load trades: ' + (xhr.responseJSON?.message || error));
                     }
                 },
                 columns: [{
@@ -1345,7 +1375,7 @@
                     "{{ url('/trades') }}/" + $(this).data(
                         'trade_id') + "/screenshots");
                 $('#add_screenshot_form').attr('method', "POST");
-                $('#add_screenshot_form').remove('<input type="hidden" name="_method" value="PUT">');
+                $('#add_screenshot_form input[name="_method"]').remove();
                 $('#deleteScreenshotBtn').hide().data('id', '').data(
                     'trade-id', '');
             });
@@ -1383,19 +1413,29 @@
                     method: is_edit ? "PUT" : "POST",
                     data: formData,
                     success: function(response) {
-                        iziToastNotify('success', response
-                            .message);
-                        // Refresh table
-                        table.draw();
-                        // Optionally, close and reopen the expanded row to refresh screenshots
+                        iziToastNotify('success', response.message || 'Screenshot saved successfully');
+                        
+                        // Close the add/edit modal
+                        $('#add_screenshot_modal').modal('hide');
+                        
+                        // Refresh table to get updated data
+                        table.draw(false);
+                        
+                        // Find and refresh the expanded row if it exists
+                        setTimeout(function() {
+                            $('#trades_table tbody tr.shown').each(function() {
+                                let row = table.row(this);
+                                if (row.child.isShown()) {
+                                    row.child.hide();
+                                    row.child(format(row.data())).show();
+                                }
+                            });
+                        }, 500);
                     },
                     error: function(xhr) {
-                        iziToastNotify('error', xhr.responseJSON
-                            .message ||
-                            'Failed to add screenshot');
+                        iziToastNotify('error', xhr.responseJSON?.message || 'Failed to save screenshot');
                     }
                 });
-                $('#add_screenshot_modal').modal('hide');
             });
 
             // open modal with screenshots
@@ -1465,40 +1505,41 @@
             $(document).on('click', '.edit-screenshot', function() {
                 let ssId = $(this).data('id');
                 let tradeId = $(this).data('trade-id');
+                
+                // Close screenshot modal
                 $('#screenshotModal').modal('hide');
+                
+                // Collapse expanded rows
                 $('#trades_table tbody tr.shown').each(function() {
                     let row = table.row(this);
                     if (row.child.isShown()) row.child.hide();
                     $(this).removeClass('shown');
                 });
+                
+                // Setup form for editing
                 $('#saveScreenshotBtn').text('Save');
-                $('#add_screenshot_form .modal-title').text(
-                    'Edit Screenshot');
-                $('#add_screenshot_form').attr('action',
-                    "{{ url('/screenshots') }}" + '/' +
-                    ssId);
-                $('#add_screenshot_form').append(
-                    '<input type="hidden" name="_method" value="PUT">');
-                $('#deleteScreenshotBtn').show().data('id', ssId).data(
-                    'trade-id', tradeId);
+                $('#add_screenshot_form .modal-title').text('Edit Screenshot');
+                $('#add_screenshot_form').attr('action', "{{ url('/screenshots') }}" + '/' + ssId);
+                $('#add_screenshot_form').append('<input type="hidden" name="_method" value="PUT">');
+                $('#deleteScreenshotBtn').show().data('id', ssId).data('trade-id', tradeId);
+                
+                // Fetch screenshot data
                 $.ajax({
-                    url: "{{ url('/screenshots') }}" + '/' + ssId +
-                        '/edit',
+                    url: "{{ url('/screenshots') }}" + '/' + ssId + '/edit',
                     type: 'GET',
                     success: function(res) {
                         $('#tradeId').val(tradeId);
                         $('#tvUrl').val(res.url || '');
                         $('#tradeCaption').val(res.notes || '');
-                        $('#tvUrl').trigger(
-                            'input'); // to load preview
+                        $('#tvUrl').trigger('input'); // to load preview
+                        
+                        // Show the edit modal
+                        $('#add_screenshot_modal').modal('show');
                     },
                     error: function() {
-                        iziToastNotify('error',
-                            'Failed to fetch screenshot data'
-                        );
+                        iziToastNotify('error', 'Failed to fetch screenshot data');
                     }
                 });
-                $('#add_screenshot_modal').modal('show');
             });
 
             // Delete button
@@ -1507,8 +1548,7 @@
                 let ssId = $(this).data('id');
                 let tradeId = $(this).data('trade-id');
 
-                if (!confirm(
-                        'Are you sure you want to delete this screenshot?'))
+                if (!confirm('Are you sure you want to delete this screenshot?'))
                     return;
 
                 $.ajax({
@@ -1518,38 +1558,35 @@
                         _token: '{{ csrf_token() }}'
                     },
                     success: function(res) {
-                        iziToastNotify('success', res.message);
+                        iziToastNotify('success', res.message || 'Screenshot deleted successfully');
+                        
+                        // Close modals
+                        $('#add_screenshot_modal').modal('hide');
+                        $('#screenshotModal').modal('hide');
+                        
                         // Refresh table
                         table.draw(false);
-                        // Optionally, close and reopen the expanded row to refresh screenshots
-                        $(`#trades_table tbody tr`).each(
-                            function() {
+                        
+                        // Refresh expanded rows after table redraws
+                        setTimeout(function() {
+                            $('#trades_table tbody tr.shown').each(function() {
                                 let row = table.row(this);
                                 if (row.child.isShown()) {
                                     row.child.hide();
-                                    row.child(format(row
-                                        .data())).show();
+                                    row.child(format(row.data())).show();
                                 }
                             });
-                        $('#add_screenshot_modal').modal(
-                            'hide');
-                        $('#screenshotModal').modal('hide');
+                        }, 500);
+                        
+                        // Reset form
                         $('#saveScreenshotBtn').text('Add');
-                        $('#add_screenshot_form .modal-title')
-                            .text(
-                                'Add Screenshot');
-                        $('#add_screenshot_form').attr('action',
-                            "{{ url('/screenshots') }}");
-                        $('#add_screenshot_form').remove(
-                            '<input type="hidden" name="_method" value="PUT">'
-                        );
-                        $('#deleteScreenshotBtn').hide().data(
-                            'id', '').data(
-                            'trade-id', '');
+                        $('#add_screenshot_form .modal-title').text('Add Screenshot');
+                        $('#add_screenshot_form').attr('action', "{{ url('/screenshots') }}");
+                        $('#add_screenshot_form').find('input[name="_method"]').remove();
+                        $('#deleteScreenshotBtn').hide().data('id', '').data('trade-id', '');
                     },
-                    error: function() {
-                        iziToastNotify('error',
-                            'Failed to delete screenshot');
+                    error: function(xhr) {
+                        iziToastNotify('error', xhr.responseJSON?.message || 'Failed to delete screenshot');
                     }
                 });
             });

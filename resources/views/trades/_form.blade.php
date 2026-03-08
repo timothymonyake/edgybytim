@@ -14,20 +14,10 @@
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label>Asset</label>
-                                <select name="asset" id="asset" class="form-control">
-                                    <option value="eurusd">EU</option>
-                                    <option value="gbpusd">GU</option>
-                                    <option value="xauusd">GOLD</option>
-                                    <option value="xagusd">SILVER</option>
-                                    <option value="us500">ES</option>
-                                    <option value="us100">NQ</option>
-                                    <option value="btusd">BTC</option>
-                                    <option value="ethusd">ETH</option>
-                                    <option value="audusd">AU</option>
-                                    <option value="nzdusd">NU</option>
-                                    <option value="usdcad">UCAD</option>
-                                    <option value="usdchf">UCHF</option>
-                                    <option value="usdjpy">UJ</option>
+                                <select name="asset_id" id="trade_asset" class="form-control" required>
+                                    @foreach($assets ?? [] as $asset)
+                                    <option value="{{ $asset->id }}">{{ strtoupper($asset->name) }}</option>
+                                    @endforeach
                                 </select>
                             </div>
                         </div>
@@ -41,7 +31,7 @@
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label>Direction</label>
-                                <select name="direction" class="form-control">
+                                <select name="direction" id="trade_direction" class="form-control">
                                     <option value="long">Long</option>
                                     <option value="short">Short</option>
                                 </select>
@@ -51,7 +41,7 @@
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label>Session</label>
-                                <select name="session" class="form-control">
+                                <select name="session" id="trade_session" class="form-control">
                                     <option value="london_open">London Open</option>
                                     <option value="ny_open">New York Open</option>
                                     <option value="london_close">London Close</option>
@@ -77,7 +67,7 @@
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label>Outcome</label>
-                                <select name="outcome" id="outcome"  class="form-control">
+                                <select name="outcome" id="trade_outcome" class="form-control">
                                     <option value="pending">Pending</option>
                                     <option value="win">Win</option>
                                     <option value="loss">Loss</option>
@@ -88,7 +78,7 @@
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label>Plan Followed?</label>
-                                <select name="plan_followed" class="form-control">
+                                <select name="plan_followed" id="trade_plan_followed" class="form-control">
                                     <option value="1">Yes</option>
                                     <option value="0">No</option>
                                 </select>
@@ -98,7 +88,7 @@
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label>Trade Type</label>
-                                <select name="entry_type" class="form-control">
+                                <select name="entry_type" id="trade_entry_type" class="form-control">
                                     <option value="market">Market</option>
                                     <option value="limit">Limit</option>
                                     <option value="stop">Stop</option>
@@ -161,14 +151,14 @@
                         </div>
                         <div class="col-lg-4">
                             <div class="custom-control custom-checkbox mb-5">
-                                <input type="checkbox" class="custom-control-input" name="hin_day" id="hin_day">
-                                <label class="custom-control-label" for="hin_day">Day Has HIN?</label>
+                                <input type="checkbox" class="custom-control-input" name="hin_day" id="trade_hin_day">
+                                <label class="custom-control-label" for="trade_hin_day">Day Has HIN?</label>
                             </div>
                         </div>
                         <div class="col-lg-4" id="is_closed_checkbox_block">
                             <div class="custom-control custom-checkbox mb-5">
-                                <input type="checkbox" class="custom-control-input" name="status" id="status">
-                                <label class="custom-control-label" for="status">Is Closed</label>
+                                <input type="checkbox" class="custom-control-input" name="status" id="trade_status">
+                                <label class="custom-control-label" for="trade_status">Is Closed</label>
                             </div>
                         </div>
 

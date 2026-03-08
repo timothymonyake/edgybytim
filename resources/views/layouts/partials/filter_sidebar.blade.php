@@ -32,22 +32,23 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
+                            <label for="asset_type">Asset Type</label>
+                            <select class="form-control" name="asset_type" id="asset_type">
+                                <option value="0">All</option>
+                                @foreach($assetTypes ?? [] as $type)
+                                <option value="{{ $type->id }}">{{ $type->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
                             <label for="market">Asset</label>
                             <select class="form-control" name="market" id="market">
                                 <option value="0">All</option>
-                                <option value="eurusd">EU</option>
-                                <option value="gbpusd">GU</option>
-                                <option value="xauusd">GOLD</option>
-                                <option value="xagusd">SILVER</option>
-                                <option value="us500">ES</option>
-                                <option value="us100">NQ</option>
-                                <option value="btusd">BTC</option>
-                                <option value="ethusd">ETH</option>
-                                <option value="audusd">AU</option>
-                                <option value="nzdusd">NU</option>
-                                <option value="usdcad">UCAD</option>
-                                <option value="usdchf">UCHF</option>
-                                <option value="usdjpy">UJ</option>
+                                @foreach($assets ?? [] as $asset)
+                                <option value="{{ $asset->id }}">{{ strtoupper($asset->name) }}</option>
+                                @endforeach
                             </select>
                         </div>
                     </div>

@@ -35,8 +35,14 @@
                 <!-- <a class="dropdown-item" href="{{ url('/charts') }}">
                     <i class="dw dw-bar-chart1"></i> Charts
                 </a> -->
+                <a class="dropdown-item" href="{{ route('reminders.index') }}">
+                    <i class="dw dw-alarm-clock"></i> Reminders
+                </a>
                 <a class="dropdown-item" href="{{ route('rules_tips.index') }}">
-                    <i class="dw dw-list"></i> Trading Guidelines
+                    <i class="dw dw-idea"></i> Rules & Tips
+                </a>
+                <a class="dropdown-item" href="{{ route('assets.index') }}">
+                    <i class="dw dw-list"></i> Assets
                 </a>
             </div>
         </div>
