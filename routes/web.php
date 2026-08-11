@@ -10,6 +10,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AIInsightsController;
 use App\Http\Controllers\AssetController;
+use App\Http\Controllers\AccountController;
 
 // Public routes
 Route::get('/login', function () {
@@ -78,6 +79,10 @@ Route::middleware(['auth'])->group(function () {
 
     // Assets
     Route::resource('assets', AssetController::class)->except(['create', 'show', 'edit']);
+
+    // Accounts
+    Route::post('/accounts/{account}/archive', [AccountController::class, 'archive'])->name('accounts.archive');
+    Route::resource('accounts', AccountController::class);
 
     // Single Trade View
     Route::get('/trades/{trade}', [TradeController::class, 'show'])->name('trades.show');

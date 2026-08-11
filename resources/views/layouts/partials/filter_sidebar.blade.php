@@ -30,6 +30,17 @@
                 </div>
 
                 <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label for="account_id">Trading Account</label>
+                            <select class="form-control" name="account_id" id="account_id">
+                                <option value="0">All Accounts</option>
+                                @foreach($accounts ?? [] as $acc)
+                                <option value="{{ $acc->id }}">{{ $acc->name }} ({{ $acc->broker }} - ${{ number_format($acc->account_size) }})</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
                     <div class="col-md-6">
                         <div class="form-group">
                             <label for="asset_type">Asset Type</label>

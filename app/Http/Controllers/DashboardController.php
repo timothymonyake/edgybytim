@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Trade;
 use App\Models\Asset;
 use App\Models\AssetType;
+use App\Models\Account;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -24,7 +25,7 @@ class DashboardController extends Controller
         $closedTrades = $trades->where('status', 'closed');
         
         // Calculate KPIs
-        $kpis = $this->calculateKPIs($trades, $closedTrades);
+        $kpis = $this->calculateKPIs($trades, $closedTrades, $request);
         
         // Get chart data
         $chartData = $this->getChartData($trades, $closedTrades);
@@ -50,12 +51,17 @@ class DashboardController extends Controller
         
         $assets = Asset::where('user_id', auth()->id())->orderBy('name')->get();
         $assetTypes = AssetType::all();
+        $accounts = Account::where('user_id', auth()->id())->orderBy('name')->get();
         
-        return view('dashboard.analytics', compact('kpis', 'chartData', 'behavioral', 'bestWorst', 'streaks', 'assets', 'assetTypes'));
+        return view('dashboard.analytics', compact('kpis', 'chartData', 'behavioral', 'bestWorst', 'streaks', 'assets', 'assetTypes', 'accounts'));
     }
     
     private function applyFilters($query, $request)
     {
+        if ($request->filled('account_id') && $request->account_id != '0') {
+            $query->where('account_id', $request->account_id);
+        }
+
         // Default to current month if no date range is provided
         if ($request->filled('start_date') && $request->filled('end_date')) {
             try {
@@ -150,7 +156,7 @@ class DashboardController extends Controller
         ];
     }
     
-    private function calculateKPIs($trades, $closedTrades)
+    private function calculateKPIs($trades, $closedTrades, $request = null)
     {
         $wonTrades = $closedTrades->where('outcome', 'win')->count();
         $totalClosed = $closedTrades->count();
@@ -188,8 +194,12 @@ class DashboardController extends Controller
         // Compliance Score
         $complianceScore = $this->calculateComplianceScore($trades);
         
-        // Lifetime Win Rate (Exempt from filters)
-        $allClosedTrades = Trade::where('user_id', auth()->id())->where('status', 'closed')->get();
+        // Lifetime Win Rate (Filtered by account if selected)
+        $lifetimeQuery = Trade::where('user_id', auth()->id())->where('status', 'closed');
+        if ($request && $request->filled('account_id') && $request->account_id != '0') {
+            $lifetimeQuery->where('account_id', $request->account_id);
+        }
+        $allClosedTrades = $lifetimeQuery->get();
         $lifetimeWon = $allClosedTrades->where('outcome', 'win')->count();
         $lifetimeTotal = $allClosedTrades->count();
         $lifetimeWinRate = $lifetimeTotal > 0 ? ($lifetimeWon / $lifetimeTotal) * 100 : 0;

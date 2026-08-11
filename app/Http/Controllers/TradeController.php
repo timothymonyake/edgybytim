@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Trade;
 use App\Models\Asset;
 use App\Models\AssetType;
+use App\Models\Account;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
 use Illuminate\Support\Facades\Auth;
@@ -16,13 +17,16 @@ class TradeController extends Controller
     {
         $assets = Asset::where('user_id', Auth::id())->orderBy('name')->get();
         $assetTypes = AssetType::all();
-        return view('trades.index', compact('assets', 'assetTypes'));
+        $accounts = Account::where('user_id', Auth::id())->orderBy('name')->get();
+        return view('trades.index', compact('assets', 'assetTypes', 'accounts'));
     }
 
     // Data for DataTables
     public function getTrades(Request $request)
     {
-        $trades = Trade::with('associatedAsset.assetType')->where('user_id', Auth::id());
+        $trades = Trade::with(['associatedAsset.assetType', 'account'])
+            ->where('user_id', Auth::id())
+            ->orderBy('created_at', 'desc');
 
         if ($request->filled('start_date') && $request->filled('end_date')) {
             try {
@@ -33,6 +37,10 @@ class TradeController extends Controller
                 // If date parsing fails, don't apply date filter
                 \Log::warning('Date parsing failed in getTrades: ' . $e->getMessage());
             }
+        }
+
+        if ($request->filled('account_id') && $request->account_id != '0') {
+            $trades->where('account_id', $request->account_id);
         }
 
         if ($request->filled('market') && $request->market != '0') {
@@ -49,12 +57,10 @@ class TradeController extends Controller
             $trades->where('direction', $request->direction);
         }
 
-        
         if ($request->filled('session') && $request->session != '0') {
             $trades->where('session', $request->session);
         }
 
-        
         if ($request->filled('outcome') && $request->outcome != '0') {
             $trades->where('outcome', $request->outcome);
         }
@@ -62,8 +68,6 @@ class TradeController extends Controller
         if ($request->filled('hin_day') && $request->hin_day != '0') {
             $trades->where('hin_day', $request->hin_day == 'yes' ? 1 : 0);
         }
-
-        
 
         if ($request->filled('plan_followed') && $request->plan_followed != '0') {
             $trades->where('plan_followed', $request->plan_followed == 'yes' ? 1 : 0);
@@ -74,7 +78,7 @@ class TradeController extends Controller
         }
 
         if ($request->filled('entry_pd') && $request->entry_pd != '0') {
-             $trades->where('entry_pd_array', 'like', '%' . $request->entry_pd . '%');
+            $trades->where('entry_pd_array', 'like', '%' . $request->entry_pd . '%');
         }
 
         if ($request->filled('has_emotions') && $request->has_emotions != '0') {
@@ -102,11 +106,17 @@ class TradeController extends Controller
         }
 
         return DataTables::of($trades)
+            ->addColumn('account', function ($row) {
+                if ($row->account) {
+                    return '<span class="badge font-12" style="background-color: ' . e($row->account->color) . '; color: #fff; padding: 5px 8px; border-radius: 4px;">'
+                        . e($row->account->name) . '</span>';
+                }
+                return '<span class="badge badge-light">-</span>';
+            })
             ->addColumn('asset', function ($row) {
                 return strtoupper($row->getAssetName());
             })
             ->addColumn('session', function ($row) {
-
                 if ($row->session === 'london_open') {
                     return ' <span class="badge badge-primary" style="background:#2664ff">
                         <i class="dw dw-wall-clock1"></i> London Open
@@ -134,16 +144,12 @@ class TradeController extends Controller
             })
             ->editColumn('entry_pd_array', function ($row) {
                 if (!$row->entry_pd_array) return '';
-
                 $items = is_array($row->entry_pd_array) ? $row->entry_pd_array : json_decode($row->entry_pd_array, true);
-
                 return collect($items)->map(function ($item) {
                     return '<span class="badge badge-primary mr-1">' . $item . '</span>';
                 })->implode('');
             })
             ->addColumn('outcome', function ($row) {
-
-                // ...existing code...
                 if ($row->outcome === 'pending') {
                     return '<span class="badge badge-warning">PENDING</span>';
                 } else if ($row->outcome === 'win') {
@@ -153,29 +159,20 @@ class TradeController extends Controller
                 } else {
                     return '<span class="badge badge-secondary">BREAKEVEN</span>';
                 }
-                // ...existing code...
-
-            })->addColumn('hin_day', function ($row) {
-
-                // ...existing code...
+            })
+            ->addColumn('hin_day', function ($row) {
                 if ($row->hin_day == true) {
-                    return '<span class="badge badge-success">YES</span>';;
+                    return '<span class="badge badge-success">YES</span>';
                 } else {
                     return '<span class="badge badge-danger">NO</span>';
                 }
-                // ...existing code...
-
             })
             ->editColumn('status', function ($row) {
-
-                // ...existing code...
                 if ($row->status === 'open') {
-                    return '<span class="badge badge-success">OPEN</span>';;
+                    return '<span class="badge badge-success">OPEN</span>';
                 } else {
                     return '<span class="badge badge-danger">CLOSED</span>';
                 }
-                // ...existing code...
-
             })
             ->addColumn('trade_status', function ($row) {
                 return $row->status;
@@ -204,22 +201,20 @@ class TradeController extends Controller
                         <i class="dw dw-image1"></i> <span class="badge badge-light">0</span>
                     </button>';
             })
-            ->addColumn('trade_screenshots',function($row){
+            ->addColumn('trade_screenshots', function($row){
                 $screenshots = $row->screenshots()->orderBy('created_at', 'desc')->get();
                 return json_encode($screenshots);
             })
             ->addColumn('actions', function ($row) {
-
                 if ($row->status == 'closed') {
                     return '';
                 }
-
                 return '
                     <button class="btn btn-sm btn-warning edit-trade" data-id="' . $row->id . '"><i class="dw dw-edit2"></i></button>
                     <button class="btn btn-sm btn-danger delete-trade" data-id="' . $row->id . '"><i class="dw dw-delete-3"></i></button>
                 ';
             })
-            ->rawColumns(['actions','hin_day', 'screenshots', 'status','trade_status', 'entry_pd_array', 'plan_followed', 'direction', 'outcome', 'rr', 'session', 'asset'])
+            ->rawColumns(['actions', 'account', 'hin_day', 'screenshots', 'status', 'trade_status', 'entry_pd_array', 'plan_followed', 'direction', 'outcome', 'rr', 'session', 'asset'])
             ->make(true);
     }
 
@@ -228,17 +223,20 @@ class TradeController extends Controller
         return response()->json($trade);
     }
 
-
-
     // Store trade
     public function store(Request $request)
     {
-
         try {
             $data = $request->all();
             $data['user_id'] = Auth::id();
+
+            // If account_id is empty or not set, clean it to null
+            if (empty($data['account_id']) || $data['account_id'] == '0') {
+                $data['account_id'] = null;
+            }
+
             $trade = Trade::create($data);
-            return response()->json(['success' => true, 'message' => 'Trade sucessfully saved!']);
+            return response()->json(['success' => true, 'message' => 'Trade successfully saved!', 'trade' => $trade]);
         } catch (\Throwable $th) {
             return response()->json(['success' => false, 'message' => $th->getMessage()]);
         }
@@ -248,7 +246,13 @@ class TradeController extends Controller
     public function update(Request $request, Trade $trade)
     {
         try {
-            $trade->update($request->all());
+            $data = $request->all();
+
+            if (empty($data['account_id']) || $data['account_id'] == '0') {
+                $data['account_id'] = null;
+            }
+
+            $trade->update($data);
             return response()->json(['success' => true, 'message' => 'Trade updated saved!']);
         } catch (\Throwable $th) {
             return response()->json(['success' => false, 'message' => $th->getMessage()]);

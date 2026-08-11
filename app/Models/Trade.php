@@ -11,6 +11,7 @@ class Trade extends Model
 
     protected $fillable = [
         'user_id',
+        'account_id',
         'asset',
         'asset_id',
         'direction',
@@ -47,6 +48,11 @@ class Trade extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function account()
+    {
+        return $this->belongsTo(Account::class);
     }
 
     public function associatedAsset()

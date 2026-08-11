@@ -661,6 +661,7 @@
                     <tr>
                         <th></th>
                         <th>Date</th>
+                        <th>Account</th>
                         <th>Asset</th>
                         <th>Direction</th>
                         <th>Session</th>
@@ -676,7 +677,7 @@
                 </thead>
                 <tfoot>
                     <tr style="background: #304d6d;color:#fff">
-                        <th colspan="6"></th>
+                        <th colspan="7">Total</th>
                         <th></th> <!-- RR total -->
                         <th></th>
                         <th></th>
@@ -862,6 +863,7 @@
                         
                         // Populate fields
                         $('#trade_id').val(res.id);
+                        $('[name="account_id"]').val(res.account_id || '');
                         $('[name="asset_id"]').val(res.asset_id);
                         $('[name="trade_date"]').val(res.trade_date);
                         $('[name="direction"]').val(res.direction);
@@ -1034,7 +1036,7 @@
             // Use a flag to prevent filter triggering during programmatic changes
             let isEditingTrade = false;
             
-            $('#market, #direction, #session, #outcome, #hin_day_filter, #entry_pd, #plan_followed, #entry_type, #has_emotions, #has_news').on('change', function() {
+            $('#account_id, #market, #direction, #session, #outcome, #hin_day_filter, #entry_pd, #plan_followed, #entry_type, #has_emotions, #has_news').on('change', function() {
                 if (!isEditingTrade) {
                     table.draw();
                 }
@@ -1072,8 +1074,9 @@
                     url: '{{ route('trades.data') }}',
                     type: 'GET',
                     data: function(d) {
+                        d.account_id = $('#account_id').val();
                         d.market = $('#market').val();
-                        d.status = $('#outcome').val(); // keeping 'status' key for backward compat if needed, but controller uses 'outcome' too? No, controller uses 'outcome' now.
+                        d.status = $('#outcome').val();
                         d.outcome = $('#outcome').val();
                         d.direction = $('#direction').val();
                         d.session = $('#session').val();
@@ -1113,7 +1116,11 @@
                     },
                     {
                         data: 'trade_date',
-                        name: 'trade_date'
+                        name: 'created_at'
+                    },
+                    {
+                        data: 'account',
+                        name: 'account'
                     },
                     {
                         data: 'asset',
@@ -1192,17 +1199,17 @@
                             typeof i === 'number' ? i : 0;
                     };
 
-                    let rrTotal = api.column(6, {
+                    let rrTotal = api.column(7, {
                         page: 'current'
                     }).data().reduce((a, b) => intVal(a) + intVal(
                         b), 0);
-                    let pnlTotal = api.column(7, {
+                    let pnlTotal = api.column(8, {
                         page: 'current'
                     }).data().reduce((a, b) => intVal(a) + intVal(
                         b), 0);
 
-                    $(api.column(6).footer()).html(rrTotal.toFixed(1));
-                    $(api.column(7).footer()).html( /*'$ '+*/ pnlTotal.toFixed(2));
+                    $(api.column(7).footer()).html(rrTotal.toFixed(1));
+                    $(api.column(8).footer()).html(pnlTotal.toFixed(2));
                 }
             });
 

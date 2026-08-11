@@ -23,6 +23,9 @@
                 <a class="dropdown-item" href="{{ route('trades.index') }}">
                     <i class="dw dw-table"></i> Trades
                 </a>
+                <a class="dropdown-item" href="{{ route('accounts.index') }}">
+                    <i class="dw dw-money-2"></i> Accounts
+                </a>
                 <a class="dropdown-item" href="{{ url('/calendar') }}">
                     <i id="calendar-icon" class="dw dw-calendar"></i> Calendar
                 </a>

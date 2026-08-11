@@ -10,6 +10,17 @@
 
                 <div class="modal-body">
                     <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>Trading Account</label>
+                                <select name="account_id" id="trade_account" class="form-control">
+                                    <option value="">-- Select Account (Optional) --</option>
+                                    @foreach($accounts ?? [] as $acc)
+                                    <option value="{{ $acc->id }}">{{ $acc->name }} ({{ $acc->broker }} - ${{ number_format($acc->account_size) }})</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
                         <!-- Left Column -->
                         <div class="col-md-4">
                             <div class="form-group">
