@@ -29,6 +29,9 @@
                 <a class="dropdown-item" href="{{ url('/calendar') }}">
                     <i id="calendar-icon" class="dw dw-calendar"></i> Calendar
                 </a>
+                <a class="dropdown-item" href="{{ route('commitment.index') }}" style="font-weight: 600; color: #1b00ff;">
+                    <i class="dw dw-target"></i> Commitment Board
+                </a>
                 <a class="dropdown-item" href="{{ route('milestones.index') }}">
                     <i class="dw dw-flag"></i> Milestones
                 </a>

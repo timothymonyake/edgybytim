@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DisciplineCalendarController;
 use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\TradeController;
 use Illuminate\Support\Facades\Route;
@@ -19,6 +20,22 @@ Route::get('/login', function () {
 
 // Protected routes
 Route::middleware(['auth'])->group(function () {
+    // Commitment Board (Discipline & Consistency Calendar)
+    Route::get('/commitment-board', [DisciplineCalendarController::class, 'index'])->name('commitment.index');
+    Route::get('/commitment-board/month-data', [DisciplineCalendarController::class, 'getMonthData'])->name('commitment.month_data');
+    Route::post('/commitment-board/plan', [DisciplineCalendarController::class, 'savePlan'])->name('commitment.plan.save');
+    Route::post('/commitment-board/upload-image', [DisciplineCalendarController::class, 'uploadImage'])->name('commitment.upload_image');
+    Route::get('/commitment-board/day/{date}', [DisciplineCalendarController::class, 'getDayDetails'])->name('commitment.day_details');
+    Route::post('/commitment-board/daily-log', [DisciplineCalendarController::class, 'saveDailyLog'])->name('commitment.daily_log.save');
+
+    // Daily Analysis Journal (Pre/Market/Post-market chart entries & Notion document)
+    Route::get('/commitment-board/analysis/{date}', [DisciplineCalendarController::class, 'getAnalyses'])->name('commitment.analysis.index');
+    Route::post('/commitment-board/analysis', [DisciplineCalendarController::class, 'storeAnalysis'])->name('commitment.analysis.store');
+    Route::post('/commitment-board/analysis/save-doc', [DisciplineCalendarController::class, 'saveDocument'])->name('commitment.analysis.save_doc');
+    Route::put('/commitment-board/analysis/{analysis}', [DisciplineCalendarController::class, 'updateAnalysis'])->name('commitment.analysis.update');
+    Route::delete('/commitment-board/analysis/{analysis}', [DisciplineCalendarController::class, 'deleteAnalysis'])->name('commitment.analysis.delete');
+    Route::get('/commitment-board/analysis/{date}/page', [DisciplineCalendarController::class, 'analysisPage'])->name('commitment.analysis.page');
+
     // Dashboard
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard.index');
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard'); // Breeze compatibility
@@ -27,6 +44,7 @@ Route::middleware(['auth'])->group(function () {
     // Trades
     Route::get('/trades', [TradeController::class, 'index'])->name('trades.index');
     Route::get('/trades/data', [TradeController::class, 'getTrades'])->name('trades.data');
+    Route::get('/trades/export', [TradeController::class, 'exportAi'])->name('trades.export');
     Route::post('/trades', [TradeController::class, 'store'])->name('trades.store');
     Route::delete('/trades/{trade}', [TradeController::class, 'destroy'])->name('trades.destroy');
     Route::put('/trades/{trade}', [TradeController::class, 'update'])->name('trades.update');

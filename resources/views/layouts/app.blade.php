@@ -121,6 +121,7 @@
     <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
     <script src="{{ asset('deskapp/src/scripts/reminders.js') }}"></script>
     
+    @stack('modals')
     @stack('scripts')
 </body>
 </html>

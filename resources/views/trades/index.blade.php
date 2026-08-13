@@ -648,8 +648,11 @@
                         <h4 class="text-success h4 text-center">Real Data</h4>
                     @endif
                 </div>
-                <div class="col-lg-4">
-                    <button class="btn btn-outline-dark pull-right" id="add_trade_btn">
+                <div class="col-lg-4 d-flex justify-content-end align-items-center">
+                    <button class="btn btn-primary mr-2" id="export_ai_btn" title="Export Trades for AI Analysis">
+                        <i class="dw dw-export"></i> Export for AI
+                    </button>
+                    <button class="btn btn-outline-dark" id="add_trade_btn" title="Add Trade">
                         <i class="dw dw-add"></i>
                     </button>
                 </div>
@@ -762,6 +765,10 @@
 
 
 @endsection
+
+@push('modals')
+    @include('trades._export_ai')
+@endpush
 
 @push('scripts')
     <!-- html2pdf library for PDF generation -->
@@ -1712,6 +1719,83 @@
 
 
 
+
+            // Export for AI modal trigger
+            $(document).on('click', '#export_ai_btn', function(e) {
+                e.preventDefault();
+                $('#export_ai_modal').modal('show');
+            });
+
+            function getExportParams() {
+                let params = new URLSearchParams();
+                let scope = $('input[name="export_scope"]:checked').val();
+
+                if (scope === 'filtered') {
+                    if ($('#start_date').val()) params.append('start_date', $('#start_date').val());
+                    if ($('#end_date').val()) params.append('end_date', $('#end_date').val());
+                    if ($('#account_id').val() && $('#account_id').val() != '0') params.append('account_id', $('#account_id').val());
+                    if ($('#market').val() && $('#market').val() != '0') params.append('market', $('#market').val());
+                    if ($('#asset_type').val() && $('#asset_type').val() != '0') params.append('asset_type', $('#asset_type').val());
+                    if ($('#direction').val() && $('#direction').val() != '0') params.append('direction', $('#direction').val());
+                    if ($('#session').val() && $('#session').val() != '0') params.append('session', $('#session').val());
+                    if ($('#outcome').val() && $('#outcome').val() != '0') params.append('outcome', $('#outcome').val());
+                    if ($('#hin_day_filter').val() && $('#hin_day_filter').val() != '0') params.append('hin_day', $('#hin_day_filter').val());
+                    if ($('#entry_pd').val() && $('#entry_pd').val() != '0') params.append('entry_pd', $('#entry_pd').val());
+                    if ($('#plan_followed').val() && $('#plan_followed').val() != '0') params.append('plan_followed', $('#plan_followed').val());
+                    if ($('#entry_type').val() && $('#entry_type').val() != '0') params.append('entry_type', $('#entry_type').val());
+                    if ($('#has_emotions').val() && $('#has_emotions').val() != '0') params.append('has_emotions', $('#has_emotions').val());
+                    if ($('#has_news').val() && $('#has_news').val() != '0') params.append('has_news', $('#has_news').val());
+                }
+                return params;
+            }
+
+            // Download JSON for AI
+            $('#download_json_ai_btn').on('click', function(e) {
+                e.preventDefault();
+                let params = getExportParams();
+                params.append('format', 'json');
+                window.location.href = "{{ route('trades.export') }}?" + params.toString();
+            });
+
+            // Download Markdown for AI
+            $('#download_md_ai_btn').on('click', function(e) {
+                e.preventDefault();
+                let params = getExportParams();
+                params.append('format', 'markdown');
+                params.append('download', 'true');
+                window.location.href = "{{ route('trades.export') }}?" + params.toString();
+            });
+
+            // Copy AI Prompt
+            $('#copy_ai_prompt_btn').on('click', function(e) {
+                e.preventDefault();
+                let btn = $(this);
+                let originalHtml = btn.html();
+                btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Generating...');
+
+                let params = getExportParams();
+                params.append('format', 'markdown');
+
+                $.ajax({
+                    url: "{{ route('trades.export') }}",
+                    type: 'GET',
+                    data: params.toString(),
+                    success: function(res) {
+                        if (res && res.markdown) {
+                            navigator.clipboard.writeText(res.markdown).then(function() {
+                                $('#copy_success_alert').fadeIn().delay(4000).fadeOut();
+                            }).catch(function(err) {
+                                iziToastNotify('error', 'Could not write to clipboard: ' + err);
+                            });
+                        }
+                        btn.prop('disabled', false).html(originalHtml);
+                    },
+                    error: function(err) {
+                        iziToastNotify('error', 'Failed to fetch AI prompt');
+                        btn.prop('disabled', false).html(originalHtml);
+                    }
+                });
+            });
 
         });
     </script>
