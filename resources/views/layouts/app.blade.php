@@ -22,6 +22,113 @@
     
     @stack('styles')
     <style>
+        /* ── WHITE CLEAN GLOBAL APP HEADER ── */
+        .header {
+            background: #ffffff !important;
+            border-bottom: 1px solid #e2e8f0 !important;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05) !important;
+            height: 70px !important;
+            z-index: 10005 !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            padding: 0 20px !important;
+        }
+        .header .header-left, .header .header-search, .header .brand-logo {
+            background: transparent !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 12px !important;
+        }
+        .header .brand-logo img {
+            max-height: 42px !important;
+            width: auto !important;
+            object-fit: contain !important;
+        }
+        
+        /* Header Buttons (Menu & Filter) */
+        .header .btn-outline-primary,
+        .header button.dropdown-toggle,
+        .header .toggle-sidebar-btn {
+            background: #ffffff !important;
+            color: #1b00ff !important;
+            border: 1.5px solid #1b00ff !important;
+            border-radius: 8px !important;
+            padding: 5px 12px !important;
+            box-shadow: 0 2px 6px rgba(27,0,255,0.08) !important;
+            transition: all 0.2s ease !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 5px !important;
+        }
+        .header .btn-outline-primary:hover,
+        .header button.dropdown-toggle:hover,
+        .header .toggle-sidebar-btn:hover {
+            background: #1b00ff !important;
+            color: #ffffff !important;
+            border-color: #1b00ff !important;
+        }
+        .header .btn-outline-primary i,
+        .header button.dropdown-toggle i,
+        .header .toggle-sidebar-btn i {
+            color: inherit !important;
+            font-size: 15px !important;
+        }
+
+        /* User Info Dropdown Toggle */
+        .header .user-info-dropdown .user-name {
+            color: #1e293b !important;
+            font-weight: 700 !important;
+            font-size: 13.5px !important;
+        }
+
+        /* ── PERFECT DROPDOWN MENU & ICON ALIGNMENT ── */
+        .header .dropdown-menu {
+            background: #ffffff !important;
+            border: 1px solid #e2e8f0 !important;
+            border-radius: 12px !important;
+            z-index: 10006 !important;
+            box-shadow: 0 12px 32px rgba(0,0,0,0.12) !important;
+            padding: 8px !important;
+            min-width: 220px !important;
+        }
+        .header .dropdown-item {
+            display: flex !important;
+            align-items: center !important;
+            gap: 12px !important;
+            color: #334155 !important;
+            font-weight: 600 !important;
+            font-size: 13px !important;
+            padding: 9px 14px !important;
+            border-radius: 8px !important;
+            transition: all 0.15s ease !important;
+            position: relative !important;
+            line-height: 1.4 !important;
+            text-decoration: none !important;
+        }
+        .header .dropdown-item:hover {
+            background: #f1f5f9 !important;
+            color: #1b00ff !important;
+        }
+        .header .dropdown-item i,
+        .header .dropdown-item .dw {
+            position: static !important; /* Fix DeskApp absolute positioning overlap */
+            font-size: 17px !important;
+            color: #1b00ff !important;
+            width: 22px !important;
+            height: 22px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            flex-shrink: 0 !important;
+            margin: 0 !important;
+            line-height: 1 !important;
+        }
+        .header .dropdown-item:hover i,
+        .header .dropdown-item:hover .dw {
+            color: #1b00ff !important;
+        }
+
         /* Sticky footer removed as per user request */
         .footer-text-bold {
             font-weight: 700;

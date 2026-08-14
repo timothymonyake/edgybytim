@@ -270,6 +270,15 @@ class DisciplineCalendarController extends Controller
 
         $userId = auth()->id();
         $logDate = $request->log_date;
+        $todayStr = now()->format('Y-m-d');
+
+        if ($logDate !== $todayStr) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Saving logs for previous or future dates is prohibited. Logs can only be updated for today.'
+            ], 422);
+        }
+        
         $completed = $request->completed_activities ?? [];
         
         $yearMonth = substr($logDate, 0, 7);
@@ -592,9 +601,13 @@ class DisciplineCalendarController extends Controller
         $completedActivities = $dailyLog ? ($dailyLog->completed_activities ?? []) : [];
         $dailyNotes = $dailyLog ? ($dailyLog->notes ?? '') : '';
 
+        $todayStr = now()->format('Y-m-d');
+        $isToday  = ($date === $todayStr);
+
         return view('discipline.analysis_page', [
             'date'                => $date,
             'carbon'              => $carbon,
+            'isToday'             => $isToday,
             'entries'             => $entries,
             'grouped'             => [
                 'premarket'  => $entries->where('phase', 'premarket')->values(),

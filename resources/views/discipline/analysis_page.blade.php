@@ -19,27 +19,47 @@ html, body {
     background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif;
 }
 
-/* ── 1. NON-SCROLLABLE FIXED TOP SECTION ── */
+/* Reset DeskApp layout overrides to eliminate double gaps */
+.main-container {
+    padding-top: 70px !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    padding-bottom: 0 !important;
+    margin: 0 !important;
+}
+.pd-ltr-20 {
+    padding: 0 !important;
+    margin: 0 !important;
+}
+.footer-wrap {
+    display: none !important;
+}
+
+/* ── 1. HIGH-END STYLED TOP HEADER BAR ── */
 .fixed-top-header {
-    position: fixed; top: 0; left: 0; right: 0; z-index: 1000; height: 116px;
-    background: #0b0d12; border-bottom: 1px solid var(--border);
-    padding: 12px 24px 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+    position: fixed; top: 70px; left: 0; right: 0; z-index: 1000; height: 94px;
+    background: linear-gradient(180deg, #0b0d12 0%, #0d1017 100%);
+    border-bottom: 1px solid rgba(51, 65, 85, 0.6);
+    padding: 8px 20px 6px; box-shadow: 0 8px 24px rgba(0,0,0,0.6);
     box-sizing: border-box;
 }
 
 .aj-topbar {
     display: flex; align-items: center; justify-content: space-between;
-    flex-wrap: wrap; gap: 12px; margin-bottom: 8px;
+    flex-wrap: wrap; gap: 10px; margin-bottom: 6px;
 }
-.aj-topbar-left { display: flex; align-items: center; gap: 14px; }
+.aj-topbar-left { display: flex; align-items: center; gap: 12px; }
 .aj-date-badge {
-    font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 20px;
-    color: #fff; letter-spacing: -0.5px;
+    font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 18px;
+    background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    letter-spacing: -0.4px;
 }
 
 .date-nav-group {
-    display: flex; align-items: center; gap: 6px;
-    background: #121620; padding: 2px 8px; border-radius: 10px; border: 1px solid var(--border);
+    display: flex; align-items: center; gap: 4px;
+    background: #121620; padding: 2px 8px; border-radius: 8px; border: 1px solid var(--border);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
 }
 .date-nav-btn {
     font-size: 15px; font-weight: 800; padding: 2px 8px; line-height: 1; color: #94a3b8;
@@ -51,58 +71,62 @@ html, body {
     display: inline-flex; align-items: center; gap: 6px;
     background: rgba(251,191,36,.12); border: 1px solid rgba(251,191,36,.3);
     color: #fbbf24; font-size: 11px; font-weight: 600;
-    padding: 3px 10px; border-radius: 20px; text-decoration: none;
-    transition: all .2s;
+    padding: 3px 9px; border-radius: 16px; text-decoration: none;
+    transition: all .2s; box-shadow: 0 2px 8px rgba(251,191,36,0.1);
 }
-.aj-ff-pill:hover { background: rgba(251,191,36,.22); color: #fde68a; }
-.aj-topbar-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.aj-ff-pill:hover { background: rgba(251,191,36,.22); color: #fde68a; box-shadow: 0 4px 12px rgba(251,191,36,0.2); }
+.aj-topbar-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 .aj-btn {
     font-family: 'Inter', sans-serif; font-weight: 600; font-size: 12px;
-    padding: 5px 12px; border-radius: 8px; border: 1px solid var(--border);
+    padding: 5px 12px; border-radius: 7px; border: 1px solid var(--border);
     background: var(--card2); color: var(--text); cursor: pointer; transition: all .2s;
-    display: inline-flex; align-items: center; gap: 6px;
+    display: inline-flex; align-items: center; gap: 5px; box-shadow: 0 2px 6px rgba(0,0,0,0.25);
 }
-.aj-btn:hover { border-color: #475569; background: #222b3a; }
-.aj-btn-primary { background: #1b00ff; border-color: #1b00ff; color: #fff; }
-.aj-btn-primary:hover { background: #1400d4; }
+.aj-btn:hover { border-color: #475569; background: #222b3a; transform: translateY(-1px); }
+.aj-btn-primary { background: #1b00ff; border-color: #1b00ff; color: #fff; box-shadow: 0 4px 12px rgba(27,0,255,0.35); }
+.aj-btn-primary:hover { background: #1400d4; box-shadow: 0 6px 16px rgba(27,0,255,0.5); }
 
 /* Notion Document Toolbar */
 .doc-toolbar {
     background: rgba(18,22,32,0.95); backdrop-filter: blur(10px);
-    border: 1px solid var(--border); border-radius: 9px;
-    padding: 4px 10px; display: flex; align-items: center; justify-content: space-between;
-    gap: 8px; flex-wrap: wrap;
+    border: 1px solid var(--border); border-radius: 8px;
+    padding: 3px 10px; display: flex; align-items: center; justify-content: space-between;
+    gap: 8px; flex-wrap: wrap; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
 }
 .toolbar-group { display: flex; align-items: center; gap: 4px; }
 .t-btn {
     background: transparent; border: 1px solid transparent; color: #94a3b8;
-    font-size: 12px; font-weight: 700; padding: 4px 9px; border-radius: 5px;
+    font-size: 12px; font-weight: 700; padding: 3px 8px; border-radius: 5px;
     cursor: pointer; transition: all .15s; display: inline-flex; align-items: center; gap: 4px;
 }
 .t-btn:hover { background: #1e293b; color: #fff; border-color: #334155; }
-.t-btn.heading-btn { font-family: 'Outfit', sans-serif; font-size: 12.5px; text-decoration: underline; font-weight: 800; text-transform: uppercase; }
+.t-btn.heading-btn { font-family: 'Outfit', sans-serif; font-size: 12px; text-decoration: underline; font-weight: 800; text-transform: uppercase; }
 
 .save-status-badge {
-    font-size: 11.5px; font-weight: 600; color: #10b981; display: inline-flex; align-items: center; gap: 4px;
+    font-size: 11.5px; font-weight: 600; color: #10b981; display: inline-flex; align-items: center; gap: 6px;
     font-family: 'JetBrains Mono', monospace;
 }
+.save-status-badge::before {
+    content: ""; display: inline-block; width: 6px; height: 6px; border-radius: 50%;
+    background: #10b981; box-shadow: 0 0 8px #10b981;
+}
 
-/* ── 2. FIXED WORKSPACE CONTAINER & SCROLLABLE CANVAS ── */
+/* ── 2. WORKSPACE CONTAINER & SCROLLABLE CANVAS ── */
 .fixed-workspace-container {
-    margin-top: 116px;
-    height: calc(100vh - 116px);
-    overflow: hidden; /* Outer window never scrolls! */
-    padding: 16px 20px 20px;
+    margin-top: 94px;
+    height: calc(100vh - 164px);
+    overflow: hidden;
+    padding: 6px 14px 10px;
     box-sizing: border-box;
 }
 
 .workspace-grid {
     display: grid;
-    grid-template-columns: 260px 1fr 260px;
-    gap: 18px;
-    height: calc(100vh - 152px); /* Explicit height ensures inner overflow-y works! */
+    grid-template-columns: 250px 1fr 250px;
+    gap: 14px;
+    height: calc(100vh - 178px);
     align-items: stretch;
-    max-width: 1560px;
+    max-width: 1580px;
     margin: 0 auto;
 }
 
@@ -116,168 +140,181 @@ html, body {
 
 .notion-paper {
     background: var(--card); border: 1px solid var(--border);
-    border-radius: 16px; padding: 32px 42px;
-    height: 100%; max-height: calc(100vh - 152px);
+    border-radius: 14px; padding: 26px 38px;
+    height: 100%; max-height: calc(100vh - 178px);
     overflow-y: auto !important; /* CRITICAL: Enables scrolling on notionPaper! */
-    box-shadow: 0 16px 40px rgba(0,0,0,0.35); outline: none;
-    font-size: 15px; line-height: 1.75; color: #e2e8f0;
-    box-sizing: border-box;
+    box-shadow: 0 14px 35px rgba(0,0,0,0.4); outline: none;
+    font-size: 14.5px; line-height: 1.75; color: #e2e8f0;
+    box-sizing: border-box; transition: border-color 0.2s;
 }
-.notion-paper:focus { border-color: #3b82f6; }
+.notion-paper:focus { border-color: rgba(56, 189, 248, 0.6); box-shadow: 0 16px 40px rgba(0,0,0,0.5), 0 0 20px rgba(56, 189, 248, 0.1); }
+
+.notion-paper::-webkit-scrollbar { width: 6px; }
+.notion-paper::-webkit-scrollbar-track { background: transparent; }
+.notion-paper::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+.notion-paper::-webkit-scrollbar-thumb:hover { background: #38bdf8; }
 
 /* FULLSCREEN OVERLAY MODE FOR NOTION PAPER ONLY */
 .notion-paper.fullscreen-mode {
     position: fixed !important; inset: 0 !important; z-index: 999998 !important;
     width: 100vw !important; height: 100vh !important; max-width: 100vw !important;
-    max-height: 100vh !important; border-radius: 0 !important; padding: 50px 120px !important;
+    max-height: 100vh !important; border-radius: 0 !important; padding: 40px 100px !important;
     background: #0b0d12 !important; border: none !important; overflow-y: auto !important;
 }
 
 .fullscreen-exit-btn {
-    position: fixed; top: 20px; right: 30px; z-index: 999999;
+    position: fixed; top: 16px; right: 24px; z-index: 999999;
     background: rgba(255,255,255,0.1); color: #fff; border: 1px solid #334155;
-    padding: 8px 18px; border-radius: 8px; font-weight: 700; font-size: 13px;
+    padding: 6px 14px; border-radius: 6px; font-weight: 700; font-size: 12px;
     cursor: pointer; backdrop-filter: blur(10px); display: none; transition: all 0.2s;
 }
 .fullscreen-exit-btn:hover { background: #ef4444; border-color: #ef4444; }
 
 /* Notion Typography inside Document */
 .notion-paper h1 {
-    font-family: 'Outfit', sans-serif; font-size: 25px; font-weight: 800;
-    color: #ffffff; margin: 24px 0 12px; letter-spacing: -0.5px;
+    font-family: 'Outfit', sans-serif; font-size: 24px; font-weight: 800;
+    color: #ffffff; margin: 18px 0 10px; letter-spacing: -0.5px;
 }
 .notion-paper h2 {
-    font-family: 'Outfit', sans-serif; font-size: 18.5px; font-weight: 800;
+    font-family: 'Outfit', sans-serif; font-size: 18px; font-weight: 800;
     color: #ffffff; text-transform: uppercase; text-decoration: underline;
-    text-underline-offset: 6px; text-decoration-color: #f43f5e;
-    margin: 28px 0 14px; letter-spacing: 0.5px;
+    text-underline-offset: 5px; text-decoration-color: #f43f5e;
+    margin: 22px 0 10px; letter-spacing: 0.5px;
 }
-.notion-paper p { margin-bottom: 16px; color: #cbd5e1; }
-.notion-paper ul { margin-bottom: 16px; padding-left: 24px; color: #cbd5e1; }
+.notion-paper p { margin-bottom: 14px; color: #cbd5e1; }
+.notion-paper ul { margin-bottom: 14px; padding-left: 22px; color: #cbd5e1; }
 .notion-paper li { margin-bottom: 4px; }
 .notion-paper u { text-decoration-color: #f43f5e; text-underline-offset: 4px; }
 
-/* ── LEFT TIMELINE VIEW FOR CHART ENTRIES ── */
-.tv-timeline-entry {
-    display: flex; gap: 16px; margin: 24px 0; align-items: stretch; position: relative;
+/* ── STUNNING EMBEDDED TRADINGVIEW CHART BLOCK & TIME BADGE ── */
+.tv-embed-block {
+    margin: 14px 0 4px; position: relative; border-radius: 12px; overflow: hidden;
+    background: #080a0f; border: 1px solid rgba(56, 189, 248, 0.25);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); transition: all 0.3s ease;
 }
-.timeline-left-gutter {
-    display: flex; flex-direction: column; align-items: center; width: 68px; flex-shrink: 0;
-}
-.timeline-time-tag {
-    font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 800;
-    color: #38bdf8; background: #0f172a; border: 1px solid rgba(56,189,248,0.35);
-    padding: 3px 6px; border-radius: 6px; text-align: center; white-space: nowrap;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-}
-.timeline-v-line {
-    width: 2px; background: linear-gradient(180deg, rgba(56,189,248,0.4) 0%, rgba(35,45,63,0.3) 100%);
-    flex-grow: 1; margin-top: 6px; border-radius: 2px;
-}
-.timeline-body-content {
-    flex-grow: 1; min-width: 0;
+.tv-embed-block:hover {
+    border-color: rgba(56, 189, 248, 0.6);
+    box-shadow: 0 16px 44px rgba(0, 240, 255, 0.15);
 }
 
-/* Embedded TradingView Chart Block */
-.tv-embed-block {
-    position: relative; border-radius: 12px; overflow: hidden;
-    background: #090b0e; border: 1px solid var(--border); box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+.tv-corner-time {
+    position: absolute; top: 8px; left: 8px; z-index: 10;
+    display: inline-flex; align-items: center; gap: 4px;
+    background: rgba(11, 15, 25, 0.92); color: #38bdf8; font-size: 11px; font-weight: 800;
+    font-family: 'JetBrains Mono', monospace; padding: 3px 8px; border-radius: 6px;
+    border: 1px solid rgba(56, 189, 248, 0.4); backdrop-filter: blur(8px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6), 0 0 10px rgba(56, 189, 248, 0.2);
+    letter-spacing: 0.3px;
 }
+.tv-corner-time::before {
+    content: "⏰"; font-size: 10px; margin-right: 2px;
+}
+
 .tv-embed-img {
-    width: 100%; max-height: 600px; object-fit: contain; background: #000;
+    width: 100%; max-height: 580px; object-fit: contain; background: #000;
     display: block; cursor: pointer; transition: opacity .2s;
 }
 .tv-embed-img:hover { opacity: 0.95; }
+
 .tv-open-link {
     position: absolute; bottom: 10px; right: 10px; z-index: 5;
-    background: rgba(15,23,42,0.85); color: #e2e8f0; font-size: 10.5px; font-weight: 600;
-    padding: 4px 10px; border-radius: 5px; text-decoration: none;
-    backdrop-filter: blur(4px); border: 1px solid #334155; transition: all .2s;
+    background: rgba(15, 23, 42, 0.9); color: #38bdf8; font-size: 11px; font-weight: 700;
+    padding: 3px 10px; border-radius: 6px; text-decoration: none;
+    backdrop-filter: blur(8px); border: 1px solid rgba(56, 189, 248, 0.3);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4); transition: all 0.2s ease;
+    display: inline-flex; align-items: center; gap: 4px;
 }
-.tv-open-link:hover { background: #1b00ff; color: #fff; border-color: #1b00ff; }
+.tv-open-link:hover {
+    background: #1b00ff; color: #fff; border-color: #1b00ff;
+    box-shadow: 0 6px 18px rgba(27,0,255,0.45); transform: translateY(-1px);
+}
 
 /* Greyed-out Image Caption */
 .tv-caption {
-    font-size: 13px; font-style: italic; color: #94a3b8; text-align: center;
-    margin-top: 8px; padding: 6px 12px; border-radius: 6px; outline: none;
-    transition: all 0.2s; min-height: 24px;
+    font-size: 12px; font-weight: 500; font-style: italic; color: #94a3b8; text-align: center;
+    margin-top: 4px; padding: 4px 12px; border-radius: 6px; outline: none;
+    background: rgba(18, 24, 38, 0.4); border: 1px dashed rgba(51, 65, 85, 0.5);
+    transition: all 0.2s; min-height: 22px;
 }
 .tv-caption:focus, .tv-caption:hover {
-    background: rgba(255,255,255,0.04); color: #cbd5e1;
+    background: rgba(30, 41, 59, 0.6); color: #cbd5e1; border-color: #38bdf8;
 }
 
 /* ── SIDEBAR PANELS ── */
 .sidebar-panel {
     background: var(--card); border: 1px solid var(--border);
-    border-radius: 16px; padding: 18px; height: 100%; overflow-y: auto;
-    box-shadow: 0 16px 40px rgba(0,0,0,0.35); box-sizing: border-box;
+    border-radius: 14px; padding: 16px; height: 100%; max-height: calc(100vh - 178px);
+    overflow-y: auto; box-shadow: 0 12px 30px rgba(0,0,0,0.35); box-sizing: border-box;
 }
+.sidebar-panel::-webkit-scrollbar { width: 5px; }
+.sidebar-panel::-webkit-scrollbar-thumb { background: #2d3748; border-radius: 4px; }
+
 .sidebar-section-title {
-    font-family: 'Outfit', sans-serif; font-size: 13.5px; font-weight: 800;
+    font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 800;
     color: #fff; text-transform: uppercase; letter-spacing: 0.5px;
     display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.06);
+    margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid rgba(255,255,255,0.06);
 }
 .progress-pill {
     font-size: 10.5px; font-weight: 700; color: #10b981;
-    background: rgba(16,185,129,0.12); padding: 2px 7px; border-radius: 10px;
+    background: rgba(16,185,129,0.12); padding: 2px 7px; border-radius: 8px;
 }
 
 /* ── FLOATING OUTLINE NAV BAR (ON RIGHT INTERIOR EDGE OF NOTION PAPER) ── */
 .floating-outline-nav {
-    position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+    position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
     z-index: 990; background: rgba(15, 20, 32, 0.94); backdrop-filter: blur(12px);
-    border: 1px solid #334155; border-radius: 20px; padding: 12px 6px;
-    display: flex; flex-direction: column; align-items: center; gap: 8px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.6); max-height: 380px; overflow-y: auto;
+    border: 1px solid #334155; border-radius: 18px; padding: 10px 5px;
+    display: flex; flex-direction: column; align-items: center; gap: 7px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.6); max-height: 360px; overflow-y: auto;
 }
 .outline-line-node {
     height: 4px; border-radius: 4px; background: #334155; cursor: pointer;
     transition: all 0.2s ease; position: relative;
 }
-.outline-line-node.level-h1 { width: 24px; background: #38bdf8; }
-.outline-line-node.level-h2 { width: 16px; background: #f43f5e; }
-.outline-line-node.level-h3 { width: 10px; background: #94a3b8; }
+.outline-line-node.level-h1 { width: 22px; background: #38bdf8; }
+.outline-line-node.level-h2 { width: 14px; background: #f43f5e; }
+.outline-line-node.level-h3 { width: 9px; background: #94a3b8; }
 
 .outline-line-node:hover, .outline-line-node.active {
     background: #00f0ff !important; box-shadow: 0 0 10px rgba(0,240,255,0.8);
     transform: scaleX(1.3);
 }
 
-/* Floating Smart Tooltip Card (Matching Screenshot 2) */
+/* Floating Smart Tooltip Card */
 .outline-tooltip-card {
     position: fixed; display: none; z-index: 100000;
     background: rgba(15, 20, 30, 0.96); backdrop-filter: blur(14px);
-    border: 1px solid #334155; border-radius: 12px; padding: 10px 14px;
-    box-shadow: 0 14px 35px rgba(0,0,0,0.6); pointer-events: none; min-width: 170px; max-width: 240px;
+    border: 1px solid #334155; border-radius: 10px; padding: 8px 12px;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.6); pointer-events: none; min-width: 160px; max-width: 230px;
 }
 .outline-tooltip-title {
-    font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 800;
-    color: #38bdf8; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;
+    font-family: 'Outfit', sans-serif; font-size: 12px; font-weight: 800;
+    color: #38bdf8; margin-bottom: 3px; text-transform: uppercase; letter-spacing: 0.5px;
 }
 .outline-tooltip-sub {
-    font-size: 11.5px; color: #cbd5e1; line-height: 1.4; font-family: 'Inter', sans-serif;
+    font-size: 11px; color: #cbd5e1; line-height: 1.3; font-family: 'Inter', sans-serif;
 }
 
 /* Custom Context Menu */
 .custom-ctx-menu {
     position: fixed; display: none; z-index: 999999;
     background: rgba(18, 24, 38, 0.96); backdrop-filter: blur(12px);
-    border: 1px solid #334155; border-radius: 10px; padding: 6px;
-    box-shadow: 0 12px 30px rgba(0,0,0,0.6); min-width: 170px;
+    border: 1px solid #334155; border-radius: 10px; padding: 5px;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.6); min-width: 160px;
 }
 .ctx-item {
-    font-size: 12.5px; font-weight: 600; color: #e2e8f0; padding: 7px 12px;
-    border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 8px;
+    font-size: 12px; font-weight: 600; color: #e2e8f0; padding: 6px 10px;
+    border-radius: 5px; cursor: pointer; display: flex; align-items: center; gap: 7px;
     transition: all 0.15s;
 }
 .ctx-item:hover { background: #1e293b; color: #38bdf8; }
-.ctx-divider { height: 1px; background: #2d3748; margin: 4px 0; }
+.ctx-divider { height: 1px; background: #2d3748; margin: 3px 0; }
 
 /* ── RIGHT COLUMN: ROUTINE CHECKLIST & REFLECTION ── */
-.routine-list { display: flex; flex-direction: column; gap: 7px; margin-bottom: 16px; }
+.routine-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
 .routine-item {
-    display: flex; align-items: flex-start; gap: 8px;
+    display: flex; align-items: flex-start; gap: 7px;
     background: #1a202c; border: 1px solid #2d3748; padding: 7px 9px;
     border-radius: 8px; cursor: pointer; transition: all .2s; margin: 0;
 }
@@ -285,7 +322,7 @@ html, body {
 .routine-item.checked { border-color: rgba(16,185,129,0.4); background: rgba(16,185,129,0.06); }
 .routine-item input[type="checkbox"] { display: none; }
 .custom-chk {
-    width: 16px; height: 16px; border-radius: 4px; border: 2px solid #4a5568;
+    width: 15px; height: 15px; border-radius: 4px; border: 2px solid #4a5568;
     display: flex; align-items: center; justify-content: center;
     flex-shrink: 0; margin-top: 1px; transition: all .2s;
 }
@@ -293,22 +330,22 @@ html, body {
     background: #10b981; border-color: #10b981;
 }
 .routine-item input[type="checkbox"]:checked + .custom-chk::after {
-    content: "✓"; color: #fff; font-size: 10px; font-weight: 900;
+    content: "✓"; color: #fff; font-size: 9.5px; font-weight: 900;
 }
-.routine-text { font-size: 12px; font-weight: 600; color: #e2e8f0; line-height: 1.35; }
+.routine-text { font-size: 11.5px; font-weight: 600; color: #e2e8f0; line-height: 1.35; }
 .routine-item.checked .routine-text { color: #94a3b8; text-decoration: line-through; }
 
 .sidebar-textarea {
     width: 100%; background: #1a202c; border: 1px solid #2d3748;
-    border-radius: 9px; padding: 9px; color: #e2e8f0; font-size: 12px;
-    font-family: 'Inter', sans-serif; line-height: 1.5; resize: vertical; min-height: 100px;
+    border-radius: 8px; padding: 8px 10px; color: #e2e8f0; font-size: 11.5px;
+    font-family: 'Inter', sans-serif; line-height: 1.45; resize: vertical; min-height: 95px;
     outline: none; transition: border-color .2s; box-sizing: border-box;
 }
 .sidebar-textarea:focus { border-color: #3b82f6; }
 
 .sidebar-save-btn {
-    width: 100%; justify-content: center; padding: 8px; font-size: 12px;
-    font-weight: 700; margin-top: 10px;
+    width: 100%; justify-content: center; padding: 7px; font-size: 11.5px;
+    font-weight: 700; margin-top: 8px;
 }
 
 /* Lightbox */
@@ -318,12 +355,106 @@ html, body {
 .lightbox-close { position: absolute; top: 20px; right: 28px; color: #fff; font-size: 36px; cursor: pointer; font-weight: 300; transition: .2s; }
 .lightbox-close:hover { color: #ef4444; }
 
+/* ── PROFESSIONAL EXECUTIVE PRINT & PDF STYLESHEET ── */
 @media print {
-    .fixed-top-header, .sidebar-panel { display: none !important; }
-    .fixed-workspace-container { margin-top: 0; height: auto; overflow: visible; padding: 0; }
-    .workspace-grid { grid-template-columns: 1fr; }
-    body { background: #fff; color: #000; overflow: visible; }
-    .notion-paper { border: none; background: #fff; color: #000; box-shadow: none; padding: 0; height: auto; overflow: visible; }
+    @page {
+        size: portrait;
+        margin: 12mm 15mm;
+    }
+    
+    /* Hide all app toolbars, headers, sidebars, buttons, tooltips, outline nav, and footers */
+    .header, .fixed-top-header, .sidebar-panel, .left-nav-panel, 
+    .floating-outline-nav, .outline-tooltip-card, .custom-ctx-menu,
+    .fullscreen-exit-btn, .footer-wrap, #reminder-top-popup,
+    .tv-open-link, .aj-btn, .doc-toolbar {
+        display: none !important;
+    }
+    
+    html, body {
+        background: #ffffff !important;
+        color: #0f172a !important;
+        height: auto !important;
+        overflow: visible !important;
+        font-family: 'Inter', sans-serif !important;
+    }
+    
+    .main-container, .pd-ltr-20, .fixed-workspace-container, .workspace-grid, .paper-wrapper-relative {
+        margin: 0 !important;
+        padding: 0 !important;
+        height: auto !important;
+        overflow: visible !important;
+        display: block !important;
+    }
+    
+    .notion-paper {
+        border: none !important;
+        background: #ffffff !important;
+        color: #0f172a !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        height: auto !important;
+        max-height: none !important;
+        overflow: visible !important;
+        font-size: 12pt !important;
+        line-height: 1.6 !important;
+    }
+    
+    .notion-paper h1 {
+        font-size: 22pt !important;
+        color: #0f172a !important;
+        border-bottom: 2px solid #0f172a !important;
+        padding-bottom: 4px !important;
+        margin-top: 10pt !important;
+        margin-bottom: 12pt !important;
+    }
+    
+    .notion-paper h2 {
+        font-size: 15pt !important;
+        color: #1e293b !important;
+        text-decoration: underline !important;
+        text-decoration-color: #f43f5e !important;
+        margin-top: 14pt !important;
+        margin-bottom: 8pt !important;
+    }
+    
+    .notion-paper p, .notion-paper li {
+        color: #1e293b !important;
+    }
+    
+    .tv-embed-block {
+        border: 1px solid #cbd5e1 !important;
+        box-shadow: none !important;
+        background: #ffffff !important;
+        margin: 12pt 0 4pt !important;
+        page-break-inside: avoid;
+    }
+    
+    .tv-corner-time {
+        position: relative !important;
+        display: inline-block !important;
+        top: 0 !important; left: 0 !important;
+        background: #f1f5f9 !important;
+        color: #0284c7 !important;
+        border: 1px solid #bae6fd !important;
+        box-shadow: none !important;
+        font-size: 9pt !important;
+        padding: 2px 6px !important;
+        margin-bottom: 4px !important;
+    }
+    
+    .tv-embed-img {
+        max-height: 480pt !important;
+        border-radius: 4px !important;
+    }
+    
+    .tv-caption {
+        font-size: 10pt !important;
+        color: #64748b !important;
+        background: transparent !important;
+        border: none !important;
+        margin-top: 3pt !important;
+    }
 }
 </style>
 @endpush
@@ -340,11 +471,11 @@ html, body {
     ✕ Exit Fullscreen [ ]
 </button>
 
-{{-- ── 1. NON-SCROLLABLE FIXED TOP SECTION ── --}}
+{{-- ── 1. UNCOMPRESSED SPACIOUS FIXED TOP HEADER BAR ── --}}
 <div class="fixed-top-header">
     <div class="aj-topbar">
         <div class="aj-topbar-left">
-            <a href="{{ route('commitment.index') }}" class="aj-btn" style="padding:4px 10px; font-size:12px;">
+            <a href="{{ route('commitment.index') }}" class="aj-btn" style="padding:4px 10px; font-size:11.5px;">
                 ← Board
             </a>
 
@@ -355,17 +486,22 @@ html, body {
                 <a href="{{ route('commitment.analysis.page', $nextDate) }}" class="date-nav-btn" title="Next Day ({{ $carbon->copy()->addDay()->format('M j, Y') }})">›</a>
             </div>
 
+            @if(!$isToday)
+                <span style="font-size:11px; font-weight:700; color:#fbbf24; background:rgba(251,191,36,0.12); padding:3px 8px; border-radius:6px; border:1px solid rgba(251,191,36,0.3);">
+                    🔒 Read-Only Log (Not Today)
+                </span>
+            @endif
+
             <a href="{{ $ffUrl }}" target="_blank" class="aj-ff-pill">
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 100 20A10 10 0 0012 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 100 20A10 10 0 0012 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
                 Forex Factory · Week of {{ $carbon->copy()->startOfWeek(\Carbon\Carbon::SUNDAY)->format('M j, Y') }}
             </a>
         </div>
         <div class="aj-topbar-actions">
             <button class="aj-btn" onclick="togglePaperFullscreen()" title="Toggle Fullscreen Document">
-                <span style="font-size:13px; font-weight:900;">[ ]</span> Fullscreen
+                <span style="font-size:12px; font-weight:900;">[ ]</span> Fullscreen
             </button>
             <button class="aj-btn" onclick="window.print()">Print</button>
-            <button class="aj-btn aj-btn-primary" onclick="saveDocumentNow()">Save Document</button>
             <button class="aj-btn" onclick="window.location.href='{{ route('commitment.index') }}'">Back to Board</button>
         </div>
     </div>
@@ -375,6 +511,7 @@ html, body {
         <div class="toolbar-group">
             <button class="t-btn" onclick="execCmd('formatBlock','<h1>')">Title H1</button>
             <button class="t-btn heading-btn" onclick="execCmd('formatBlock','<h2>')">LONDONPLUSONE (H2)</button>
+            <button class="t-btn" onclick="addNewParagraphAtBottom()">+ Paragraph</button>
             <span style="color:#334155;">|</span>
             <button class="t-btn" onclick="execCmd('bold')"><b>B</b> Bold</button>
             <button class="t-btn" onclick="execCmd('italic')"><i>I</i> Italic</button>
@@ -384,12 +521,12 @@ html, body {
             <button class="t-btn" onclick="insertTvChartPrompt()" style="color:#38bdf8;">📷 Insert TradingView Link</button>
         </div>
         <div class="save-status-badge" id="saveStatus">
-            <span>Saved ✓</span>
+            <span>Saved</span>
         </div>
     </div>
 </div>
 
-{{-- ── 2. FIXED WORKSPACE CONTAINER (OUTER WINDOW NEVER SCROLLS) ── --}}
+{{-- ── 2. ZERO GAP WORKSPACE CONTAINER ── --}}
 <div class="fixed-workspace-container">
     <div class="workspace-grid">
 
@@ -400,7 +537,7 @@ html, body {
                 <span class="progress-pill" style="color:#38bdf8; background:rgba(56,189,248,0.12);" id="tocHeadingsCount">1 Section</span>
             </div>
 
-            <div style="font-size:12px; color:#64748b; line-height:1.6;">
+            <div style="font-size:11.5px; color:#64748b; line-height:1.5;">
                 <p>📌 <b>Daily Analysis Journal</b></p>
                 <p>Use the floating outline bar on the right edge of the editor canvas to jump to specific document sections.</p>
             </div>
@@ -413,7 +550,7 @@ html, body {
                 <!-- Outline line nodes generated by JS -->
             </div>
 
-            <div class="notion-paper" id="notionPaper" contenteditable="true" spellcheck="true">
+            <div class="notion-paper" id="notionPaper" contenteditable="{{ $isToday ? 'true' : 'false' }}" spellcheck="true">
                 @if(!empty($entries->first()?->narrative))
                     {!! $entries->first()->narrative !!}
                 @else
@@ -443,32 +580,39 @@ html, body {
                         @php $isChecked = in_array($act, $completedActivities); @endphp
                         <label class="routine-item {{ $isChecked ? 'checked' : '' }}" id="lbl_act_{{ $idx }}">
                             <input type="checkbox" name="completed_activities[]" value="{{ $act }}" 
-                                   {{ $isChecked ? 'checked' : '' }} onchange="toggleRoutineItem(this, 'lbl_act_{{ $idx }}')">
+                                   {{ $isChecked ? 'checked' : '' }} {{ !$isToday ? 'disabled' : '' }} onchange="toggleRoutineItem(this, 'lbl_act_{{ $idx }}')">
                             <span class="custom-chk"></span>
                             <span class="routine-text">{{ $act }}</span>
                         </label>
                     @empty
-                        <div style="font-size:11.5px; color:#64748b;">No routine tasks set for this month.</div>
+                        <div style="font-size:11px; color:#64748b;">No routine tasks set for this month.</div>
                     @endforelse
                 </div>
 
                 <!-- Journal & Reflection Note -->
-                <div class="sidebar-section-title" style="margin-top:14px;">
+                <div class="sidebar-section-title" style="margin-top:10px;">
                     <span>Journal & Reflection</span>
                 </div>
                 <textarea name="notes" id="sidebar_notes" class="sidebar-textarea" 
+                          {{ !$isToday ? 'readonly' : '' }}
                           placeholder="Record your discipline reflection, emotional state, or lessons learned for today...">{{ $dailyNotes }}</textarea>
 
-                <button type="button" class="aj-btn aj-btn-primary sidebar-save-btn" onclick="saveSidebarLog()">
-                    Save Routine & Notes
-                </button>
+                @if($isToday)
+                    <button type="button" class="aj-btn aj-btn-primary sidebar-save-btn" onclick="saveSidebarLog()">
+                        Save Routine & Notes
+                    </button>
+                @else
+                    <div style="font-size:11px; font-weight:700; color:#64748b; text-align:center; padding:7px; border:1px solid #232d3f; border-radius:7px; background:#121620; margin-top:8px;">
+                        🔒 Editing Locked (Only Today's Log Allowed)
+                    </div>
+                @endif
             </form>
         </div>
 
     </div>
 </div>
 
-{{-- ── Floating Tooltip Card for Navigation Hover (Matching Screenshot 2) ── --}}
+{{-- ── Floating Tooltip Card for Navigation Hover ── --}}
 <div class="outline-tooltip-card" id="outlineTooltip">
     <div class="outline-tooltip-title" id="tooltipTitle">SECTION TITLE</div>
     <div class="outline-tooltip-sub" id="tooltipSub">Details...</div>
@@ -501,6 +645,7 @@ html, body {
 @push('scripts')
 <script>
 const DATE = '{{ $date }}';
+const IS_TODAY = {{ $isToday ? 'true' : 'false' }};
 let saveTimeout = null;
 let activeTargetImg = null;
 let activeTargetBlock = null;
@@ -529,6 +674,7 @@ function togglePaperFullscreen() {
 }
 
 function toggleRoutineItem(chk, labelId) {
+    if (!IS_TODAY) return;
     const lbl = document.getElementById(labelId);
     if (chk.checked) {
         lbl.classList.add('checked');
@@ -546,6 +692,10 @@ function updateProgressPill() {
 }
 
 function saveSidebarLog() {
+    if (!IS_TODAY) {
+        alert('Saving logs for previous or future dates is prohibited. Logs can only be saved for today.');
+        return;
+    }
     const form = document.getElementById('sidebarLogForm');
     const formData = new FormData(form);
     
@@ -567,16 +717,14 @@ function saveSidebarLog() {
     .catch(() => alert('Error saving routine log.'));
 }
 
-/* ── MINIMALIST BAR HIERARCHY OUTLINE & SMART TOOLTIP (ROBUST ELEMENT SCANNER) ── */
+/* ── MINIMALIST BAR HIERARCHY OUTLINE & SMART TOOLTIP ── */
 function rebuildDocumentOutline() {
     const paper = document.getElementById('notionPaper');
     if (!paper) return;
 
-    // Scan for H1-H4, timeline blocks, or bold/heading paragraphs
-    let nodes = Array.from(paper.querySelectorAll('h1, h2, h3, h4, .tv-timeline-entry, p > strong, p > b'));
+    let nodes = Array.from(paper.querySelectorAll('h1, h2, h3, h4, .tv-embed-block, p > strong, p > b'));
     
-    // Filter out duplicate child nodes
-    nodes = nodes.filter((node, idx, self) => {
+    nodes = nodes.filter((node) => {
         if (node.tagName === 'STRONG' || node.tagName === 'B') {
             return node.parentElement && node.parentElement.textContent.trim().length < 40;
         }
@@ -586,7 +734,6 @@ function rebuildDocumentOutline() {
     const outlineContainer = document.getElementById('documentOutlineNav');
     const countBadge = document.getElementById('tocHeadingsCount');
 
-    // Default fallback if no headings exist yet
     if (nodes.length === 0) {
         outlineContainer.innerHTML = `
             <div class="outline-line-node level-h1" onclick="scrollToHeading(null)" onmouseenter="showOutlineTooltip(event, 'DOCUMENT TOP', 'H1')" onmouseleave="hideOutlineTooltip()"></div>
@@ -632,7 +779,7 @@ function showOutlineTooltip(e, title, tag) {
     document.getElementById('tooltipSub').textContent = `Section: ${tag} • Jump to Content`;
 
     const rect = e.target.getBoundingClientRect();
-    tt.style.left = (rect.left - 220) + 'px';
+    tt.style.left = (rect.left - 210) + 'px';
     tt.style.top = (rect.top - 10) + 'px';
     tt.style.display = 'block';
 }
@@ -652,7 +799,7 @@ function scrollToHeading(id) {
     if (paper && target) {
         const paperRect = paper.getBoundingClientRect();
         const targetRect = target.getBoundingClientRect();
-        const relativeTop = targetRect.top - paperRect.top + paper.scrollTop - 20;
+        const relativeTop = targetRect.top - paperRect.top + paper.scrollTop - 16;
 
         paper.scrollTo({ top: relativeTop, behavior: 'smooth' });
 
@@ -673,7 +820,7 @@ document.getElementById('notionPaper').addEventListener('contextmenu', function(
     if (img) {
         e.preventDefault();
         activeTargetImg = img;
-        activeTargetBlock = img.closest('.tv-timeline-entry') || img.closest('.tv-embed-block');
+        activeTargetBlock = img.closest('.tv-embed-block') || img.parentElement;
 
         const menu = document.getElementById('imgCtxMenu');
         menu.style.left = e.clientX + 'px';
@@ -698,7 +845,7 @@ function ctxAddCaption() {
         if (!caption) {
             caption = document.createElement('div');
             caption.className = 'tv-caption';
-            caption.setAttribute('contenteditable', 'true');
+            caption.setAttribute('contenteditable', IS_TODAY ? 'true' : 'false');
             caption.setAttribute('placeholder', 'Add a caption...');
             caption.textContent = 'Add image caption here...';
             activeTargetBlock.appendChild(caption);
@@ -721,6 +868,10 @@ function ctxViewFullscreen() {
 
 function ctxDeleteBlock() {
     document.getElementById('imgCtxMenu').style.display = 'none';
+    if (!IS_TODAY) {
+        alert('Editing past or future logs is locked.');
+        return;
+    }
     if (activeTargetBlock && confirm('Delete this image block?')) {
         activeTargetBlock.remove();
         triggerAutoSave();
@@ -728,7 +879,38 @@ function ctxDeleteBlock() {
     }
 }
 
+function addNewParagraphAtBottom() {
+    if (!IS_TODAY) {
+        alert('Editing past or future logs is locked.');
+        return;
+    }
+    const paper = document.getElementById('notionPaper');
+    if (!paper) return;
+
+    const p = document.createElement('p');
+    p.innerHTML = '<br>';
+    paper.appendChild(p);
+
+    // Place cursor inside the newly created paragraph
+    const range = document.createRange();
+    const sel = window.getSelection();
+    range.setStart(p, 0);
+    range.collapse(true);
+    sel.removeAllRanges();
+    sel.addRange(range);
+
+    paper.focus();
+    paper.scrollTo({ top: paper.scrollHeight, behavior: 'smooth' });
+
+    triggerAutoSave();
+    setTimeout(rebuildDocumentOutline, 100);
+}
+
 function execCmd(command, value = null) {
+    if (!IS_TODAY) {
+        alert('Editing past or future logs is locked.');
+        return;
+    }
     document.execCommand(command, false, value);
     document.getElementById('notionPaper').focus();
     triggerAutoSave();
@@ -744,12 +926,17 @@ function resolveTvUrl(url) {
 }
 
 function insertTvChartPrompt() {
+    if (!IS_TODAY) {
+        alert('Editing past or future logs is locked.');
+        return;
+    }
     const url = prompt('Paste TradingView snapshot link (e.g. https://www.tradingview.com/x/AbCdEfGh/):');
     if (url) embedChartAtCursor(url);
 }
 
-/* ── TIMELINE VIEW EMBED ── */
+/* ── EMBED CHART WITH TIME BADGE AT TOP LEFT OF THE IMAGE IN NOTION PAPER ── */
 function embedChartAtCursor(url) {
+    if (!IS_TODAY) return;
     const previewUrl = resolveTvUrl(url);
     if (!previewUrl) {
         alert('Invalid TradingView snapshot URL');
@@ -758,19 +945,12 @@ function embedChartAtCursor(url) {
     const timeStr = getHHMM();
     
     const embedHtml = `
-        <div class="tv-timeline-entry" contenteditable="false">
-            <div class="timeline-left-gutter">
-                <span class="timeline-time-tag">${timeStr}hrs</span>
-                <div class="timeline-v-line"></div>
-            </div>
-            <div class="timeline-body-content">
-                <div class="tv-embed-block">
-                    <img src="${previewUrl}" class="tv-embed-img" alt="Chart" onclick="openLightbox('${previewUrl}')">
-                    <a href="${url}" target="_blank" class="tv-open-link">Open in TradingView ↗</a>
-                </div>
-                <div class="tv-caption" contenteditable="true" placeholder="Right-click image to edit caption...">Add image caption...</div>
-            </div>
+        <div class="tv-embed-block" contenteditable="false">
+            <div class="tv-corner-time">${timeStr}hrs</div>
+            <img src="${previewUrl}" class="tv-embed-img" alt="Chart" onclick="openLightbox('${previewUrl}')">
+            <a href="${url}" target="_blank" class="tv-open-link">Open in TradingView ↗</a>
         </div>
+        <div class="tv-caption" contenteditable="true" placeholder="Right-click image to edit caption...">Add image caption...</div>
         <p><br></p>
     `;
     document.execCommand('insertHTML', false, embedHtml);
@@ -778,8 +958,18 @@ function embedChartAtCursor(url) {
     setTimeout(rebuildDocumentOutline, 100);
 }
 
+// Prevent tab key focus loss and insert tab indentation
+document.getElementById('notionPaper').addEventListener('keydown', function(e) {
+    if (e.key === 'Tab') {
+        if (!IS_TODAY) return;
+        e.preventDefault();
+        document.execCommand('insertHTML', false, '&nbsp;&nbsp;&nbsp;&nbsp;');
+    }
+});
+
 // Listen for paste event to auto-detect TradingView links
 document.getElementById('notionPaper').addEventListener('paste', function(e) {
+    if (!IS_TODAY) return;
     const text = (e.clipboardData || window.clipboardData).getData('text');
     if (text && /tradingview\.com\/x\/[a-zA-Z0-9]+/.test(text)) {
         e.preventDefault();
@@ -791,17 +981,20 @@ document.getElementById('notionPaper').addEventListener('paste', function(e) {
 });
 
 document.getElementById('notionPaper').addEventListener('input', function() {
+    if (!IS_TODAY) return;
     triggerAutoSave();
     rebuildDocumentOutline();
 });
 
 function triggerAutoSave() {
+    if (!IS_TODAY) return;
     document.getElementById('saveStatus').innerHTML = '<span style="color:#fbbf24;">Saving...</span>';
     clearTimeout(saveTimeout);
     saveTimeout = setTimeout(saveDocumentNow, 1200);
 }
 
 function saveDocumentNow() {
+    if (!IS_TODAY) return;
     const htmlContent = document.getElementById('notionPaper').innerHTML;
     const timeCode = getHHMM();
     fetch('/commitment-board/analysis/save-doc', {
