@@ -768,6 +768,7 @@
 
 @push('modals')
     @include('trades._export_ai')
+    @include('trades._copy_modal')
 @endpush
 
 @push('scripts')
@@ -783,6 +784,7 @@
             const tradeId = urlParams.get('trade_id');
 
             $("#entry_pd_array_s2").select2();
+            $("#copy_entry_pd_array_s2").select2();
 
             $('#add_trade_btn').click(function(e) {
                 e.preventDefault();
@@ -946,6 +948,115 @@
                     }
                 });
             });
+
+            // Copy Trade Modal Handler
+            $(document).on('click', '.copy_trade_btn', function(e) {
+                e.preventDefault();
+                let id = $(this).data('trade-id') || $(this).data('id');
+                if (!id) return;
+
+                $('#copy_trade_form')[0].reset();
+                $('#copy_source_trade_id').val(id);
+                $('#copy_entry_pd_array_s2').val(null).trigger('change');
+                $('#copy_trade_screenshots').prop('checked', true);
+
+                $.ajax({
+                    url: "{{ url('/trades') }}" + "/" + id + "/edit",
+                    type: 'GET',
+                    success: function(res) {
+                        $('#copy_trade_form').attr('action', "{{ url('/trades') }}" + "/" + id + "/copy");
+
+                        let assetName = res.asset || (res.associated_asset ? res.associated_asset.name : '');
+                        let directionText = (res.direction || '').toUpperCase();
+                        let dateText = res.trade_date || '';
+                        $('#copy_trade_source_info').html(`Cloning: <strong>${escapeHtml(assetName)}</strong> (${escapeHtml(directionText)}) on ${escapeHtml(dateText)}`);
+
+                        // Sizing inputs
+                        $('#copy_trade_account').val('');
+                        $('#copy_trade_rr').val(res.rr || '');
+                        $('#copy_trade_pnl').val(res.pnl || '0.00');
+
+                        // Copied fields
+                        $('#copy_trade_asset').val(res.asset_id || '');
+                        $('#copy_trade_date').val(res.trade_date || '');
+                        $('#copy_trade_direction').val(res.direction || 'long');
+                        $('#copy_trade_session').val(res.session || 'london_open');
+                        $('#copy_trade_entry_type').val(res.entry_type || 'market');
+                        $('#copy_trade_outcome').val('pending');
+                        $('#copy_trade_plan_followed').val(res.plan_followed !== undefined ? res.plan_followed : 1);
+                        $('#copy_trade_setup').val(res.setup || '');
+                        $('#copy_trade_news').val(res.news || '');
+                        $('#copy_trade_daily_log_url').val(res.daily_log_url || '');
+                        $('#copy_trade_emotions').val(res.emotions || '');
+                        $('#copy_trade_entry_narrative').val(res.entry_narrative || '');
+                        $('#copy_trade_notes').val(res.notes || '');
+                        $('#copy_trade_hin_day').prop('checked', res.hin_day == 1);
+
+                        // Select2 for entry_pd_array
+                        if (res.entry_pd_array) {
+                            let selected = Array.isArray(res.entry_pd_array) ? res.entry_pd_array : JSON.parse(res.entry_pd_array);
+                            $('#copy_entry_pd_array_s2').val(selected).trigger('change');
+                        }
+
+                        $('#copy_trade_modal').modal('show');
+                    },
+                    error: function() {
+                        iziToastNotify('error', 'Failed to load trade details for copying');
+                    }
+                });
+            });
+
+            $('#copy_trade_form').on('submit', function(e) {
+                e.preventDefault();
+                let form = $(this);
+                let targetAccount = $('#copy_trade_account').val();
+                if (!targetAccount) {
+                    iziToastNotify('error', 'Please select a target account to copy this trade to');
+                    return;
+                }
+
+                let formData = new FormData(this);
+                if ($('#copy_trade_rr').val() === '') {
+                    formData.append('rr', 0.00);
+                }
+                if ($('#copy_trade_pnl').val() === '') {
+                    formData.append('pnl', 0.00);
+                }
+
+                let entry_pds = $('#copy_entry_pd_array_s2').val();
+                if (entry_pds && entry_pds.length) {
+                    formData.append('entry_pd_array', JSON.stringify(entry_pds));
+                }
+
+                let url = form.attr('action');
+                let submitBtn = $('#submit_copy_trade_btn');
+                submitBtn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin mr-1"></i> Copying...');
+
+                $.ajax({
+                    url: url,
+                    method: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(res) {
+                        submitBtn.prop('disabled', false).html('<i class="dw dw-copy mr-1"></i> Copy Trade');
+                        if (res.success) {
+                            $('#copy_trade_modal').modal('hide');
+                            $('#copy_trade_form')[0].reset();
+                            table.draw();
+                            iziToastNotify('success', res.message || 'Trade copied successfully!');
+                        } else {
+                            iziToastNotify('error', res.message || 'Failed to copy trade');
+                        }
+                    },
+                    error: function(xhr) {
+                        submitBtn.prop('disabled', false).html('<i class="dw dw-copy mr-1"></i> Copy Trade');
+                        let errMsg = xhr.responseJSON?.message || 'Something went wrong while copying the trade';
+                        iziToastNotify('error', errMsg);
+                    }
+                });
+            });
+
             $('#filter_form').on('submit', function(e) {
                 e.preventDefault();
                 table.draw();
@@ -1360,10 +1471,17 @@
                         <div class="col-md-4">
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <strong>Screenshots</strong>
-                                <button class="btn btn-sm btn-outline-dark add_screenshot_btn"
-                                    data-trade_id="${escapeHtml(tradeId)}" style="display:${escapeHtml(status == 'open' ? 'inline-flex' : 'none')}; align-items: center; gap: 4px;">
-                                    <i class="dw dw-add"></i> Add
-                                </button>
+                                <div class="d-flex" style="gap: 5px;">
+                                    ${status == 'open' ? `
+                                    <button class="btn btn-sm btn-outline-success copy_trade_btn"
+                                        data-trade-id="${escapeHtml(tradeId)}" style="display: inline-flex; align-items: center; gap: 4px;" title="Copy Trade">
+                                        <i class="dw dw-copy"></i> Copy Trade
+                                    </button>` : ''}
+                                    <button class="btn btn-sm btn-outline-dark add_screenshot_btn"
+                                        data-trade_id="${escapeHtml(tradeId)}" style="display:${escapeHtml(status == 'open' ? 'inline-flex' : 'none')}; align-items: center; gap: 4px;">
+                                        <i class="dw dw-add"></i> Add
+                                    </button>
+                                </div>
                             </div>
                             <div class="mt-2">${thumbsHtml}</div>
                         </div>

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\DisciplineDailyAnalysis;
 use App\Models\DisciplineDailyLog;
 use App\Models\DisciplineMonthPlan;
+use App\Models\Reminder;
 use App\Models\Trade;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -604,6 +605,50 @@ class DisciplineCalendarController extends Controller
         $todayStr = now()->format('Y-m-d');
         $isToday  = ($date === $todayStr);
 
+        $dayStart = $carbon->copy()->startOfDay();
+        $dayEnd   = $carbon->copy()->endOfDay();
+        $dayName  = $carbon->format('l');
+
+        $userReminders = Reminder::where('user_id', $userId)
+            ->where('is_active', true)
+            ->where('created_at', '<=', $dayEnd)
+            ->where(function ($query) use ($dayStart) {
+                $query->whereNull('expires_at')
+                    ->orWhere('expires_at', '>=', $dayStart);
+            })
+            ->get();
+
+        $dayReminders = $userReminders->filter(function ($reminder) use ($carbon, $dayName) {
+            if ($reminder->frequency === 'once') {
+                if (!$reminder->remind_at) return false;
+                return $reminder->remind_at->format('Y-m-d') === $carbon->format('Y-m-d');
+            }
+
+            if ($reminder->frequency === 'daily') {
+                return true;
+            }
+
+            if ($reminder->frequency === 'weekly') {
+                $refDate = $reminder->remind_at ?? $reminder->created_at;
+                return $refDate ? ($refDate->dayOfWeek === $carbon->dayOfWeek) : true;
+            }
+
+            if ($reminder->frequency === 'custom') {
+                $days = is_array($reminder->recurrence_days) ? $reminder->recurrence_days : [];
+                return in_array($dayName, $days);
+            }
+
+            return false;
+        })->sortBy(function ($reminder) {
+            if ($reminder->frequency === 'once' && $reminder->remind_at) {
+                return $reminder->remind_at->format('H:i');
+            }
+            if ($reminder->frequency === 'daily' && is_array($reminder->recurrence_days) && !empty($reminder->recurrence_days)) {
+                return sprintf('%02d:00', min($reminder->recurrence_days));
+            }
+            return '23:59';
+        })->values();
+
         return view('discipline.analysis_page', [
             'date'                => $date,
             'carbon'              => $carbon,
@@ -620,6 +665,7 @@ class DisciplineCalendarController extends Controller
             'completedActivities' => $completedActivities,
             'dailyNotes'          => $dailyNotes,
             'dailyLog'            => $dailyLog,
+            'reminders'           => $dayReminders,
         ]);
     }
 }

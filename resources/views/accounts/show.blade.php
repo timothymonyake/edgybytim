@@ -124,6 +124,35 @@
                 </div>
             </div>
         @endif
+
+        @if($account->has_consistency_rule)
+            @php
+                $cStats = $account->consistency_stats;
+            @endphp
+            <div class="col-md-4 mb-20">
+                <div class="p-3 border rounded" style="background: #fbfdff; border-color: #b8daff !important;">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="weight-600 text-primary"><i class="dw dw-calculator mr-1"></i> Consistency Rule ({{ $cStats['rule_percent'] }}%)</span>
+                        <span class="badge badge-{{ $cStats['is_compliant'] ? 'success' : 'warning' }} font-12">
+                            {{ $cStats['is_compliant'] ? 'Compliant' : 'Needs Profit' }}
+                        </span>
+                    </div>
+                    <div class="d-flex justify-content-between font-12 text-muted mb-1">
+                        <span>Current Consistency: <strong>{{ $cStats['current_consistency_pct'] }}%</strong></span>
+                        <span>Best Day: <strong>${{ number_format($cStats['best_day_profit'], 2) }}</strong></span>
+                    </div>
+                    <div class="progress" style="height: 12px;">
+                        <div class="progress-bar bg-{{ $cStats['is_compliant'] ? 'success' : 'warning' }}" role="progressbar" style="width: {{ min(100, $cStats['current_consistency_pct']) }}%"></div>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mt-2 font-12">
+                        <span class="text-muted">Target Profit: <strong>${{ number_format($cStats['target_total_profit'], 2) }}</strong></span>
+                        <a href="{{ route('consistency.index', ['account_id' => $account->id]) }}" class="font-weight-bold text-primary">
+                            Calculator & Scenarios <i class="dw dw-right-arrow1"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        @endif
     </div>
 </div>
 @endif

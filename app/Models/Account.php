@@ -24,6 +24,9 @@ class Account extends Model
         'profit_target',
         'max_daily_loss',
         'max_total_loss',
+        'has_consistency_rule',
+        'consistency_rule_percent',
+        'consistency_rule_type',
         'leverage',
         'timezone',
         'color',
@@ -39,6 +42,8 @@ class Account extends Model
         'profit_target' => 'float',
         'max_daily_loss' => 'float',
         'max_total_loss' => 'float',
+        'has_consistency_rule' => 'boolean',
+        'consistency_rule_percent' => 'float',
         'start_date' => 'date',
         'end_date' => 'date',
     ];
@@ -99,4 +104,78 @@ class Account extends Model
     {
         return $this->trades()->count();
     }
+
+    /**
+     * Get Consistency Rule compliance statistics
+     */
+    public function getConsistencyStatsAttribute()
+    {
+        $rulePercent = (float) ($this->consistency_rule_percent ?: 50.0);
+        $ruleType = $this->consistency_rule_type ?: 'day';
+        
+        $closedTrades = $this->trades()->where('status', 'closed')->get();
+        $totalPnl = (float) $closedTrades->sum('pnl');
+
+        // Group by trade_date for day calculations
+        $days = $closedTrades->groupBy(function($t) {
+            return $t->trade_date ? substr($t->trade_date, 0, 10) : 'unknown';
+        })->map(function($tradesOnDay, $date) {
+            $pnl = (float) $tradesOnDay->sum('pnl');
+            $tradesCount = $tradesOnDay->count();
+            return [
+                'date' => $date,
+                'pnl' => $pnl,
+                'trades_count' => $tradesCount,
+            ];
+        })->values();
+
+        $bestDayProfit = (float) $days->where('pnl', '>', 0)->max('pnl') ?: 0.0;
+        $bestTradeProfit = (float) $closedTrades->where('pnl', '>', 0)->max('pnl') ?: 0.0;
+
+        $outlierValue = ($ruleType === 'trade') ? $bestTradeProfit : $bestDayProfit;
+
+        $currentConsistencyPct = 0.0;
+        if ($totalPnl > 0 && $outlierValue > 0) {
+            $currentConsistencyPct = round(($outlierValue / $totalPnl) * 100, 2);
+        } elseif ($outlierValue > 0 && $totalPnl <= 0) {
+            $currentConsistencyPct = 100.0; // In deficit or break-even with a winning day
+        }
+
+        $targetTotalProfit = 0.0;
+        if ($outlierValue > 0 && $rulePercent > 0) {
+            $targetTotalProfit = round($outlierValue / ($rulePercent / 100.0), 2);
+        }
+
+        $additionalProfitNeeded = 0.0;
+        if ($targetTotalProfit > $totalPnl) {
+            $additionalProfitNeeded = round($targetTotalProfit - $totalPnl, 2);
+        }
+
+        $isCompliant = ($totalPnl > 0 && $outlierValue > 0 && $currentConsistencyPct <= $rulePercent);
+        if ($outlierValue == 0 && $totalPnl >= 0) {
+            $isCompliant = true; // No winning trades yet, compliant by default
+        }
+
+        // Remaining to account profit target if defined
+        $accountProfitTarget = (float) ($this->profit_target ?: 0.0);
+        $remainingToTarget = max(0.0, round($accountProfitTarget - $totalPnl, 2));
+
+        return [
+            'has_rule' => (bool) $this->has_consistency_rule,
+            'rule_percent' => $rulePercent,
+            'rule_type' => $ruleType,
+            'total_pnl' => round($totalPnl, 2),
+            'best_day_profit' => round($bestDayProfit, 2),
+            'best_trade_profit' => round($bestTradeProfit, 2),
+            'outlier_value' => round($outlierValue, 2),
+            'current_consistency_pct' => $currentConsistencyPct,
+            'target_total_profit' => $targetTotalProfit,
+            'additional_profit_needed' => $additionalProfitNeeded,
+            'is_compliant' => $isCompliant,
+            'account_profit_target' => $accountProfitTarget,
+            'remaining_to_target' => $remainingToTarget,
+            'days_breakdown' => $days->sortByDesc('date')->values()->toArray(),
+        ];
+    }
 }
+

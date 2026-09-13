@@ -97,15 +97,26 @@ const ReminderSystem = {
 
         if (reminder.frequency === 'daily') {
             const currentHour = now.getHours();
-            const selectedHours = Array.isArray(reminder.recurrence_days) ? reminder.recurrence_days : [];
+            const currentMin = now.getMinutes();
+            const selectedTimes = Array.isArray(reminder.recurrence_days) ? reminder.recurrence_days : [];
 
-            if (selectedHours.length > 0) {
-                // Hour-based daily: Check if current hour is selected
-                if (selectedHours.includes(currentHour.toString()) || selectedHours.includes(currentHour)) {
-                    // Only notify if we haven't notified in THIS specific hour today
+            if (selectedTimes.length > 0) {
+                // Check if matching exact time or hour
+                const isMatch = selectedTimes.some(t => {
+                    const str = t.toString().trim();
+                    if (str.includes(':')) {
+                        const parts = str.split(':');
+                        const h = parseInt(parts[0], 10);
+                        const m = parseInt(parts[1], 10);
+                        return h === currentHour && Math.abs(currentMin - m) <= 1;
+                    }
+                    return parseInt(str, 10) === currentHour;
+                });
+
+                if (isMatch) {
                     if (!lastReminded ||
                         lastReminded.toDateString() !== now.toDateString() ||
-                        lastReminded.getHours() !== currentHour) {
+                        Math.abs(now - lastReminded) > 120000) {
                         shouldShow = true;
                     }
                 }

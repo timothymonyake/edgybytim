@@ -20,21 +20,47 @@ class ReminderController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'content' => 'nullable|string',
-            'remind_at' => 'nullable|date',
-            'frequency' => 'required|in:once,daily,weekly,custom',
+            'remind_at' => 'nullable',
+            'frequency' => 'required|in:once,daily,weekly,custom,custom_days',
             'recurrence_days' => 'nullable|array',
-            'expires_at' => 'nullable|date',
+            'daily_time' => 'nullable|string',
+            'expires_at' => 'nullable',
         ]);
+
+        $frequency = ($validated['frequency'] === 'custom_days') ? 'custom' : $validated['frequency'];
+        $recurrenceDays = is_array($validated['recurrence_days'] ?? null) ? $validated['recurrence_days'] : [];
+
+        if ($frequency === 'daily') {
+            if (!empty($request->daily_time) && !in_array($request->daily_time, $recurrenceDays)) {
+                $recurrenceDays[] = $request->daily_time;
+            }
+            $recurrenceDays = !empty($recurrenceDays) ? array_values(array_unique(array_filter($recurrenceDays))) : null;
+        } elseif ($validated['frequency'] === 'custom' && empty($recurrenceDays)) {
+            // Trading weekdays Mon-Fri
+            $recurrenceDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+        } else {
+            $recurrenceDays = !empty($recurrenceDays) ? array_values(array_unique(array_filter($recurrenceDays))) : null;
+        }
+
+        $remindAt = null;
+        if (!empty($validated['remind_at'])) {
+            try { $remindAt = \Carbon\Carbon::parse($validated['remind_at']); } catch (\Exception $e) {}
+        }
+
+        $expiresAt = null;
+        if (!empty($validated['expires_at'])) {
+            try { $expiresAt = \Carbon\Carbon::parse($validated['expires_at']); } catch (\Exception $e) {}
+        }
 
         Reminder::create([
             'user_id' => auth()->id(),
             'title' => $validated['title'],
             'content' => $validated['content'] ?? '',
-            'remind_at' => $validated['remind_at'] ?? null,
-            'frequency' => $validated['frequency'],
-            'recurrence_days' => $validated['recurrence_days'] ?? null,
+            'remind_at' => $remindAt,
+            'frequency' => $frequency,
+            'recurrence_days' => $recurrenceDays,
             'is_active' => true,
-            'expires_at' => $validated['expires_at'] ?? null,
+            'expires_at' => $expiresAt,
         ]);
 
         return back()->with('success', 'Reminder saved.');

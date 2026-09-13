@@ -70,6 +70,9 @@ class AccountController extends Controller
             'profit_target' => 'nullable|numeric',
             'max_daily_loss' => 'nullable|numeric',
             'max_total_loss' => 'nullable|numeric',
+            'has_consistency_rule' => 'nullable|boolean',
+            'consistency_rule_percent' => 'nullable|numeric|min:1|max:100',
+            'consistency_rule_type' => 'nullable|string|in:day,trade',
             'leverage' => 'nullable|string|max:50',
             'timezone' => 'nullable|string|max:100',
             'color' => 'nullable|string|max:20',
@@ -81,6 +84,9 @@ class AccountController extends Controller
         $validated['user_id'] = Auth::id();
         $validated['currency'] = $validated['currency'] ?? 'USD';
         $validated['color'] = $validated['color'] ?? '#3b82f6';
+        $validated['has_consistency_rule'] = $request->boolean('has_consistency_rule');
+        $validated['consistency_rule_percent'] = $request->input('consistency_rule_percent') ?? 50.0;
+        $validated['consistency_rule_type'] = $request->input('consistency_rule_type') ?? 'day';
         if (!isset($validated['current_balance']) || $validated['current_balance'] === null) {
             $validated['current_balance'] = $validated['initial_balance'];
         }
@@ -253,6 +259,9 @@ class AccountController extends Controller
             'profit_target' => 'nullable|numeric',
             'max_daily_loss' => 'nullable|numeric',
             'max_total_loss' => 'nullable|numeric',
+            'has_consistency_rule' => 'nullable|boolean',
+            'consistency_rule_percent' => 'nullable|numeric|min:1|max:100',
+            'consistency_rule_type' => 'nullable|string|in:day,trade',
             'leverage' => 'nullable|string|max:50',
             'timezone' => 'nullable|string|max:100',
             'color' => 'nullable|string|max:20',
@@ -260,6 +269,10 @@ class AccountController extends Controller
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date',
         ]);
+
+        $validated['has_consistency_rule'] = $request->boolean('has_consistency_rule');
+        $validated['consistency_rule_percent'] = $request->input('consistency_rule_percent') ?? 50.0;
+        $validated['consistency_rule_type'] = $request->input('consistency_rule_type') ?? 'day';
 
         $account->update($validated);
 

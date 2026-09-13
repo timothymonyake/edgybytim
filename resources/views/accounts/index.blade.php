@@ -42,6 +42,7 @@
                         </button>
                         <div class="dropdown-menu dropdown-menu-right">
                             <a class="dropdown-item" href="{{ route('accounts.show', $acc->id) }}"><i class="dw dw-analytics-21"></i> Analytics Details</a>
+                            <a class="dropdown-item" href="{{ route('consistency.index', ['account_id' => $acc->id]) }}"><i class="dw dw-calculator"></i> Consistency Calculator</a>
                             <a class="dropdown-item edit-account-btn" href="javascript:void(0)" data-account='@json($acc)'><i class="dw dw-edit2"></i> Edit Account</a>
                             <a class="dropdown-item toggle-archive-btn" href="javascript:void(0)" data-id="{{ $acc->id }}"><i class="dw dw-archive"></i> {{ $acc->status === 'Archived' ? 'Unarchive' : 'Archive' }}</a>
                             <form action="{{ route('accounts.destroy', $acc->id) }}" method="POST" class="delete-account-form" style="display: inline;">
@@ -53,10 +54,17 @@
                     </div>
                 </div>
 
-                <div class="d-flex justify-content-between mb-10">
-                    <span class="badge badge-outline-secondary font-12" style="border: 1px solid #ddd; padding: 4px 8px; border-radius: 4px;">
-                        <i class="dw dw-layers mr-1"></i> {{ $acc->phase }}
-                    </span>
+                <div class="d-flex justify-content-between align-items-center mb-10 flex-wrap" style="gap: 5px;">
+                    <div>
+                        <span class="badge badge-outline-secondary font-12 mr-1" style="border: 1px solid #ddd; padding: 4px 8px; border-radius: 4px;">
+                            <i class="dw dw-layers mr-1"></i> {{ $acc->phase }}
+                        </span>
+                        @if($acc->has_consistency_rule)
+                            <a href="{{ route('consistency.index', ['account_id' => $acc->id]) }}" class="badge badge-info font-12 text-white" style="padding: 4px 8px; border-radius: 4px; text-decoration: none;" title="Open in Consistency Calculator">
+                                <i class="dw dw-calculator mr-1"></i> {{ $acc->consistency_rule_percent ?? 50 }}% {{ ucfirst($acc->consistency_rule_type ?? 'day') }}
+                            </a>
+                        @endif
+                    </div>
                     <span class="badge badge-{{ $acc->status === 'Active' ? 'success' : ($acc->status === 'Passed' ? 'info' : ($acc->status === 'Failed' ? 'danger' : 'secondary')) }} font-12" style="padding: 4px 8px; border-radius: 4px;">
                         {{ $acc->status }}
                     </span>
@@ -243,6 +251,49 @@
                             </div>
                         </div>
 
+                        <!-- Consistency Rule Configuration -->
+                        <div class="col-md-12">
+                            <div class="card p-3 mb-3" style="background: #f0f4ff; border: 1.5px dashed #4b70e2; border-radius: 8px;">
+                                <div class="custom-control custom-checkbox mb-2">
+                                    <input type="checkbox" class="custom-control-input" id="has_consistency_rule_check" name="has_consistency_rule" value="1">
+                                    <label class="custom-control-label font-weight-bold text-primary" for="has_consistency_rule_check">
+                                        <i class="dw dw-calculator mr-1"></i> Has Prop Firm Consistency Rule? (e.g. The5ers, FTMO)
+                                    </label>
+                                </div>
+                                <div id="consistency_rule_fields" style="display: none;">
+                                    <p class="font-12 text-muted mb-2">Configure the consistency limit for this account to track compliance in the Consistency Calculator.</p>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group mb-2">
+                                                <label class="font-13">Max Profit Limit (%)</label>
+                                                <div class="input-group">
+                                                    <input type="number" step="1" min="1" max="100" name="consistency_rule_percent" id="consistency_rule_percent_input" class="form-control" value="50" placeholder="50">
+                                                    <div class="input-group-append">
+                                                        <span class="input-group-text">%</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="btn-group btn-group-sm mb-2" role="group">
+                                                <button type="button" class="btn btn-outline-primary consistency-preset-btn" data-val="50">50% (High Stakes)</button>
+                                                <button type="button" class="btn btn-outline-primary consistency-preset-btn" data-val="40">40% (Bootcamp)</button>
+                                                <button type="button" class="btn btn-outline-primary consistency-preset-btn" data-val="33">33%</button>
+                                                <button type="button" class="btn btn-outline-primary consistency-preset-btn" data-val="20">20%</button>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group mb-2">
+                                                <label class="font-13">Rule Applied To</label>
+                                                <select name="consistency_rule_type" id="consistency_rule_type_select" class="form-control">
+                                                    <option value="day">Single Trading Day (Max % of Total Profit)</option>
+                                                    <option value="trade">Single Trade (Max % of Total Profit)</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label>Start Date</label>
@@ -277,6 +328,18 @@
 @push('scripts')
 <script>
 $(document).ready(function() {
+    $('#has_consistency_rule_check').change(function() {
+        if ($(this).is(':checked')) {
+            $('#consistency_rule_fields').slideDown();
+        } else {
+            $('#consistency_rule_fields').slideUp();
+        }
+    });
+
+    $('.consistency-preset-btn').click(function() {
+        $('#consistency_rule_percent_input').val($(this).data('val'));
+    });
+
     $('#open_create_account_modal, #empty_state_add_btn').click(function() {
         $('#account_form')[0].reset();
         $('#account_form input[name="_method"]').remove();
@@ -284,6 +347,10 @@ $(document).ready(function() {
         $('#account_modal_title').text('Add Trading Account');
         $('#account_submit_btn').text('Create Account');
         $('[name="color"]').val('#3b82f6');
+        $('#has_consistency_rule_check').prop('checked', false);
+        $('#consistency_rule_fields').hide();
+        $('#consistency_rule_percent_input').val(50);
+        $('#consistency_rule_type_select').val('day');
         $('#account_modal').modal('show');
     });
 
@@ -312,6 +379,19 @@ $(document).ready(function() {
         $('[name="max_total_loss"]').val(acc.max_total_loss);
         $('[name="leverage"]').val(acc.leverage);
         $('[name="color"]').val(acc.color || '#3b82f6');
+        
+        if (acc.has_consistency_rule) {
+            $('#has_consistency_rule_check').prop('checked', true);
+            $('#consistency_rule_fields').show();
+            $('#consistency_rule_percent_input').val(acc.consistency_rule_percent || 50);
+            $('#consistency_rule_type_select').val(acc.consistency_rule_type || 'day');
+        } else {
+            $('#has_consistency_rule_check').prop('checked', false);
+            $('#consistency_rule_fields').hide();
+            $('#consistency_rule_percent_input').val(50);
+            $('#consistency_rule_type_select').val('day');
+        }
+
         if (acc.start_date) $('[name="start_date"]').val(acc.start_date.split('T')[0]);
         if (acc.end_date) $('[name="end_date"]').val(acc.end_date.split('T')[0]);
         $('[name="notes"]').val(acc.notes);

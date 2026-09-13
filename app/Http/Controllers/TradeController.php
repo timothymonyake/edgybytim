@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Trade;
+use App\Models\TradeScreenshot;
 use App\Models\Asset;
 use App\Models\AssetType;
 use App\Models\Account;
@@ -210,8 +211,9 @@ class TradeController extends Controller
                     return '';
                 }
                 return '
-                    <button class="btn btn-sm btn-warning edit-trade" data-id="' . $row->id . '"><i class="dw dw-edit2"></i></button>
-                    <button class="btn btn-sm btn-danger delete-trade" data-id="' . $row->id . '"><i class="dw dw-delete-3"></i></button>
+                    <button class="btn btn-sm btn-success copy_trade_btn" data-trade-id="' . $row->id . '" title="Copy Trade"><i class="dw dw-copy"></i></button>
+                    <button class="btn btn-sm btn-warning edit-trade" data-id="' . $row->id . '" title="Edit Trade"><i class="dw dw-edit2"></i></button>
+                    <button class="btn btn-sm btn-danger delete-trade" data-id="' . $row->id . '" title="Delete Trade"><i class="dw dw-delete-3"></i></button>
                 ';
             })
             ->rawColumns(['actions', 'account', 'hin_day', 'screenshots', 'status', 'trade_status', 'entry_pd_array', 'plan_followed', 'direction', 'outcome', 'rr', 'session', 'asset'])
@@ -221,6 +223,56 @@ class TradeController extends Controller
     public function edit(Trade $trade)
     {
         return response()->json($trade);
+    }
+
+    // Copy open trade to target account
+    public function copy(Request $request, Trade $trade)
+    {
+        try {
+            $data = $request->except(['_token', 'copy_screenshots', 'source_trade_id']);
+            $data['user_id'] = Auth::id();
+
+            // Set account_id or clean to null
+            if (empty($data['account_id']) || $data['account_id'] == '0') {
+                $data['account_id'] = null;
+            }
+
+            // A copied open trade remains open with pending outcome by default
+            $data['status'] = $data['status'] ?? 'open';
+            if (empty($data['outcome'])) {
+                $data['outcome'] = 'pending';
+            }
+
+            // Convert entry_pd_array if sent as array or string
+            if (isset($data['entry_pd_array']) && is_string($data['entry_pd_array'])) {
+                $decoded = json_decode($data['entry_pd_array'], true);
+                if (json_last_error() === JSON_ERROR_NONE) {
+                    $data['entry_pd_array'] = $decoded;
+                }
+            }
+
+            $newTrade = Trade::create($data);
+
+            // Copy screenshots if requested (default true)
+            if ($request->boolean('copy_screenshots', true) && $trade->screenshots()->exists()) {
+                foreach ($trade->screenshots as $screenshot) {
+                    TradeScreenshot::create([
+                        'trade_id' => $newTrade->id,
+                        'when'     => $screenshot->when,
+                        'url'      => $screenshot->url,
+                        'notes'    => $screenshot->notes,
+                    ]);
+                }
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Trade copied successfully!',
+                'trade'   => $newTrade
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json(['success' => false, 'message' => $th->getMessage()]);
+        }
     }
 
     // Store trade

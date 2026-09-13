@@ -32,6 +32,9 @@
                 <a class="dropdown-item" href="{{ route('commitment.index') }}" style="font-weight: 600; color: #1b00ff;">
                     <i class="dw dw-target"></i> Commitment Board
                 </a>
+                <a class="dropdown-item" href="{{ route('consistency.index') }}">
+                    <i class="dw dw-calculator"></i> Consistency Calculator
+                </a>
                 <a class="dropdown-item" href="{{ route('milestones.index') }}">
                     <i class="dw dw-flag"></i> Milestones
                 </a>

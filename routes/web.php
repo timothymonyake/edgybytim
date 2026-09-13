@@ -12,6 +12,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AIInsightsController;
 use App\Http\Controllers\AssetController;
 use App\Http\Controllers\AccountController;
+use App\Http\Controllers\ConsistencyCalculatorController;
 
 // Public routes
 Route::get('/login', function () {
@@ -49,6 +50,7 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/trades/{trade}', [TradeController::class, 'destroy'])->name('trades.destroy');
     Route::put('/trades/{trade}', [TradeController::class, 'update'])->name('trades.update');
     Route::get('/trades/{trade}/edit', [TradeController::class, 'edit'])->name('trades.edit');
+    Route::post('/trades/{trade}/copy', [TradeController::class, 'copy'])->name('trades.copy');
     Route::post('/trades/{trade}/screenshots', [TradeScreenshotController::class, 'store'])->name('screenshots.store');
     Route::delete('/screenshots/{screenshot}', [TradeScreenshotController::class, 'destroy'])->name('screenshots.destroy');
     Route::get('/screenshots/{screenshot}/edit', [TradeScreenshotController::class, 'edit'])
@@ -101,6 +103,10 @@ Route::middleware(['auth'])->group(function () {
     // Accounts
     Route::post('/accounts/{account}/archive', [AccountController::class, 'archive'])->name('accounts.archive');
     Route::resource('accounts', AccountController::class);
+
+    // Consistency Compliance Calculator
+    Route::get('/consistency-calculator', [ConsistencyCalculatorController::class, 'index'])->name('consistency.index');
+    Route::get('/consistency-calculator/data/{account}', [ConsistencyCalculatorController::class, 'getAccountData'])->name('consistency.data');
 
     // Single Trade View
     Route::get('/trades/{trade}', [TradeController::class, 'show'])->name('trades.show');

@@ -311,6 +311,96 @@ html, body {
 .ctx-item:hover { background: #1e293b; color: #38bdf8; }
 .ctx-divider { height: 1px; background: #2d3748; margin: 3px 0; }
 
+/* ── LEFT COLUMN: TRADEZELLA-GRADE DAILY REMINDERS ── */
+.reminders-list-container { display: flex; flex-direction: column; gap: 8px; }
+.reminder-item-card {
+    background: #121620;
+    border: 1px solid #232d3f;
+    border-left: 3px solid #38bdf8;
+    border-radius: 8px;
+    padding: 10px 12px;
+    transition: all .18s ease;
+    position: relative;
+}
+.reminder-item-card:hover {
+    border-color: #334155;
+    border-left-color: #00f0ff;
+    background: #161c28;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+}
+.reminder-card-top-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 5px;
+}
+.reminder-rule-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px;
+    font-weight: 700;
+    color: #38bdf8;
+    background: rgba(56, 189, 248, 0.1);
+    border: 1px solid rgba(56, 189, 248, 0.22);
+    padding: 1px 6px;
+    border-radius: 4px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+.reminder-card-icon {
+    color: #64748b;
+    transition: color 0.15s ease;
+}
+.reminder-item-card:hover .reminder-card-icon {
+    color: #38bdf8;
+}
+.reminder-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: #f8fafc;
+    line-height: 1.4;
+    word-break: break-word;
+    letter-spacing: -0.15px;
+}
+.reminder-content {
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    color: #94a3b8;
+    line-height: 1.45;
+    margin-top: 6px;
+    word-break: break-word;
+    background: #0b0f17;
+    padding: 6px 9px;
+    border-radius: 5px;
+    border: 1px solid rgba(255,255,255,0.04);
+}
+.reminder-empty-state {
+    text-align: center;
+    padding: 24px 10px;
+    background: rgba(18, 22, 32, 0.6);
+    border: 1px dashed #232d3f;
+    border-radius: 8px;
+    color: #64748b;
+}
+.reminder-empty-icon {
+    color: #475569;
+    margin-bottom: 6px;
+    display: inline-block;
+}
+.manage-reminders-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #38bdf8;
+    text-decoration: none;
+    transition: color .15s;
+}
+.manage-reminders-link:hover { color: #7dd3fc; text-decoration: underline; }
+.manage-reminders-link:hover { color: #7dd3fc; text-decoration: underline; }
+
 /* ── RIGHT COLUMN: ROUTINE CHECKLIST & REFLECTION ── */
 .routine-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
 .routine-item {
@@ -530,16 +620,57 @@ html, body {
 <div class="fixed-workspace-container">
     <div class="workspace-grid">
 
-        {{-- LEFT COLUMN: Left Sidebar Panel --}}
+        {{-- LEFT COLUMN: Left Sidebar Panel (Daily Reminders) --}}
         <div class="sidebar-panel left-nav-panel">
             <div class="sidebar-section-title">
-                <span>Page Context</span>
-                <span class="progress-pill" style="color:#38bdf8; background:rgba(56,189,248,0.12);" id="tocHeadingsCount">1 Section</span>
+                <span style="display:inline-flex; align-items:center; gap:6px;">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                    </svg>
+                    <span>Reminders</span>
+                </span>
+                <span class="progress-pill" style="color:{{ count($reminders) > 0 ? '#38bdf8' : '#64748b' }}; background:{{ count($reminders) > 0 ? 'rgba(56,189,248,0.12)' : 'rgba(100,116,139,0.12)' }}; border:1px solid {{ count($reminders) > 0 ? 'rgba(56,189,248,0.25)' : 'transparent' }};">
+                    {{ count($reminders) }} {{ count($reminders) === 1 ? 'Active' : 'Active' }}
+                </span>
             </div>
 
-            <div style="font-size:11.5px; color:#64748b; line-height:1.5;">
-                <p>📌 <b>Daily Analysis Journal</b></p>
-                <p>Use the floating outline bar on the right edge of the editor canvas to jump to specific document sections.</p>
+            <div class="reminders-list-container">
+                @forelse($reminders as $idx => $rem)
+                    <div class="reminder-item-card">
+                        <div class="reminder-card-top-row">
+                            <span class="reminder-rule-tag">Rule {{ sprintf('%02d', $idx + 1) }}</span>
+                            <span class="reminder-card-icon">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+                                </svg>
+                            </span>
+                        </div>
+                        <div class="reminder-title">{{ $rem->title }}</div>
+                        @if(!empty($rem->content))
+                            <div class="reminder-content">{{ $rem->content }}</div>
+                        @endif
+                    </div>
+                @empty
+                    <div class="reminder-empty-state">
+                        <svg class="reminder-empty-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                        </svg>
+                        <p style="font-size:11.5px; margin-bottom:2px; font-weight:600; color:#cbd5e1;">No Active Reminders</p>
+                        <p style="font-size:10.5px; margin-bottom:0; color:#64748b; line-height:1.4;">Active trading rules will appear here.</p>
+                    </div>
+                @endforelse
+            </div>
+
+            <div style="margin-top:12px; padding-top:10px; border-top:1px solid rgba(255,255,255,0.06); display:flex; justify-content:space-between; align-items:center;">
+                <a href="{{ route('reminders.index') }}" target="_blank" class="manage-reminders-link" title="Open Reminders Manager">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                    <span>Manage All</span>
+                </a>
+                <button type="button" class="aj-btn" style="padding:2px 8px; font-size:11px;" data-toggle="modal" data-target="#reminderModal">
+                    <i class="fa fa-plus"></i> Add
+                </button>
             </div>
         </div>
 
@@ -640,6 +771,8 @@ html, body {
     <span class="lightbox-close">×</span>
     <img src="" id="lbImg" alt="Chart">
 </div>
+
+@include('reminders._form')
 @endsection
 
 @push('scripts')
